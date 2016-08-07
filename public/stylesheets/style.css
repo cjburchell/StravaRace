@@ -1,0 +1,13 @@
+.affix  {
+  top: 0;
+  width: 100%;
+}
+
+.affix + .container-fluid {
+  padding-top: 70px;
+}
+
+.btn {
+  white-space: normal;
+  margin-bottom: 20px;
+}

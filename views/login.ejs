@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- Latest compiled and minified CSS -->
+
+<html>
+<head>
+    <% include partials/template/head.ejs %>
+    <style>
+        .loginpage{
+            background-image: url(images/title.jpg);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            background-size: cover;
+            text-align: center;
+        }
+
+        .loginHeader{
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .loginBody{
+            text-align: center;
+            color: #ffffff;
+            margin: auto;
+            width: 60%;
+            padding: 10px;
+            background:rgba(0,0,0,0.5);
+            border-radius: 25px;
+        }
+    </style>
+</head>
+
+<body class="loginpage">
+<header>
+    <h1 class="loginHeader">Strava Race</h1>
+</header>
+<div class="loginBody">
+    <h3>Join and create races based on Strava segments.</h3>
+    <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
+</div>
+<% include partials/template/jsdefaults.ejs %>
+</body>
+</html>
+

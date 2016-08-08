@@ -9,5 +9,30 @@
 
 .btn {
   white-space: normal;
-  margin-bottom: 20px;
+}
+
+.poweredbystrava {
+  background-image: url(../images/stravalogo.png);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  width: 95px;
+  height: 20px !important;
+  margin: 10px 0 0 5px;
+  text-indent: -10000px;
+  padding: 0 !important;
+  display: inline-block !important;
+}
+
+.poweredbywrapper {
+    display: block;
+    text-align: center;
+    vertical-align: center;
+  }
+
+.poweredbywrapper {
+  vertical-align: bottom;
+  margin-bottom: 2px;
+  margin-left: 5px;
+  color: #999999;
 }

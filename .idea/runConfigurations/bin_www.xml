@@ -2,8 +2,16 @@
   <configuration default="false" name="bin\www" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" path-to-js-file="bin/www" working-dir="$PROJECT_DIR$">
     <envs>
       <env name="DEBUG" value="StravaRace:*" />
+      <env name="STRAVA_CLIENT_SECRET" value="c61800b62c34c0866c20a22bd4cddf6a1b40aa23" />
+      <env name="STRAVA_CLIENT_ID" value="12880" />
+      <env name="STRAVA_ACCESS_TOKEN" value="464816b4a3b72fecbe64e776de5bfe7b2a59eb95" />
+      <env name="STRAVA_REDIRECT_URI" value="http://localhost:3000/login" />
     </envs>
     <browser url="http://localhost:3000/" />
+    <profiling v8-profiler-path="" />
+    <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSProfilingRunConfigurationExtension">
+      <profiling v8-profiler-path="" />
+    </EXTENSION>
     <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
       <browser url="http://localhost:3000/" />
     </EXTENSION>

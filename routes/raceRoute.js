@@ -40,7 +40,7 @@ router.get('/create', function(req, res) {
 router.get('/edit/:id', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getRace(req.params.id, function (err , result) {
+        database.getDocument(req.params.id, function (err , result) {
             if(!err) {
                 var editRace = result;
                 if (editRace.ownerId === req.session.athlete.id) {
@@ -100,15 +100,23 @@ router.get('/join', function(req, res) {
                 var data = {
                     mode: 'race',
                     athlete: req.session.athlete,
-                    races: result
+                    races: []
                 };
+                var currentTime = new Date();
+
+                function filterRace(item) {
+                    if((new Date(item.endTime) - currentTime) > 0)
+                    {
+                        data.races.push(item);
+                    }
+                }
+
+                result.forEach(filterRace);
 
                 database.getPrivateRaces(req.session.athlete.id, function (err, result) {
                     if(!err)
                     {
-                        result.forEach(function (item) {
-                            data.races.push(item);
-                        });
+                        result.forEach(filterRace);
 
                         res.render('join', data);
                     }else
@@ -131,15 +139,38 @@ router.get('/join', function(req, res) {
 router.get('/details/:id', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getRace(req.params.id, function (err, result) {
+        database.getDocument(req.params.id, function (err, race)
+        {
             if(!err)
             {
-                var data = {
-                    mode : 'race',
-                    athlete : req.session.athlete,
-                    race : result
-                };
-                res.render('details_race', data);
+                database.getRaceParticipants(req.params.id, function (err, participants)
+                {
+                    if(!err)
+                    {
+                        race.totalDistance = race.stages.reduce(function (total, item) {
+                            return total + item.distance;
+                        }, 0);
+
+                        var endTime = new Date(race.endTime);
+                        var startTime = new Date(race.startTime);
+                        race.duration = endTime - startTime;
+                        race.timeLeft = endTime - Date.now();
+                        race.isFinished = race.timeLeft <= 0;
+                        race.inProgress = (race.startTime - Date.now()) <= 0 && !race.isFinished;
+
+                        var data = {
+                            mode : 'race',
+                            athlete : req.session.athlete,
+                            race : race,
+                            participants : participants
+                        };
+                        res.render('details_race', data);
+                    }
+                    else
+                    {
+                        res.render('nav_to', {navLocation:"/"});
+                    }
+                });
             }
             else
             {

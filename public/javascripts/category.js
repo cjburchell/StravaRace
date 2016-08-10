@@ -5,9 +5,5 @@
    exports.Category = function Category(id) {
         this.id = id;
         this.name = "";
-        this.ageMode = "all";
-        this.ageMax = 100;
-        this.ageMin = 0;
-        this.sex = "all";
     }
 })(typeof exports === 'undefined'? this['category']={}: exports);

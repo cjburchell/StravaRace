@@ -10,7 +10,8 @@
             <th>Creator</th>
             <th>Stages</th>
             <th>Length</th>
-            <th>End time</th>
+            <th>Start time</th>
+            <th>Time Left</th>
             <th>Privacy</th>
         </tr>
         </thead>
@@ -20,8 +21,11 @@
             <td>{{race.ownerName}}</td>
             <td>{{race.stages.length}}</td>
             <td>{{race.totalDistance/1000 | number : 2}} km</td>
-            <td>{{ race.endTime | date: 'short'}}</td>
-            <td>{{ race.privaicy}}</td>
+            <td>{{ race.startTime | date: 'short'}}</td>
+            <td ng-if="!race.isFinished && !race.inProgress">Not Started</td>
+            <td ng-if="!race.isFinished && race.inProgress">{{ race.timeLeft | date: 'd': 'UTC'}}d {{ race.timeLeft | date: 'H': 'UTC'}}h {{ race.timeLeft | date: 'm': 'UTC'}}m</td>
+            <td ng-if="race.isFinished">Finished</td>
+            <td>{{ race.privaicy }}</td>
         </tr>
         </tbody>
     </table>
@@ -30,12 +34,27 @@
 <script type="text/javascript">
 
     var app = angular.module('app', []);
+
+    app.filter('duration',
+            function() {
+                return function(value) {
+                    return value? "success" : "";
+                };
+            });
+
     app.controller('raceTableControler', function($scope) {
         $scope.races = <%- JSON.stringify(races) %>;
         $scope.races.forEach(function (race) {
             race.totalDistance = race.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
+
+            var endTime = new Date(race.endTime);
+            var startTime = new Date(race.startTime);
+            race.duration = endTime - startTime;
+            race.timeLeft = endTime - Date.now();
+            race.isFinished = race.timeLeft <= 0;
+            race.inProgress = (race.startTime - Date.now()) <= 0 && !race.isFinished;
         })
     });
 

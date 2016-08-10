@@ -39,7 +39,6 @@
                             </span>
                     </div>
                 </div>
-            <% if(isCreating){%>
             <div class="form-group">
                 <label for="privacy">Privacy:</label>
                 <div class='input-group' id='privacy'>
@@ -49,7 +48,6 @@
                     </select>
                 </div>
             </div>
-            <% }%>
             <div class="well">
                 <label>Categories:</label>
                 <div ng-if="race.categories.length != 0">
@@ -57,17 +55,12 @@
                         <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Age</th>
-                            <th>Sex</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr ng-repeat="category in race.categories">
                             <td tyle="vertical-align:center">{{category.name}}</td>
-                            <td ng-if="category.ageMode ==='all'">all</td>
-                            <td ng-if="category.ageMode !=='all'">{{category.ageMin}}-{{category.ageMax}}</td>
-                            <td>{{category.sex}}</td>
                             <td><a ng-if="race.categories.length != 1" ng-click="deleteCategory(category)">
                                     <span class="glyphicon glyphicon-remove-circle"></span>
                             </a></td>
@@ -132,31 +125,6 @@
                 <div class="form-group">
                     <label for="name">Name:</label>
                     <input type="text" class="form-control" id="name" ng-model="newCategory.name">
-                </div>
-                <div class="form-group">
-                    <label for="age">Age:</label>
-                    <div class='input-group date' id='age'>
-                        <select class="form-control" id="privacy" ng-model="newCategory.ageMode">
-                            <option value='all'>All Ages</option>
-                            <option value='range'>Range</option>
-                        </select>
-                    </div>
-                    <div ng-if="newCategory.ageMode !=='all'">
-                        <label for="ageMin">Min Age:</label>
-                        <input  type="number" class="form-control" id="minAge" ng-model="newCategory.ageMin" min="0" max="100">
-                        <label for="maxAge">Max Age:</label>
-                        <input ng-if="newCategory.ageMode !=='all'" type="number" class="form-control" id="maxAge" ng-model="newCategory.ageMax" min="0" max="100">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="sex">Sex:</label>
-                    <div class='input-group' id='sex'>
-                        <select class="form-control" ng-model="newCategory.sex">
-                            <option value="all">All</option>
-                            <option value="f">Female</option>
-                            <option value="m">Male</option>
-                        </select>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">

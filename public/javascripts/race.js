@@ -4,7 +4,8 @@
 
 (function(exports){
     exports.Race = function Race() {
-        this._id = "";
+        this._id = undefined;
+        this.type = 'race';
         this.ownerId = ""
         this.name = "";
         this.description = "";

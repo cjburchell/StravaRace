@@ -1,0 +1,42 @@
+<div ng-app="app" ng-controller="raceTableControler">
+    <div class="inner-addon right-addon" style="width: 50%;margin-bottom: 20px">
+        <span class="glyphicon glyphicon-search"></span>
+        <input type="text" class="form-control" ng-model="seachText">
+    </div>
+    <table class="table table-striped" >
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Creator</th>
+            <th>Stages</th>
+            <th>Length</th>
+            <th>End time</th>
+            <th>Privacy</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="race in races | filter:{name:seachText}">
+            <td><a ng-href="{{ '/race/details/' + race._id }}">{{race.name}}</a></td>
+            <td>{{race.ownerName}}</td>
+            <td>{{race.stages.length}}</td>
+            <td>{{race.totalDistance/1000 | number : 2}} km</td>
+            <td>{{ race.endTime | date: 'short'}}</td>
+            <td>{{ race.privaicy}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+
+    var app = angular.module('app', []);
+    app.controller('raceTableControler', function($scope) {
+        $scope.races = <%- JSON.stringify(races) %>;
+        $scope.races.forEach(function (race) {
+            race.totalDistance = race.stages.reduce(function (total, item) {
+                return total + item.distance;
+            }, 0);
+        })
+    });
+
+</script>

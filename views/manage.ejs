@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<!-- Latest compiled and minified CSS -->
-
 <html>
 <head>
     <% include partials/template/head.ejs %>
+    <% include partials/template/jsdefaults.ejs %>
 </head>
 <body>
 <% include partials/template/header.ejs %>
-<p>Create Race!</p>
+<div class="container-fluid">
+    <h3>My created races</h3>
+    <% include partials/content/race_list.ejs %>
+</div>
 <% include partials/template/footer.ejs %>
-<% include partials/template/jsdefaults.ejs %>
 </body>
 </html>

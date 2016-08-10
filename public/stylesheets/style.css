@@ -27,7 +27,7 @@
 .poweredbywrapper {
     display: block;
     text-align: center;
-    vertical-align: center;
+    vertical-align: middle;
   }
 
 .poweredbywrapper {
@@ -36,3 +36,27 @@
   margin-left: 5px;
   color: #999999;
 }
+
+td {
+   : middle;
+}
+
+/* enable absolute positioning */
+.inner-addon {
+  position: relative;
+}
+
+/* style icon */
+.inner-addon .glyphicon {
+  position: absolute;
+  padding: 10px;
+  pointer-events: none;
+}
+
+/* align icon */
+.left-addon .glyphicon  { left:  0px;}
+.right-addon .glyphicon { right: 0px;}
+
+/* add padding  */
+.left-addon input  { padding-left:  30px; }
+.right-addon input { padding-right: 30px; }

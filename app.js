@@ -6,8 +6,11 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
-var race = require('./routes/race');
+var routes = require('./routes/indexRoute');
+var race = require('./routes/raceRoute');
+var strava = require('./routes/stravaRoute');
+var user = require('./routes/userRoute');
+var data = require('./routes/dataRoute');
 
 var app = express();
 
@@ -31,6 +34,9 @@ app.use(session(
 
 app.use('/', routes);
 app.use('/race', race);
+app.use('/strava', strava);
+app.use('/user', user);
+app.use('/data', data);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

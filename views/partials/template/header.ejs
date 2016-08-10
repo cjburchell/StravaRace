@@ -6,19 +6,27 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="home"><%= title %></a>
+            <a class="navbar-brand" href="/home">Strava Race</a>
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                <li <% if(mode === "home"){ %>class="active"<% } %>><a href="home"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
-                <li class="<% if(mode === "race"){ %>active <% } %>dropdown">
-                    <a class="dropdown" data-toggle="dropdown">Race</a>
+                <li <% if(mode === "home"){ %>class="active"<% } %>>
+                    <a class="dropdown" data-toggle="dropdown"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
                     <ul class="dropdown-menu">
-                        <li><a href="race/join">Join</a></li>
-                        <li><a href="race/create">Create</a></li>
+                        <li><a href="/home">Summary</a></li>
+                        <li><a href="/user/history">History</a></li>
+                    </ul>
+                </li>
+                <li class="<% if(mode === "race"){ %>active <% } %>dropdown">
+                    <a class="dropdown" data-toggle="dropdown">Races</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/race/join">Join</a></li>
+                        <li><a href="/race/create">Create</a></li>
+                        <li><a href="/race/manage">Manage</a></li>
                     </ul>
                 </li>
             </ul>
+
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a class="dropdown" data-toggle="dropdown" href="#">
@@ -29,7 +37,7 @@
                         <%= athlete.lastname %>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="logout">Log Out</a></li>
+                        <li><a href="/logout">Log Out</a></li>
                     </ul>
                 </li>
                 <li><div class="poweredbywrapper">Powered by <a href="http://www.strava.com" class="poweredbystrava">STRAVA</a></div></li>
@@ -37,5 +45,3 @@
         </div>
     </div>
 </nav>
-
-<div class="container-fluid">

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include partials/template/head.ejs %>
+</head>
+<body ng-app="app" ng-controller="raceControler">
+<% include partials/template/header.ejs %>
+<div class="container-fluid">
+    <h3><%= race.name %> <% if(race.privaicy !== 'public') {%><i class="fa fa-lock" aria-hidden="true"><%}%></i></h3>
+    <h6>Created by <a href="https://www.strava.com/athletes/<%= race.ownerId%>" target="_blank"><%= race.ownerName %></a></h6>
+    <p><%= race.description %></p>
+    <div class="well">
+        <h4>Stages</h4>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Type</th>
+            <th>Activity</th>
+            <th>Dist.</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="stage in race.stages track by $index">
+            <td tyle="vertical-align:center">{{$index + 1}}</td>
+            <td tyle="vertical-align:center">{{stage.activity_type}}</td>
+            <td tyle="vertical-align:center"><a ng-href="{{ 'https://www.strava.com/segments/' + stage.id}}" target="_blank">{{stage.name}}</a></td>
+            <td tyle="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
+        </tr>
+        </tbody>
+    </table>
+        </div>
+    <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
+    <button type="button" class="btn btn-default" ng-click="join()" style="margin-top: 20px">Join Race</button>
+    <%}%>
+    <%if(race.ownerId == athlete.id){%>
+    <button type="button" class="btn btn-default" ng-click="edit()" style="margin-top: 20px">Edit</button><%}%>
+</div>
+<% include partials/template/footer.ejs %>
+<% include partials/template/jsdefaults.ejs %>
+<script type="text/javascript">
+
+    var app = angular.module('app', []);
+    app.controller('raceControler', function($scope) {
+        $scope.race = <%- JSON.stringify(race) %>;
+        $scope.race.totalDistance = $scope.race.stages.reduce(function (total, item) {
+            return total + item.distance;
+        }, 0);
+
+        <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
+        $scope.join = function () {
+            location.replace("/home");
+        };<%}%>
+
+        <%if(race.ownerId == athlete.id){%>
+        $scope.edit = function () {
+            location.replace("/race/edit/<%= race._id%>");
+        };<%}%>
+    });
+
+</script>
+</body>
+
+</html>

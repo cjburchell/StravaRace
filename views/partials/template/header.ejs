@@ -10,15 +10,15 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                <li <% if(mode === "home"){ %>class="active"<% } %>>
-                    <a class="dropdown" data-toggle="dropdown"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+                <li class="dropdown <% if(mode === "home"){ %>active<% } %>">
+                    <a class="dropdown" data-toggle="dropdown" href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
                     <ul class="dropdown-menu">
                         <li><a href="/home">Summary</a></li>
                         <li><a href="/user/history">History</a></li>
                     </ul>
                 </li>
-                <li class="<% if(mode === "race"){ %>active <% } %>dropdown">
-                    <a class="dropdown" data-toggle="dropdown">Races</a>
+                <li class="dropdown <% if(mode === "race"){ %>active<% } %>">
+                    <a class="dropdown" data-toggle="dropdown" href="#">Races</a>
                     <ul class="dropdown-menu">
                         <li><a href="/race/join">Join</a></li>
                         <li><a href="/race/create">Create</a></li>
@@ -29,7 +29,7 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                    <a class="dropdown" data-toggle="dropdown" href="#">
+                    <a class="dropdown" data-toggle="dropdown" href="#" >
                         <% if(athlete.profile_medium){ %>
                             <img class="img-circle" src="<%= athlete.profile_medium %>" width="20" height="20"/>
                         <% } %>

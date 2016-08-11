@@ -3,7 +3,14 @@
         <span class="glyphicon glyphicon-search"></span>
         <input type="text" class="form-control" ng-model="seachText">
     </div>
-    <table class="table table-striped" >
+
+        <div class="btn-group">
+            <label class="btn btn-primary" ng-model="raceFilter" uib-btn-radio="">All</label>
+            <label class="btn btn-primary" ng-model="raceFilter" uib-btn-radio="'upcommning'">Upcoming</label>
+            <label class="btn btn-primary" ng-model="raceFilter" uib-btn-radio="'finshed'">Finished</label>
+        </div>
+
+    <table class="table table-striped"  >
         <thead>
         <tr>
             <th>Name</th>
@@ -16,7 +23,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="race in races | filter:{name:seachText}">
+        <tr ng-repeat="race in races | filter:{name:seachText, state:raceFilter}">
             <td><a ng-href="{{ '/race/details/' + race._id }}">{{race.name}}</a></td>
             <td>{{race.ownerName}}</td>
             <td>{{race.stages.length}}</td>
@@ -33,7 +40,7 @@
 
 <script type="text/javascript">
 
-    var app = angular.module('app', []);
+    var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
 
     app.filter('duration',
             function() {
@@ -55,7 +62,19 @@
             race.timeLeft = endTime - Date.now();
             race.isFinished = race.timeLeft <= 0;
             race.inProgress = (race.startTime - Date.now()) <= 0 && !race.isFinished;
+            race.state = race.isFinished? 'finshed' : 'upcommning';
         })
+
+        $scope.isRaceFinished = $scope.races.some(function (item)
+        {
+            return item.isFinished;
+        });
+
+        $scope.isRaceUpcomming = $scope.races.some(function (item)
+        {
+            return !item.isFinished;
+        });
+
     });
 
 </script>

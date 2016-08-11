@@ -24,33 +24,40 @@
         </thead>
         <tbody>
         <tr ng-repeat="stage in race.stages track by $index">
-            <td tyle="vertical-align:center">{{$index + 1}}</td>
-            <td tyle="vertical-align:center">{{stage.activity_type}}</td>
-            <td tyle="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
-            <td tyle="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
+            <td style="vertical-align:center">{{$index + 1}}</td>
+            <td style="vertical-align:center">{{stage.activity_type}}</td>
+            <td style="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
+            <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
         </tr>
         </tbody>
     </table>
         </div>
+
+    <div class="btn-group">
+        <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="">All</label>
+        <% for(var i=0; i<race.categories.length; i++) { var category = race.categories[i];%>
+            <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="'<%= category.id %>'"><%= category.name %></label>
+        <% } %>
+    </div>
 
     <table class="table table-striped">
         <thead>
         <tr>
             <th>Name</th>
             <th>Sex</th>
-            <th>Catagory</th>
+            <th ng-if="catagoryFilter">Catagory</th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="participant in participants">
-            <td tyle="vertical-align:center">{{participant.name}}</td>
-            <td tyle="vertical-align:center">{{participant.sex}}</td>
-            <td tyle="vertical-align:center">{{participant.catagoryName}}</td>
+        <tr ng-repeat="participant in participants | filter:{categoryId:catagoryFilter}">
+            <td style="vertical-align:center">{{participant.name}}</td>
+            <td style="vertical-align:center">{{participant.sex}}</td>
+            <td style="vertical-align:center" ng-if="catagoryFilter">{{participant.catagoryName}}</td>
         </tr>
         </tbody>
     </table>
 
-    <%if(!race.isFinishted){%>
+    <%if(!race.isFinished){%>
     <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
         <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
             <button type="button" class="btn btn-default" ng-click="join()" style="margin-top: 20px">Join Race</button>
@@ -60,7 +67,7 @@
     <%}%>
     <%}%>
     <%if(race.ownerId == athlete.id){%>
-    <%if(!race.isFinishted){%>
+    <%if(!race.isFinished){%>
         <button type="button" class="btn btn-default" ng-click="edit()" style="margin-top: 20px">Edit</button>
     <%}%>
     <button type="button" class="btn btn-default" ng-click="deleteRace()" style="margin-top: 20px">Delete</button>
@@ -72,7 +79,7 @@
 
 <script type="text/javascript">
 
-    var app = angular.module('app', []);
+    var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
     app.controller('raceControler', function($scope, $http) {
         $scope.race = <%- JSON.stringify(race) %>;
         $scope.participants = <%- JSON.stringify(participants) %>;

@@ -2,6 +2,7 @@
 <html>
 <head>
     <% include partials/template/head.ejs %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/css/datetimepicker.min.css">
 </head>
 <body ng-app="app" ng-controller="createControler">
 <% include partials/template/header.ejs %>
@@ -23,20 +24,26 @@
             </div>
                 <div class="form-group">
                     <label for="startTime">Start Time:</label>
-                    <div class='input-group date' id='startTime'>
-                        <input type='text' class="form-control" ng-model="race.startTime"/>
-                        <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+                    <div class="dropdown">
+                        <a class="dropdown-toggle" id="startTimeDropDown" role="button" data-toggle="dropdown" data-target="#" href="#">
+                            <div class="input-group"><input type="text" class="form-control" data-ng-model="race.startTime | date: 'short' "><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            <datetimepicker data-ng-model="race.startTime" data-datetimepicker-config="{ dropdownSelector: '#startTimeDropDown' }"/>
+                        </ul>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="endTime">End Time:</label>
-                    <div class='input-group date' id='endTime'>
-                        <input type='text' class="form-control" ng-model="race.endTime"/>
-                        <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+                    <div class="dropdown">
+                        <a class="dropdown-toggle" id="endTimeDropDown" role="button" data-toggle="dropdown" data-target="#" href="#">
+                            <div class="input-group"><input type="text" class="form-control" data-ng-model="race.endTime | date: 'short' "><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            <datetimepicker data-ng-model="race.endTime" data-datetimepicker-config="{ dropdownSelector: '#endTimeDropDown' }"/>
+                        </ul>
                     </div>
                 </div>
             <div class="form-group">
@@ -60,7 +67,7 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="category in race.categories">
-                            <td tyle="vertical-align:center">{{category.name}}</td>
+                            <td style="vertical-align:center">{{category.name}}</td>
                             <td><a ng-if="race.categories.length != 1" ng-click="deleteCategory(category)">
                                     <span class="glyphicon glyphicon-remove-circle"></span>
                             </a></td>
@@ -87,10 +94,10 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="stage in race.stages track by $index">
-                            <td tyle="vertical-align:center">{{$index + 1}}</td>
-                            <td tyle="vertical-align:center">{{stage.activity_type}}</td>
-                            <td tyle="vertical-align:center"><a ng-href="{{ 'https://www.strava.com/segments/' + stage.id}}" target="_blank">{{stage.name}}</a></td>
-                            <td tyle="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
+                            <td style="vertical-align:center">{{$index + 1}}</td>
+                            <td style="vertical-align:center">{{stage.activity_type}}</td>
+                            <td style="vertical-align:center"><a ng-href="{{ 'https://www.strava.com/segments/' + stage.id}}" target="_blank">{{stage.name}}</a></td>
+                            <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                             <td><a ng-if="race.stages.length != 1" ng-click="deleteStage(stage)">
                                     <span class="glyphicon glyphicon-remove-circle"></span>
                                 </a></td>
@@ -179,17 +186,15 @@
 </div>
 <% include partials/template/footer.ejs %>
 <% include partials/template/jsdefaults.ejs %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.templates.min.js"></script>
+
 <script type="text/javascript" src="/javascripts/race.js"></script>
 <script type="text/javascript" src="/javascripts/category.js"></script>
 <script type="text/javascript" src="/javascripts/stage.js"></script>
 <script type="text/javascript" src="/javascripts/guid.js"></script>
 <script type="text/javascript">
-    $(function () {
-        $('#startTime').datetimepicker();
-        $('#endTime').datetimepicker();
-    });
-
-    var app = angular.module('app', []);
+    var app = angular.module('app', [ 'ui.bootstrap.datetimepicker', 'ui.bootstrap', 'ngAnimate']);
 
     app.filter('isStageSelected',
             function() {
@@ -201,6 +206,9 @@
     app.controller('createControler', function($scope, $http) {
         $scope.race = <%- JSON.stringify(race)%>;
         $scope.stages = [];
+
+        $scope.race.startTime = new Date($scope.race.startTime);
+        $scope.race.endTime = new Date($scope.race.endTime);
 
         $scope.totalDistance = $scope.race.stages.reduce(function (total, item) {
             return total + item.distance;

@@ -4,74 +4,143 @@
     <% include partials/template/head.ejs %>
 </head>
 <body ng-app="app" ng-controller="raceControler">
+
+<%if(isLoggedIn){%>
 <% include partials/template/header.ejs %>
+<%}%>
 <div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
     <h3><%= race.name %> <% if(race.privaicy !== 'public') {%><i class="fa fa-lock" aria-hidden="true"><%}%></i></h3>
     <h6>Created by <a href="https://www.strava.com/athletes/<%= race.ownerId%>" target="_blank"><%= race.ownerName %></a></h6>
     <h4>Start {{ race.startTime | date: 'short'}}</h4>
-    <h4>End {{ race.endTime | date: 'short'}}</h4>
+    <h4 ng-if="race.state === 'upcomming'">Starts in: {{ race.startsIn | secondsToCountdown}}</h4>
+    <h4 ng-if="race.state === 'in_progress'">Time left: {{ race.timeLeft | secondsToCountdown}}</h4>
+    <h4 ng-if="race.state === 'finished'">Finished</h4>
     <p><%= race.description %></p>
-    <div class="well">
-        <h4>Stages</h4>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Type</th>
-            <th>Activity</th>
-            <th>Dist.</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="stage in race.stages track by $index">
-            <td style="vertical-align:center">{{$index + 1}}</td>
-            <td style="vertical-align:center">{{stage.activity_type}}</td>
-            <td style="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
-            <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
-        </tr>
-        </tbody>
-    </table>
-        </div>
 
-    <div class="btn-group">
-        <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="">All</label>
-        <% for(var i=0; i<race.categories.length; i++) { var category = race.categories[i];%>
-            <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="'<%= category.id %>'"><%= category.name %></label>
-        <% } %>
+
+    <div class="well">
+            <% if(race.categories.length > 1){%>
+            <div class="btn-group">
+                <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="">All</label>
+                <% for(var i=0; i<race.categories.length; i++) { var category = race.categories[i];%>
+                <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="'<%= category.id %>'"><%= category.name %></label>
+                <% } %>
+            </div>
+            <% } %>
+
+            <div class="btn-group">
+                <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="">All</label>
+                <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'M'">Men</label>
+                <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'F'">Women</label>
+            </div>
+
+        <%if(race.state === 'upcomming'){%>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Sex</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="participant in participants | filter:{categoryId:catagoryFilter, sex:sexFilter}">
+                    <td><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/></td>
+                    <td style="vertical-align:center"><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}">{{participant.name}}</a></td>
+                    <td style="vertical-align:center">{{participant.sex}}</td>
+                </tr>
+                </tbody>
+            </table>
+        <%} else {%>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Sex</th>
+                        <th ng-if="race.stages.lenght !== 1" ng-repeat="stage in race.stages track by $index">Stage {{$index + 1}}</th>
+                        <th>Total Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="participant in participants | orderBy : 'rank' | filter:{categoryId:catagoryFilter, sex:sexFilter}">
+                        <td><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/></td>
+                        <td style="vertical-align:center">{{participant.rank}}</td>
+                        <td style="vertical-align:center"><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}" target="_blank">{{participant.name}}</a></td>
+                        <td style="vertical-align:center">{{participant.sex}}</td>
+                        <td style="vertical-align:center" ng-repeat="result in participant.results"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a></td>
+                        <td ng-if="participant.time && race.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
+                        <td ng-if="!participant.time && race.stages.lenght !== 1" style="vertical-align:center">DNF</td>
+                    </tr>
+                </tbody>
+            </table>
+        <%}%>
     </div>
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Sex</th>
-            <th ng-if="catagoryFilter">Catagory</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="participant in participants | filter:{categoryId:catagoryFilter}">
-            <td style="vertical-align:center">{{participant.name}}</td>
-            <td style="vertical-align:center">{{participant.sex}}</td>
-            <td style="vertical-align:center" ng-if="catagoryFilter">{{participant.catagoryName}}</td>
-        </tr>
-        </tbody>
-    </table>
+            <div class="well">
+                <h4>Stages</h4>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Type</th>
+                        <th>Activity</th>
+                        <th>Dist.</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="stage in race.stages track by $index">
+                        <td style="vertical-align:center">{{$index + 1}}</td>
+                        <td style="vertical-align:center">{{stage.activity_type}}</td>
+                        <td style="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
+                        <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            </div>
 
-    <%if(!race.isFinished){%>
-    <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
-        <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
-            <button type="button" class="btn btn-default" ng-click="join()" style="margin-top: 20px">Join Race</button>
-        <%}else{%>
-            <button type="button" class="btn btn-default" ng-click="leave()" style="margin-top: 20px">Leave Race</button>
-        <%}%>
-    <%}%>
-    <%}%>
-    <%if(race.ownerId == athlete.id){%>
-    <%if(!race.isFinished){%>
-        <button type="button" class="btn btn-default" ng-click="edit()" style="margin-top: 20px">Edit</button>
-    <%}%>
-    <button type="button" class="btn btn-default" ng-click="deleteRace()" style="margin-top: 20px">Delete</button>
-    <%}%>
+    <div div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h4>Actions</h4></div>
+            <div class="panel-body">
+                <%if(isLoggedIn){%>
+                <%if(race.state !== 'finished'){%>
+                <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
+                <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
+                <li><a href="#" ng-click="join()">Join Race</a></li>
+                <%}else{%>
+                <li><a href="#" ng-click="leave()">Leave Race</a></li>
+                <%}%>
+                <%}%>
+                <%}%>
+                <%if(race.state !== 'upcomming' && race.ownerId != athlete.id){%>
+                <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
+                <li><a href="#" ng-click="updateMyResults()">Update My Results</a></li>
+                <%}%>
+                <%}%>
+                <%if(race.ownerId == athlete.id){%>
+                <%if(race.state === 'upcomming'){%>
+                <li><a href="#" ng-click="edit()">Edit</a></li>
+                <%}else{%>
+                <li><a href="#" ng-click="updateRaceResults()">Update Results</a></li>
+                <%}%>
+                <li><a href="#" ng-click="deleteRace()">Delete</a></li>
+                <%}%>
+                <%}else{%>
+                <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
+                <%}%>
+            </div>
+        </div>
+
+
+
+        </div>
+    </div>
+
 </div>
 <% include partials/template/footer.ejs %>
 <% include partials/template/jsdefaults.ejs %>
@@ -80,6 +149,62 @@
 <script type="text/javascript">
 
     var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
+
+    function padTime(t) {
+        return t < 10 ? "0"+t : t;
+    }
+
+    app.filter('secondsToTime', function() {
+        return function(_seconds) {
+            if (typeof _seconds !== "number" || _seconds < 0)
+                return "DNS";
+
+            var hours = Math.floor(_seconds / 3600);
+            var minutes = Math.floor((_seconds % 3600) / 60)
+            var seconds = Math.floor(_seconds % 60);
+
+            if(hours === 0)
+            {
+                return padTime(minutes) + ":" + padTime(seconds);
+            }
+            else
+            {
+                return padTime(hours) + ":" + padTime(minutes) + ":" + padTime(seconds);
+            }
+        };
+    });
+
+    app.filter('secondsToCountdown', function() {
+        return function(_seconds) {
+            if (typeof _seconds !== "number" || _seconds < 0)
+                return "0m";
+
+            var time = _seconds;
+            time = Math.floor(time / 1000);
+            time = Math.floor(time / 60);
+            var minutes = Math.floor(time % 60);
+            time = Math.floor(time / 60);
+            var hours = Math.floor(time % 24);
+            var days = Math.floor(time / 24);
+
+            if(days === 0)
+            {
+                if(hours === 0)
+                {
+                    return minutes + "m ";
+                }
+                else
+                {
+                    return hours + "h " + padTime(minutes) + "m ";
+                }
+            }
+            else
+            {
+                return days + "d " + padTime(hours) + "h " + padTime(minutes) + "m ";
+            }
+        };
+    });
+
     app.controller('raceControler', function($scope, $http) {
         $scope.race = <%- JSON.stringify(race) %>;
         $scope.participants = <%- JSON.stringify(participants) %>;
@@ -100,13 +225,10 @@
             }
         });
 
-        <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
-
-        <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
+        <% if(isLoggedIn){%>
         $scope.join = function () {
             var newParticipant = new participant.Participant(<%= athlete.id %>, $scope.race._id, $scope.race.categories[0].id);
-            newParticipant.name = "<%= athlete.firstname %>" + " " + "<%= athlete.lastname %>";
-            newParticipant.sex = "<%= athlete.sex %>";
+            newParticipant.raceStartTime = $scope.race.startTime;
             $http.put("/data/participant", newParticipant)
                     .then(function(response) {
                         if(response.data)
@@ -116,7 +238,7 @@
                     });
         };
 
-        <%}else{%>
+        <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
             $scope.leave = function () {
                 $http.delete("/data/participant/<%= participants.find(function(item){return item.athleteId === athlete.id;})._id %>")
                         .then(function(response) {
@@ -126,10 +248,18 @@
                             }
                         });
             };
-        <%}%>
-        <%}%>
 
-        <%if(race.ownerId == athlete.id){%>
+            $scope.updateMyResults = function () {
+                $http.post("/update/participant/<%= participants.find(function(item){return item.athleteId === athlete.id;})._id %>")
+                        .then(function(response) {
+                            if(response.data)
+                            {
+                                location.replace("/race/details/<%= race._id%>");
+                            }
+                        });
+            };
+            <%}%>
+
             $scope.edit = function () {
                 location.replace("/race/edit/<%= race._id%>");
             };
@@ -143,6 +273,18 @@
                             }
                         });
             };
+
+            $scope.updateRaceResults = function () {
+                $http.post("/update/race/<%= race._id%>")
+                        .then(function(response) {
+                            if(response.data)
+                            {
+                                location.replace("/race/details/<%= race._id%>");
+                            }
+                        });
+
+
+        };
         <%}%>
     });
 

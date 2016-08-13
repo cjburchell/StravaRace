@@ -21,7 +21,7 @@ router.get('/create', function(req, res) {
         var newRace = new race.Race();
         race.ownerId = req.session.athlete.id;
         var newCat = new category.Category(createGuid());
-        newCat.name = "Open"
+        newCat.name = "Open";
         newRace.categories.push(newCat);
         var data = {
             mode : 'race',
@@ -44,6 +44,7 @@ router.get('/edit/:id', function(req, res) {
             if(!err) {
                 var editRace = result;
                 if (editRace.ownerId === req.session.athlete.id) {
+                    race.UpdateRaceState(editRace);
                     var data = {
                         mode: 'race',
                         athlete: req.session.athlete,
@@ -78,6 +79,8 @@ router.get('/manage', function(req, res) {
                     athlete: req.session.athlete,
                     races: result
                 };
+
+                race.UpdateRaces(data);
                 res.render('manage', data);
             }
             else
@@ -118,6 +121,8 @@ router.get('/join', function(req, res) {
                     {
                         result.forEach(filterRace);
 
+                        race.UpdateRaces(data);
+
                         res.render('join', data);
                     }else
                     {
@@ -137,51 +142,37 @@ router.get('/join', function(req, res) {
 });
 
 router.get('/details/:id', function(req, res) {
-    if(req.session.isLoggedIn)
+    database.getDocument(req.params.id, function (err, editRace)
     {
-        database.getDocument(req.params.id, function (err, race)
+        if(!err)
         {
-            if(!err)
+            database.getRaceParticipants(req.params.id, function (err, participants)
             {
-                database.getRaceParticipants(req.params.id, function (err, participants)
+                if(!err)
                 {
-                    if(!err)
-                    {
-                        race.totalDistance = race.stages.reduce(function (total, item) {
-                            return total + item.distance;
-                        }, 0);
-
-                        var endTime = new Date(race.endTime);
-                        var startTime = new Date(race.startTime);
-                        race.duration = endTime - startTime;
-                        race.timeLeft = endTime - Date.now();
-                        race.isFinished = race.timeLeft <= 0;
-                        race.inProgress = (race.startTime - Date.now()) <= 0 && !race.isFinished;
-
-                        var data = {
-                            mode : 'race',
-                            athlete : req.session.athlete,
-                            race : race,
-                            participants : participants
-                        };
-                        res.render('details_race', data);
-                    }
-                    else
-                    {
-                        res.render('nav_to', {navLocation:"/"});
-                    }
-                });
-            }
-            else
-            {
-                res.render('nav_to', {navLocation:"/"});
-            }
-        });
-    }
-    else
-    {
-        res.render('nav_to', {navLocation:"/"});
-    }
+                    race.UpdateRaceState(editRace);
+                    var data = {
+                        mode : 'race',
+                        isLoggedIn : req.session.isLoggedIn,
+                        athlete : req.session.athlete,
+                        stravaClientId: process.env.STRAVA_CLIENT_ID,
+                        stravaRedirect: process.env.STRAVA_REDIRECT_URI,
+                        race : editRace,
+                        participants : participants
+                    };
+                    res.render('details_race', data);
+                }
+                else
+                {
+                    res.render('nav_to', {navLocation:"/"});
+                }
+            });
+        }
+        else
+        {
+            res.render('nav_to', {navLocation:"/"});
+        }
+    });
 });
 
 module.exports = router;

@@ -9,7 +9,11 @@ var router = express.Router();
 router.put('/participant', function (req, res) {
     if(req.session.isLoggedIn) {
         var participant = req.body;
-        participant.athleteId = req.session.athlete.id;
+        var athlete = req.session.athlete;
+        participant.athleteId = athlete.id;
+        participant.athleteImage = athlete.profile_medium;
+        participant.name = athlete.firstname + " " + athlete.lastname;
+        participant.sex = athlete.sex;
 
         database.getDocument(participant.raceId, function (err, race) {
             if(!err)
@@ -43,7 +47,11 @@ router.put('/participant', function (req, res) {
 router.post('/participant/:id', function (req, res) {
     if(req.session.isLoggedIn) {
         var newParticipant = req.body;
+        var athlete = req.session.athlete;
         newParticipant.athleteId = req.session.athlete.id;
+        newParticipant.athleteImage = athlete.profile_medium;
+        newParticipant.name = athlete.firstname + " " + athlete.lastname;
+        newParticipant.sex = athlete.sex;
         database.getDocument(req.params.id, function (err, old)
         {
             if(!err)
@@ -148,22 +156,30 @@ router.put('/race', function(req, res) {
         }
         else
         {
+            console.log("STRAVA: List friends id: " + req.session.athlete.id);
             strava.athletes.listFriends({ id : req.session.athlete.id }, function (err, payload) {
-                if(!err){
-                    newRace.friends = payload.map(function (item){ return item.id});
-                    newRace.friends.push(req.session.athlete.id);
-                    database.updateDocument(newRace, function (result, id) {
-                        if(!result) {
-                            res.end(JSON.stringify(false));
-                        } else {
-                            res.end(id);
-                        }
-                    });
-                }else
-                {
-                    res.end( JSON.stringify(false) );
+                try{
+                    if(!err){
+                        newRace.friends = payload.map(function (item){ return item.id});
+                        newRace.friends.push(req.session.athlete.id);
+                        database.updateDocument(newRace, function (result, id) {
+                            if(!result) {
+                                res.end(JSON.stringify(false));
+                            } else {
+                                res.end(id);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.end( JSON.stringify(false) );
+                    }
                 }
-                
+                catch (error)
+                {
+                    console.log("ERROR: " + error);
+                    console.log(error.stack);
+                }
             });
         }
     }
@@ -174,34 +190,58 @@ router.put('/race', function(req, res) {
 });
 
 router.delete('/race/:id', function(req, res) {
-    if(req.session.isLoggedIn)
+    if (!req.session.isLoggedIn)
     {
-        database.getDocument(req.params.id, function (err, result) {
-            if(!err) {
-                if (result.ownerId === req.session.athlete.id) {
-                        database.deleteDocument(req.params.id, result._rev, function (result1) {
-                            if(!result1) {
-                                res.end(JSON.stringify(false));
-                            } else {
-                                res.end(JSON.stringify(true));
-                            }
-                        });
-                }
-                else {
-                    res.end(JSON.stringify(false));
-                }
-            }
-            else
-            {
-                res.end( JSON.stringify(false) );
-            }
-        })
+        res.end(JSON.stringify(false));
+        return;
+    }
 
-    }
-    else
+    database.getDocument(req.params.id, function (err, result)
     {
-        res.end( JSON.stringify(false) );
-    }
+        if (err)
+        {
+            res.end(JSON.stringify(false));
+            return;
+        }
+
+        if (result.ownerId === req.session.athlete.id)
+        {
+            database.deleteDocument(req.params.id, result._rev, function (result1)
+            {
+                if (!result1)
+                {
+                    res.end(JSON.stringify(false));
+                    return;
+                }
+
+                database.getRaceParticipants(req.params.id, function (err, participants)
+                {
+                    if (err)
+                    {
+                        res.end(JSON.stringify(false));
+                        return;
+                    }
+
+                    if (participants.length === 0)
+                    {
+                        res.end(JSON.stringify(true));
+                        return;
+                    }
+
+                    participants.forEach(function (participant)
+                    {
+                        database.deleteDocument(participant._id, participant.rev, function (){});
+                    });
+
+                    res.end(JSON.stringify(true));
+                });
+            });
+        }
+        else
+        {
+            res.end(JSON.stringify(false));
+        }
+    })
 });
 
 router.post('/race/:id', function(req, res) {
@@ -226,20 +266,29 @@ router.post('/race/:id', function(req, res) {
                     }
                     else
                     {
+                        console.log("STRAVA: List friends id: " + req.session.athlete.id);
                         strava.athletes.listFriends({ id : req.session.athlete.id }, function (err, payload) {
-                            if(!err){
-                                updateRace.friends = payload.map(function (item){ return item.id});
-                                updateRace.friends.push(req.session.athlete.id);
-                                database.updateDocument(updateRace, function (result, id) {
-                                    if(!result) {
-                                        res.end(JSON.stringify(false));
-                                    } else {
-                                        res.end(id);
-                                    }
-                                });
-                            }else
+                            try
                             {
-                                res.end( JSON.stringify(false) );
+                                if(!err){
+                                    updateRace.friends = payload.map(function (item){ return item.id});
+                                    updateRace.friends.push(req.session.athlete.id);
+                                    database.updateDocument(updateRace, function (result, id) {
+                                        if(!result) {
+                                            res.end(JSON.stringify(false));
+                                        } else {
+                                            res.end(id);
+                                        }
+                                    });
+                                }else
+                                {
+                                    res.end( JSON.stringify(false) );
+                                }
+                            }
+                            catch (error)
+                            {
+                                console.log("ERROR: " + error);
+                                console.log(error.stack);
                             }
                         });
                     }
@@ -252,8 +301,7 @@ router.post('/race/:id', function(req, res) {
             {
                 res.end( JSON.stringify(false) );
             }
-        })
-
+        });
     }
     else
     {

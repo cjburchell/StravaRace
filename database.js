@@ -14,13 +14,22 @@ const PublicRacesView = "_design/race/_view/public_races";
 const ParticipantbyRaceView = "_design/participant/_view/by_race";
 const RacebyParticipantView = "_design/race/_view/by_participant";
 
+const UpcommingRacesView = "_design/race/_view/upcomming_races";
+const InProgressRacesView = "_design/race/_view/inprogress_races";
+
+const UpcommingRacebyParticipantView = "_design/race/_view/upcomming_by_participant";
+const InProgressRacebyParticipantView = "_design/race/_view/inprogress_by_participant";
+const FinishedRacebyParticipantView = "_design/race/_view/finished_by_participant";
+
+const userView = "_design/user/_view/by_athlete";
+
 /**
  * Creates Database Object
  * @return {Object} Database
  */
 function Database() {
 
-    var connect = function ()
+    function connect()
     {
         return new NodeCouchDb({
             host: process.env.RACE_DB_HOST,
@@ -31,36 +40,72 @@ function Database() {
                 pass: process.env.RACE_DB_PASSWORD
             }
         });
-    };
+    }
 
     this.getDocument = function (id, done) {
+        console.log("DB: getDocument " + id);
         var couch = connect();
         couch.get(StravaDatabaseName, id).then( function(data) {
-            done(undefined, data.data);
+            try
+            {
+                done(undefined, data.data);
+            }
+            catch (error)
+            {
+                console.log("ERROR: " + error);
+                console.log(error.stack);
+            }
         }, function (err) {
-            console.log(err);
-            done(err);
+            try
+            {
+                console.log("ERROR: getDocument " + err);
+                done(err);
+            }
+            catch (error)
+            {
+                console.log("ERROR: " + error);
+                console.log(error.stack);
+            }
         });
     };
 
-    this.getView = function (key, view, done)
+    this.getView = function (key, view, done, descending, limit)
     {
+        console.log("DB: getView"+ " key:" +  key + " view: " + view);
         var couch = connect();
         var queryOptions = {
             include_docs : true,
-            key : key
+            key : key,
+            descending: descending,
+            limit: limit
         };
 
         couch.get(StravaDatabaseName, view, queryOptions).then( function(data) {
-            var docs = data.data.rows.map(function (item) {
+            try
+            {
+                var docs = data.data.rows.filter(function (item)
+                {
+                    return item.doc !== null;
+                }).map(function (item) {
                 return item.doc});
 
-            done(undefined, docs);
+                var values = data.data.rows.filter(function (item)
+                {
+                    return item.doc !== null;
+                });
+
+                done(undefined, docs, values);
+            }
+            catch (error)
+            {
+                console.log("ERROR: " + error);
+                console.log(error.stack);
+            }
         }, function (err) {
-            console.log(err);
+            console.log("ERROR: " + err);
             done(err);
         });
-    }
+    };
 
     this.getRaces = function (ownerId, done) {
         this.getView(ownerId, RacebyOwnerView, done);
@@ -69,6 +114,21 @@ function Database() {
     this.getAthleteRaces = function (athleteId, done)
     {
         this.getView(athleteId, RacebyParticipantView, done);
+    };
+
+    this.getUpcommingAthleteRaces = function (athleteId, done)
+    {
+        this.getView(athleteId, UpcommingRacebyParticipantView, done);
+    };
+
+    this.getInProgressAthleteRaces = function (athleteId, done)
+    {
+        this.getView(athleteId, InProgressRacebyParticipantView, done);
+    };
+
+    this.getFinishedAthleteRaces = function (athleteId, done)
+    {
+        this.getView(athleteId, FinishedRacebyParticipantView, done, false, 5);
     };
 
     this.getRaceParticipants = function (raceId, done)
@@ -84,45 +144,133 @@ function Database() {
         this.getView(userId, PrivateRacesView, done);
     };
 
+    this.getUpcommingRaces = function (done) {
+        this.getView(undefined, UpcommingRacesView, done);
+    };
+
+    this.getInProgressRaces = function (done) {
+        this.getView(undefined, InProgressRacesView, done);
+    };
+
     this.updateDocument = function (document, done) {
+        console.log("DB: updateDocument"+ " Id:" +  document._id + " Type:" +  document.type);
         var couch = connect();
         if(document._id === undefined || document._id === '')
         {
-            couch.uniqid().then(function(ids){
-                    document._id = ids[0];
-                    couch.insert(StravaDatabaseName, document).then(function(data) {
-                        done(true, data.data.id);
-                    }, function (err) {
-                        console.log(err);
-                        // either request error occured
-                        // ...or err.code=EDOCCONFLICT if document with the same id already exists
-                        done(false);
-                    });}
-                );
+            couch.uniqid().then(function(ids)
+                {
+                    try
+                    {
+                        document._id = ids[0];
+                        couch.insert(StravaDatabaseName, document).then(function(data)
+                        {
+                            try
+                            {
+                                done(true, data.data.id);
+                            }
+                            catch (error)
+                            {
+                                console.log("ERROR: " + error);
+                                console.log(error.stack);
+                            }
+                        }, function (err)
+                        {
+                            try
+                            {
+                                console.log("ERROR: " + err);
+                                // either request error occured
+                                // ...or err.code=EDOCCONFLICT if document with the same id already exists
+                                done(false);
+                            }
+                            catch (error)
+                            {
+                                console.log("ERROR: " + error);
+                                console.log(error.stack);
+                            }
+                        });
+                    }
+                    catch (error)
+                    {
+                        console.log("ERROR: " + error);
+                        console.log(error.stack);
+                    }
+                });
         }
         else
         {
-            couch.update(StravaDatabaseName, document).then(function(data) {
-                done(true, data.data.id);
-            }, function (err) {
-                console.log(err);
-                // either request error occured
-                // ...or err.code=EDOCCONFLICT if document with the same id already exists
-                done(false);
+            couch.update(StravaDatabaseName, document).then(function(data)
+            {
+                try
+                {
+                    done(true, data.data.id);
+                }
+                catch (error)
+                {
+                        console.log("ERROR: " + error);
+                    console.log(error.stack);
+                }
+        }, function (err)
+            {
+                try
+                {
+                    console.log("ERROR: " + err);
+                    // either request error occured
+                    // ...or err.code=EDOCCONFLICT if document with the same id already exists
+                    done(false);
+                }
+                catch (error)
+                {
+                    console.log("ERROR: " + error);
+                    console.log(error.stack);
+                }
             });
         }
     };
 
     this.deleteDocument = function (id, rev, done) {
+        console.log("DB: deleteDocument"+ " Id:" +  id + " rev:" +  rev);
         var couch = connect();
-            couch.del(StravaDatabaseName, id, rev).then(function(data) {
-                done(true);
-            }, function (err) {
-                console.log(err);
-                // either request error occured
-                // ...or err.code=EDOCCONFLICT if document with the same id already exists
-                done(false);
+            couch.del(StravaDatabaseName, id, rev).then(function()
+            {
+                try
+                {
+                    done(true);
+                }
+                catch (error)
+                {
+                    console.log("ERROR: " + error);
+                    console.log(error.stack);
+                }
+            }, function (err)
+            {
+                try
+                {
+                    console.log("ERROR: " + err);
+                    // either request error occured
+                    // ...or err.code=EDOCCONFLICT if document with the same id already exists
+                    done(false);
+                }
+                catch (error)
+                {
+                    console.log("ERROR: " + error);
+                    console.log(error.stack);
+                }
             });
+    };
+
+    this.getUser = function (athleteId, done)
+    {
+        this.getView(athleteId, userView, function (result, users)
+        {
+            if(!result)
+            {
+                done(result, users[0]);
+            }
+            else
+            {
+                done(result, users);
+            }
+        });
     };
 }
 

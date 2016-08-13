@@ -4,16 +4,111 @@
 <html>
   <head>
     <% include partials/template/head.ejs %>
+    <% include partials/template/jsdefaults.ejs %>
+    <script type="text/javascript">
+
+      var $app = angular.module('app', []);
+
+      function padTime(t) {
+        return t < 10 ? "0"+t : t;
+      }
+
+      $app.filter('secondsToTime', function() {
+        return function(_seconds) {
+          if (typeof _seconds !== "number" || _seconds < 0)
+            return "DNS";
+
+          var hours = Math.floor(_seconds / 3600);
+          var minutes = Math.floor((_seconds % 3600) / 60)
+          var seconds = Math.floor(_seconds % 60);
+
+          if(hours === 0)
+          {
+            return padTime(minutes) + ":" + padTime(seconds);
+          }
+          else
+          {
+            return padTime(hours) + ":" + padTime(minutes) + ":" + padTime(seconds);
+          }
+        };
+      });
+
+      $app.filter('secondsToCountdown', function() {
+        return function(_seconds) {
+          if (typeof _seconds !== "number" || _seconds < 0)
+            return "0m";
+
+          var time = _seconds;
+          time = Math.floor(time / 1000);
+          time = Math.floor(time / 60);
+          var minutes = Math.floor(time % 60);
+          time = Math.floor(time / 60);
+          var hours = Math.floor(time % 24);
+          var days = Math.floor(time / 24);
+
+          if(days === 0)
+          {
+            if(hours === 0)
+            {
+              return minutes + "m ";
+            }
+            else
+            {
+              return hours + "h " + padTime(minutes) + "m ";
+            }
+          }
+          else
+          {
+            return days + "d " + padTime(hours) + "h " + padTime(minutes) + "m ";
+          }
+        };
+      });
+    </script>
   </head>
   <body>
     <% include partials/template/header.ejs %>
-    <div class="container-fluid">
+    <div class="container-fluid" ng-app="app" >
+        <div class="row">
+          <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
+            <div class="row">
 
+              <%if(racesUpcomming.length != 0){%>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3>Upcomming</h3>
+                <% for(var i=0; i<racesUpcomming.length; i++) { var race = racesUpcomming[i];%>
+                <% include partials/content/race_pannel.ejs %>
+                <%}%>
+              </div>
+              <%}%>
+
+              <%if(racesInProgress.length != 0){%>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3>In Progress</h3>
+                <% for(var i=0; i<racesInProgress.length; i++) { var race = racesInProgress[i];%>
+                <% include partials/content/race_pannel.ejs %>
+                <%}%>
+              </div>
+
+              <%}%>
+
+              <%if(racesFinished.length != 0){%>
+              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <h3>Finished</h3>
+              <% for(var i=0; i<racesFinished.length; i++) { var race = racesFinished[i];%>
+              <% include partials/content/race_pannel.ejs %>
+              <%}%>
+              </div>
+              <%}%>
+
+
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+            <% include partials/template/actions.ejs %>
+          </div>
+        </div>
     </div>
     <% include partials/template/footer.ejs %>
-    <% include partials/template/jsdefaults.ejs %>
   </body>
-  <script>
-
-  </script>
 </html>

@@ -7,8 +7,23 @@
 <body>
 <% include partials/template/header.ejs %>
 <div class="container-fluid">
-    <h3>History</h3>
-    <% include partials/content/race_list.ejs %>
+    <div class="row">
+        <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
+            <%if(races.length ===0){%>
+            <div class="panel panel-warning">
+                <div class="panel-heading"><h3>You have not joined any races.</h3></div>
+                <div class="panel-body">You should join one! You can do this by selecting 'Join' in the actions</div>
+            </div>
+            <%}else{%>
+            <h3>History</h3>
+            <% include partials/content/race_list.ejs %>
+            <%}%>
+        </div>
+
+        <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+            <% include partials/template/actions.ejs %>
+        </div>
+    </div>
 </div>
 <% include partials/template/footer.ejs %>
 </body>

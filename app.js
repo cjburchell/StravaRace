@@ -11,6 +11,9 @@ var race = require('./routes/raceRoute');
 var strava = require('./routes/stravaRoute');
 var user = require('./routes/userRoute');
 var data = require('./routes/dataRoute');
+var update = require('./routes/updateRoute');
+
+var results = require('./results');
 
 var app = express();
 
@@ -37,6 +40,7 @@ app.use('/race', race);
 app.use('/strava', strava);
 app.use('/user', user);
 app.use('/data', data);
+app.use('/update', update);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -50,7 +54,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
+  app.use(function(err, req, res) {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
@@ -61,13 +65,18 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
     error: {}
   });
 });
+
+setInterval(function(){
+    console.log("THREAD: Update all races");
+    results.updateAllRaces(process.env.STRAVA_ACCESS_TOKEN);
+}, process.env.POLL_INTERVAL);
 
 
 module.exports = app;

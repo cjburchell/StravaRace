@@ -1,0 +1,42 @@
+<div ng-controller="racePannelControler<%= race.doc._id%>">
+<div class="panel panel-default" >
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                <a href="/race/details/<%= race.doc._id%>"><h4><%= race.doc.name%></h4></a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                <h4 style="text-align: right"><%if(race.doc.state === 'upcomming'){%>
+                    {{ race.doc.startsIn | secondsToCountdown}}
+                    <%}%>
+
+                    <%if(race.doc.state === 'in_progress'){%>
+                    {{ race.doc.timeLeft | secondsToCountdown}}
+                    <%}%>
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <%if(race.doc.state === "upcomming"){%>
+            <h3>{{race.doc.totalDistance/1000 | number : 2}}km</h3>
+        <h5><%= race.doc.stages.length %> Stages</h5>
+        <%}else{%>
+            <%if(race.value.participant.stagesComplete === race.value.participant.results.length){ %>
+            <h3>Rank: <%= race.value.participant.rank%>/<%= race.value.participant.out_of%></h3>
+        <%}else{%>
+        <h3>Stages: <%= race.value.participant.stagesComplete%>/<%= race.value.participant.results.length%></h3>
+        <%}%>
+            <h5>Total Time: {{race.value.participant.time | secondsToTime }}</h5>
+        <%}%>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+    $app.controller('racePannelControler<%= race.doc._id%>', function($scope) {
+        $scope.race = <%- JSON.stringify(race) %>;
+    });
+
+</script>

@@ -25,6 +25,7 @@ router.get('/create', function(req, res) {
         newCat.name = "Open";
         newRace.categories.push(newCat);
         var data = {
+            titleText: "Create | Race | ",
             mode : 'race',
             athlete : req.session.athlete,
             isCreating : true,
@@ -47,6 +48,7 @@ router.get('/edit/:id', function(req, res) {
                 if (editRace.ownerId === req.session.athlete.id) {
                     race.UpdateRaceState(editRace);
                     var data = {
+                        titleText: editRace.name + " | Edit | Race | ",
                         mode: 'race',
                         athlete: req.session.athlete,
                         isCreating: false,
@@ -76,6 +78,7 @@ router.get('/manage', function(req, res) {
         database.getRaces(req.session.athlete.id, function (err, result) {
             if(!err) {
                 var data = {
+                    titleText: "Manage Races | ",
                     mode: 'race',
                     athlete: req.session.athlete,
                     races: result
@@ -102,6 +105,7 @@ router.get('/join', function(req, res) {
         database.getPublicRaces(function (err, result) {
             if(!err) {
                 var data = {
+                    titleText: "Join Race | ",
                     mode: 'race',
                     athlete: req.session.athlete,
                     races: []
@@ -188,7 +192,16 @@ router.get('/details/:id', function(req, res) {
                         centerLat
                     ];
 
+                    editRace.boundingBox = [[
+                        minLong,
+                        minLat
+                    ],[
+                        maxLong,
+                        maxLat
+                    ]];
+
                     var data = {
+                        titleText: editRace.name + " | Race | ",
                         mode : 'race',
                         isLoggedIn : req.session.isLoggedIn,
                         athlete : req.session.athlete,

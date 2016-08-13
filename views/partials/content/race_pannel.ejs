@@ -2,10 +2,10 @@
 <div class="panel panel-default" >
     <div class="panel-heading">
         <div class="row">
-            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <a href="/race/details/<%= race.doc._id%>"><h4><%= race.doc.name%></h4></a>
             </div>
-            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <h4 style="text-align: right"><%if(race.doc.state === 'upcomming'){%>
                     {{ race.doc.startsIn | secondsToCountdown}}
                     <%}%>

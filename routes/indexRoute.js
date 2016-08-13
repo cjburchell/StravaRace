@@ -23,6 +23,7 @@ var renderPage = function (session, res) {
 
                             var data = {
                                 mode: 'home',
+                                titleText: "Home | ",
                                 athlete: session.athlete,
                                 racesInProgress: racesInProgress,
                                 racesFinished: racesFinished,
@@ -44,6 +45,7 @@ router.get('/', function (req, res) {
     }
     else {
         var data = {
+            titleText: "",
             stravaClientId: process.env.STRAVA_CLIENT_ID,
             stravaRedirect: process.env.STRAVA_REDIRECT_URI
         };

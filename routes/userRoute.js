@@ -14,6 +14,7 @@ router.get('/history', function(req, res) {
             if(!err)
             {
                 var data = {
+                    titleText: "History | ",
                     mode : 'race',
                     athlete : req.session.athlete,
                     races : races

@@ -289,7 +289,7 @@ function Results()
             }
             else
             {
-                console.log("ERROR: Unable to Upcomming Races");
+                console.log("ERROR: Unable to Upcoming Races");
             }
         });
 

@@ -73,10 +73,15 @@ app.use(function(err, req, res) {
   });
 });
 
-setInterval(function(){
-    console.log("THREAD: Update all races");
-    results.updateAllRaces(process.env.STRAVA_ACCESS_TOKEN);
-}, process.env.POLL_INTERVAL);
+
+if(process.env.POLL_INTERVAL !== "0")
+{
+    setInterval(function ()
+    {
+        console.log("THREAD: Update all races");
+        results.updateAllRaces(process.env.STRAVA_ACCESS_TOKEN);
+    }, process.env.POLL_INTERVAL);
+}
 
 
 module.exports = app;

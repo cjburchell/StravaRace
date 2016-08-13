@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <title></title>
+    <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        .map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+<div id='map-tooltips' class='map'> </div>
+<script>
+    L.mapbox.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
+    var mapTooltips = L.mapbox.map('map-tooltips', 'mapbox.light')
+            .setView([37.8, -96], 4);
+    var myLayer = L.mapbox.featureLayer().addTo(mapTooltips);
+
+    var geojson = [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-77.031952,38.913184]
+            },
+            "properties": {
+                "title": "Mapbox DC",
+                "description": "1714 14th St NW, Washington DC",
+                "marker-color": "#3ca0d3",
+                "marker-size": "large",
+                "marker-symbol": "rocket"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-122.413682,37.775408]
+            },
+            "properties": {
+                "title": "Mapbox SF",
+                "description": "155 9th St, San Francisco",
+                "marker-color": "#63b6e5",
+                "marker-size": "large",
+                "marker-symbol": "rocket"
+            }
+        }
+    ];
+    myLayer.setGeoJSON(geojson);
+    mapTooltips.scrollWheelZoom.disable();
+</script>
+</body>
+</html>

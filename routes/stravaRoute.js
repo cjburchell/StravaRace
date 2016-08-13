@@ -24,11 +24,48 @@ router.get('/starredsegments/:id', function(req, res) {
                             'id': item.id,
                             'name': item.name,
                             'activity_type': item.activity_type,
-                            'distance': item.distance
+                            'distance': item.distance,
+                            'start_latlng': item.start_latlng,
+                            'end_latlng': item.end_latlng
                         }
                     });
 
                     res.end(JSON.stringify(segments));
+                }
+                else
+                {
+                    res.end(JSON.stringify(false));
+                }
+            }
+            catch (error)
+            {
+                console.log("ERROR: " + error);
+                console.log(error.stack);
+            }
+        })
+    }
+    else
+    {
+        res.end( JSON.stringify(false) );
+    }
+});
+
+router.get('/segmentmap/:id', function(req, res) {
+    if(req.session.isLoggedIn)
+    {
+        console.log("STRAVA: Get segment map, segmentId: "+ req.params.id);
+        strava.segments.get({access_token:req.session.accessToken, id:req.params.id}, function (err, payload)
+        {
+            try
+            {
+                if (!err)
+                {
+                    res.end(JSON.stringify({
+                        'map': payload.map,
+                        'name': payload.name,
+                        'start_latlng': payload.start_latlng,
+                        'end_latlng': payload.end_latlng
+                    }));
                 }
                 else
                 {

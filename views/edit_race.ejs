@@ -291,6 +291,9 @@
             newStage.name = $scope.selectedStage.name;
             newStage.distance = $scope.selectedStage.distance;
             newStage.activity_type = $scope.selectedStage.activity_type;
+            newStage.map = $scope.selectedStage.map;
+            newStage.start_latlng = $scope.selectedStage.start_latlng;
+            newStage.end_latlng = $scope.selectedStage.end_latlng;
 
             $scope.race.stages.push(newStage);
             arrayUtils.remove($scope.stages, $scope.selectedStage);
@@ -298,6 +301,11 @@
             $scope.totalDistance = $scope.race.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
+
+            $http.get("/strava/segmentmap/" + $scope.selectedStage.id)
+                    .then(function(response) {
+                        newStage.map = response.data.map;
+                    });
         };
 
         $scope.selectStage = function (stage) {

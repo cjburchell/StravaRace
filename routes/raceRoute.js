@@ -5,6 +5,7 @@ var express = require('express');
 var database = require('../database');
 var race = require('../public/javascripts/race');
 var category = require('../public/javascripts/category');
+var polyline = require('polyline');
 var router = express.Router();
 
 function createGuid()
@@ -151,6 +152,42 @@ router.get('/details/:id', function(req, res) {
                 if(!err)
                 {
                     race.UpdateRaceState(editRace);
+
+                    var maxLat = -180;
+                    var minLat = 180;
+                    var maxLong = -180;
+                    var minLong = 180;
+                    editRace.stages.forEach(function (stage)
+                    {
+                        if(stage.map !== undefined)
+                        {
+                            var points = polyline.decode(stage.map.polyline);
+
+                            stage.map.points = points.map(function (item)
+                            {
+                                return [item[1], item[0]];
+                            });
+
+                            maxLat = Math.max(maxLat, stage.start_latlng[0]);
+                            minLat = Math.min(minLat, stage.start_latlng[0]);
+                            maxLong = Math.max(maxLong, stage.start_latlng[1]);
+                            minLong = Math.min(minLong, stage.start_latlng[1]);
+
+                            maxLat = Math.max(maxLat, stage.end_latlng[0]);
+                            minLat = Math.min(minLat, stage.end_latlng[0]);
+                            maxLong = Math.max(maxLong, stage.end_latlng[1]);
+                            minLong = Math.min(minLong, stage.end_latlng[1]);
+                        }
+                    });
+
+                    centerLat = (maxLat-minLat)/2 + minLat;
+                    centerLong = (maxLong-minLong)/2 + minLong;
+
+                    editRace.centerPoint = [
+                        centerLong,
+                        centerLat
+                    ];
+
                     var data = {
                         mode : 'race',
                         isLoggedIn : req.session.isLoggedIn,

@@ -2,6 +2,10 @@
 <html>
 <head>
     <% include partials/template/head.ejs %>
+    <% include partials/template/jsdefaults.ejs %>
+    <script type="text/javascript" src="/javascripts/participant.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v0.22.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v0.22.0/mapbox-gl.css' rel='stylesheet' />
 </head>
 <body ng-app="app" ng-controller="raceControler">
 
@@ -80,27 +84,36 @@
         <%}%>
     </div>
 
-            <div class="well">
-                <h4>Stages</h4>
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Type</th>
-                        <th>Activity</th>
-                        <th>Dist.</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="stage in race.stages track by $index">
-                        <td style="vertical-align:center">{{$index + 1}}</td>
-                        <td style="vertical-align:center">{{stage.activity_type}}</td>
-                        <td style="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
-                        <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div id='map' style='width: 400px; height: 300px;'></div>
+                </div>
+
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="well">
+                        <h4>Stages</h4>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Type</th>
+                                <th>Activity</th>
+                                <th>Dist.</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="stage in race.stages track by $index">
+                                <td style="vertical-align:center">{{$index + 1}}</td>
+                                <td style="vertical-align:center">{{stage.activity_type}}</td>
+                                <td style="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
+                                <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+
             </div>
 
     <div div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
@@ -143,8 +156,8 @@
 
 </div>
 <% include partials/template/footer.ejs %>
-<% include partials/template/jsdefaults.ejs %>
-<script type="text/javascript" src="/javascripts/participant.js"></script>
+
+
 
 <script type="text/javascript">
 
@@ -225,6 +238,48 @@
             }
         });
 
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/outdoors-v9',
+            interactive: true,
+            center: $scope.race.centerPoint,
+            zoom: 12
+        });
+
+        map.on('load', function () {
+            $scope.race.stages.forEach(function (stage)
+            {
+                if(stage.map !== undefined)
+                {
+                    map.addSource(stage.segmentId.toString(), {
+                        "type": "geojson",
+                        "data": {
+                            "type": "Feature",
+                            "properties": {},
+                            "geometry": {
+                                "type": "LineString",
+                                "coordinates": stage.map.points
+                            }
+                        }
+                    });
+                    map.addLayer({
+                        "id": stage.segmentId.toString(),
+                        "type": "line",
+                        "source": stage.segmentId.toString(),
+                        "layout": {
+                            "line-join": "round",
+                            "line-cap": "round"
+                        },
+                        "paint": {
+                            "line-color": "#888",
+                            "line-width": 6
+                        }
+                    });
+                }
+            });
+        });
+
         <% if(isLoggedIn){%>
         $scope.join = function () {
             var newParticipant = new participant.Participant(<%= athlete.id %>, $scope.race._id, $scope.race.categories[0].id);
@@ -287,6 +342,8 @@
         };
         <%}%>
     });
+
+
 
 </script>
 </body>

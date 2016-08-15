@@ -111,7 +111,7 @@ router.get('/friends/:id', function(req, res) {
                             'id': item.id,
                             'name': item.firstname + " " + item.lastname,
                             'profile_medium': item.profile_medium,
-                            'sex': item.sex
+                            'sex': item.sex===null?"M":item.sex
                         }
                     });
 

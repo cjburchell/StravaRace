@@ -503,7 +503,7 @@
             var newParticipant = new participant.Participant(<%= athlete.id %>, $scope.race._id, $scope.race.categories[0].id);
             newParticipant.athleteImage = "<%= athlete.profile_medium%>";
             newParticipant.name = "<%= athlete.firstname + " " + athlete.lastname%>";
-            newParticipant.sex = "<%= athlete.sex %>";
+            newParticipant.sex = "<%= athlete.sex===null?"M":athlete.sex %>";
 
             newParticipant.raceStartTime = $scope.race.startTime;
             $http.put("/data/participant", newParticipant)

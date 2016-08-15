@@ -45,10 +45,7 @@ router.post('/participant/:id', function (req, res) {
     if(req.session.isLoggedIn) {
         var newParticipant = req.body;
         var athlete = req.session.athlete;
-        newParticipant.athleteId = req.session.athlete.id;
-        newParticipant.athleteImage = athlete.profile_medium;
-        newParticipant.name = athlete.firstname + " " + athlete.lastname;
-        newParticipant.sex = athlete.sex;
+
         database.getDocument(req.params.id, function (err, old)
         {
             if(!err)

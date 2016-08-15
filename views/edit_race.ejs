@@ -46,6 +46,8 @@
                         </ul>
                     </div>
                 </div>
+
+            <%if(user.isAdmin){%>
             <div class="form-group">
                 <label for="privacy">Privacy:</label>
                 <div class='input-group' id='privacy'>
@@ -55,6 +57,7 @@
                     </select>
                 </div>
             </div>
+
             <!--<div class="well">
                 <label>Categories:</label>
                 <div ng-if="race.categories.length != 0">
@@ -68,15 +71,19 @@
                         <tbody>
                         <tr ng-repeat="category in race.categories">
                             <td style="vertical-align:center">{{category.name}}</td>
-                            <td><a ng-if="race.categories.length != 1" ng-click="deleteCategory(category)">
-                                    <span class="glyphicon glyphicon-remove-circle"></span>
+                            <td><a ng-click="deleteCategory(category)"> <span class="glyphicon glyphicon-remove-circle"></span>
                             </a></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
+                <div ng-if="race.categories.length != 0">
+                    <p style="color: red">No catagories, You must have at least one catagory</p>
+                </div>
                 <button class="btn btn-default" data-toggle="modal" data-target="#addCategoryDialog" ng-click="showAddCategory()">Add Catagory</button>
             </div>-->
+
+            <%}%>
         </div>
         <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
             <div class="well">
@@ -98,13 +105,16 @@
                             <td style="vertical-align:center">{{stage.activity_type}}</td>
                             <td style="vertical-align:center"><a ng-href="{{ 'https://www.strava.com/segments/' + stage.id}}" target="_blank">{{stage.name}}</a></td>
                             <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
-                            <td><a ng-if="race.stages.length != 1" ng-click="deleteStage(stage)">
-                                    <span class="glyphicon glyphicon-remove-circle"></span>
-                                </a></td>
+                            <td><a ng-click="deleteStage(stage)"><span class="glyphicon glyphicon-remove-circle"></span></a></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
+
+                <div ng-if="race.stages.length != 0">
+                    <p style="color: red">You must have at least one catagory, please add a catogory</p>
+                </div>
+
                 <button class="btn btn-default" data-toggle="modal" data-target="#addStageDialog" ng-click="showAddStage()">Add Stage</button>
                 <p><label>Total Distance</label> {{totalDistance/1000 | number : 2}}km</p>
 

@@ -2,54 +2,68 @@
 <html>
 <head>
     <meta charset=utf-8 />
-    <title></title>
+    <title>Custom marker icons</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
     <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
     <style>
         body { margin:0; padding:0; }
-        .map { position:absolute; top:0; bottom:0; width:100%; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
     </style>
 </head>
 <body>
-<div id='map-tooltips' class='map'> </div>
+<div id='map'></div>
 <script>
     L.mapbox.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
-    var mapTooltips = L.mapbox.map('map-tooltips', 'mapbox.light')
-            .setView([37.8, -96], 4);
-    var myLayer = L.mapbox.featureLayer().addTo(mapTooltips);
+    var map = L.mapbox.map('map', 'mapbox.streets')
+            .setView([40, -74.50], 8);
 
-    var geojson = [
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [-77.031952,38.913184]
-            },
-            "properties": {
-                "title": "Mapbox DC",
-                "description": "1714 14th St NW, Washington DC",
-                "marker-color": "#3ca0d3",
-                "marker-size": "large",
-                "marker-symbol": "rocket"
-            }
+    var myLayer = L.mapbox.featureLayer().addTo(map);
+
+    var geoJson = [{
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [-75.00, 40]
         },
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [-122.413682,37.775408]
-            },
-            "properties": {
-                "title": "Mapbox SF",
-                "description": "155 9th St, San Francisco",
-                "marker-color": "#63b6e5",
-                "marker-size": "large",
-                "marker-symbol": "rocket"
+        "properties": {
+            "title": "Small astronaut",
+            "icon": {
+                "iconUrl": "/mapbox.js/assets/images/astronaut1.png",
+                "iconSize": [50, 50], // size of the icon
+                "iconAnchor": [25, 25], // point of the icon which will correspond to marker's location
+                "popupAnchor": [0, -25], // point from which the popup should open relative to the iconAnchor
+                "className": "dot"
             }
         }
-    ];
-    myLayer.setGeoJSON(geojson);
-    mapTooltips.scrollWheelZoom.disable();
+    }, {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [-74.00, 40]
+        },
+        "properties": {
+            "title": "Big astronaut",
+            "icon": {
+                "iconUrl": "/mapbox.js/assets/images/astronaut2.png",
+                "iconSize": [100, 100],
+                "iconAnchor": [50, 50],
+                "popupAnchor": [0, -55],
+                "className": "dot"
+            }
+        }
+    }];
+
+    // Set a custom icon on each marker based on feature properties.
+    myLayer.on('layeradd', function(e) {
+        var marker = e.layer,
+                feature = marker.feature;
+
+        marker.setIcon(L.icon(feature.properties.icon));
+    });
+
+    // Add features to the map.
+    myLayer.setGeoJSON(geoJson);
 </script>
 </body>
 </html>

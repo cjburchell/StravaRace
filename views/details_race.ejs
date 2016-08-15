@@ -1,13 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <% include partials/template/head.ejs %>
+    <meta property="og:url"                content="http://www.strava-race.net/race/details/<%= race._id %>" />
+    <meta property="og:type"               content="website" />
+    <meta property="og:title"              content="<%= race.name %>" />
+    <meta property="og:description"        content="<%= race.description %>" />
+    <meta property="og:site_name"        content="Strava Race" />
+    <meta property="fb:app_id"        content="1204847022870716" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://use.fontawesome.com/3a216218fd.js"></script>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <% include partials/template/jsdefaults.ejs %>
     <script type="text/javascript" src="/javascripts/participant.js"></script>
-    <script src='https://api.mapbox.com/mapbox-gl-js/v0.22.0/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v0.22.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
 </head>
 <body ng-app="app" ng-controller="raceControler">
+
+<script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '1204847022870716',
+            xfbml      : true,
+            version    : 'v2.7'
+        });
+    };
+
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>
+
 
 <%if(isLoggedIn){%>
 <% include partials/template/header.ejs %>
@@ -126,38 +154,43 @@
     <div div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading"><h4>Actions</h4></div>
-            <div class="panel-body">
+            <div class="panel-body list-group" style="padding: 0">
                 <%if(isLoggedIn){%>
                 <%if(race.state !== 'finished'){%>
                 <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
                 <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
-                <li><a href="#" ng-click="join()">Join Race</a></li>
+                <a href="#" class="list-group-item" ng-click="join()">Join Race</a>
                 <%}else{%>
-                <li><a href="#" ng-click="leave()">Leave Race</a></li>
+                <a href="#" class="list-group-item" ng-click="leave()">Leave Race</a>
                 <%}%>
                 <%}%>
                 <%}%>
                 <%if(race.state !== 'upcomming' && race.ownerId != athlete.id){%>
                 <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
-                <li><a href="#" ng-click="updateMyResults()">Update My Results</a></li>
+                <a href="#" class="list-group-item" ng-click="updateMyResults()">Update My Results</a>
                 <%}%>
                 <%}%>
                 <%if(race.ownerId == athlete.id){%>
                 <%if(race.state === 'upcomming'){%>
-                <li><a href="#" ng-click="edit()">Edit</a></li>
+                <a href="#" class="list-group-item" ng-click="edit()">Edit</a>
                 <%}else{%>
-                <li><a href="#" ng-click="updateRaceResults()">Update Results</a></li>
+                <a href="#" class="list-group-item" ng-click="updateRaceResults()">Update Results</a>
                 <%}%>
-                <li><a href="#" ng-click="deleteRace()">Delete</a></li>
+                <a href="#" class="list-group-item" ng-click="deleteRace()">Delete</a>
                 <%}%>
                 <%}else{%>
-                <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
+                <div style="margin-top: 10px; margin-left: 10px">
+                    <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
+                </div>
                 <%}%>
+                <div class="fb-share-button" style="margin-top: 10px; margin-left: 10px" data-href="http://www.strava-race.net/race/details/<%= race._id %>" data-layout="button" data-size="small" data-mobile-iframe="true">
+                    <a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.strava-race.net%2Frace%2Fdetails%2<%= race._id %>&amp;src=sdkpreparse">Share</a>
+                </div>
+                <div style="margin-top: 10px; margin-left: 10px">
+                    <a href="https://twitter.com/share" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                </div>
+                </div>
             </div>
-        </div>
-
-
-
         </div>
     </div>
 
@@ -245,50 +278,94 @@
             }
         });
 
-        mapboxgl.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
-        var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/outdoors-v9',
-            interactive: true,
-            center: $scope.race.centerPoint,
-            zoom: 12
-        });
+        L.mapbox.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
+        var map = L.mapbox.map('map', 'mapbox.outdoors')
+                .setView($scope.race.centerPoint, 12);
+
+       /// var myLayer = L.mapbox.styleLayer('mapbox://styles/mapbox/outdoors-v9').addTo(map);
+
+        var myLayer = L.mapbox.featureLayer().addTo(map);
 
         map.fitBounds($scope.race.boundingBox);
 
-        map.on('load', function () {
+        var polyline_options = {
+            color: '#F00'
+        };
+
+
+        var points = [];
+
+            var stage_numb = 0;
             $scope.race.stages.forEach(function (stage)
             {
+                stage_numb++;
                 if(stage.map !== undefined)
                 {
-                    map.addSource(stage.segmentId.toString(), {
-                        "type": "geojson",
-                        "data": {
-                            "type": "Feature",
-                            "properties": {
-                                title: 'Hello world!'
-                            },
-                            "geometry": {
-                                "type": "LineString",
-                                "coordinates": stage.map.points
-                            }
-                        }
-                    });
-                    map.addLayer({
-                        "id": stage.segmentId.toString(),
-                        "type": "line",
-                        "source": stage.segmentId.toString(),
-                        "layout": {
-                            "line-join": "round",
-                            "line-cap": "round"
+                    L.polyline(stage.map.points, polyline_options).addTo(map);
+
+                    var stage_name = "Start Stage " + stage_numb;
+                    var end_name = "End Stage " + stage_numb;
+                    if($scope.race.stages.length === 1)
+                    {
+                        stage_name = "Start";
+                        end_name = "End";
+                    }
+
+                    var icon = "star";
+                    if(stage.activity_type == "Ride")
+                    {
+                        icon = "bicycle";
+                    }
+
+                    var start = {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [stage.start_latlng[1], stage.start_latlng[0]]
                         },
-                        "paint": {
-                            "line-color": "#F00",
-                            "line-width": 6
+                        "properties": {
+                            "title": stage_name,
+                            'description': stage.name,
+                            'marker-size': 'small',
+                            'marker-color': '#00AA00',
+                            "marker-symbol": icon,
+                            url: 'https://www.strava.com/segments/' + stage.segmentId
                         }
-                    });
+                    };
+
+                    var end = {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [stage.end_latlng[1], stage.end_latlng[0]]
+                        },
+                        "properties": {
+                            "title": end_name,
+                            'description': stage.name,
+                            'marker-size': 'small',
+                            'marker-color': '#FF0000',
+                            "marker-symbol": 'star',
+                            url: 'https://www.strava.com/segments/' + stage.segmentId
+                        }
+                    };
+
+                    points.push(end);
+                    points.push(start);
                 }
+
+
+
             });
+
+        var geojson = {
+            type: 'FeatureCollection',
+            features: points
+        };
+
+        myLayer.setGeoJSON(geojson);
+
+        myLayer.on('click', function(e) {
+            window.open(e.layer.feature.properties.url);
         });
 
         <% if(isLoggedIn){%>

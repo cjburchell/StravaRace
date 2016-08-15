@@ -51,6 +51,7 @@ router.get('/edit/:id', function(req, res) {
                         titleText: editRace.name + " | Edit | Race | ",
                         mode: 'race',
                         athlete: req.session.athlete,
+                        user: req.session.user,
                         isCreating: false,
                         race: editRace
                     };
@@ -167,10 +168,7 @@ router.get('/details/:id', function(req, res) {
                         {
                             var points = polyline.decode(stage.map.polyline);
 
-                            stage.map.points = points.map(function (item)
-                            {
-                                return [item[1], item[0]];
-                            });
+                            stage.map.points = points;
 
                             maxLat = Math.max(maxLat, stage.start_latlng[0]);
                             minLat = Math.min(minLat, stage.start_latlng[0]);
@@ -188,16 +186,16 @@ router.get('/details/:id', function(req, res) {
                     centerLong = (maxLong-minLong)/2 + minLong;
 
                     editRace.centerPoint = [
-                        centerLong,
-                        centerLat
+                        centerLat,
+                        centerLong
                     ];
 
                     editRace.boundingBox = [[
-                        minLong,
-                        minLat
+                        minLat,
+                        minLong
                     ],[
-                        maxLong,
-                        maxLat
+                        maxLat,
+                        maxLong
                     ]];
 
                     var data = {
@@ -205,6 +203,7 @@ router.get('/details/:id', function(req, res) {
                         mode : 'race',
                         isLoggedIn : req.session.isLoggedIn,
                         athlete : req.session.athlete,
+                        user: req.session.user,
                         stravaClientId: process.env.STRAVA_CLIENT_ID,
                         stravaRedirect: process.env.STRAVA_REDIRECT_URI,
                         race : editRace,

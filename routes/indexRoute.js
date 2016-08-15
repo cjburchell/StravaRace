@@ -84,6 +84,16 @@ router.get('/login', function (req, res) {
                             {
                                 if(result)
                                 {
+                                    if(!payload.athlete.profile_medium)
+                                    {
+                                        payload.athlete.profile_medium = "/images/medium.png";
+                                    }
+
+                                    if(payload.athlete.profile_medium ==="avatar/athlete/medium.png")
+                                    {
+                                        payload.athlete.profile_medium = "/images/medium.png";
+                                    }
+
                                     user._id = id;
                                     req.session.isLoggedIn = true;
                                     req.session.user = user;

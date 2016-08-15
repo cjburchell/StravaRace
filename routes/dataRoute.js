@@ -10,10 +10,7 @@ router.put('/participant', function (req, res) {
     if(req.session.isLoggedIn) {
         var participant = req.body;
         var athlete = req.session.athlete;
-        participant.athleteId = athlete.id;
-        participant.athleteImage = athlete.profile_medium;
-        participant.name = athlete.firstname + " " + athlete.lastname;
-        participant.sex = athlete.sex;
+
 
         database.getDocument(participant.raceId, function (err, race) {
             if(!err)

@@ -85,4 +85,55 @@ router.get('/segmentmap/:id', function(req, res) {
     }
 });
 
+
+router.get('/friends/:id', function(req, res) {
+    if(req.session.isLoggedIn)
+    {
+        console.log("STRAVA: List of friends, page: "+ req.params.id);
+        strava.athlete.listFriends({access_token:req.session.accessToken, page:req.params.id, id:req.session.athlete.id}, function (err, payload)
+        {
+            try
+            {
+                if (!err)
+                {
+                    var friends = payload.map(function (item)
+                    {
+                        if(!item.profile_medium)
+                        {
+                            item.profile_medium = "/images/medium.png";
+                        }
+
+                        if(item.profile_medium ==="avatar/athlete/medium.png")
+                        {
+                            item.profile_medium = "/images/medium.png";
+                        }
+
+                        return {
+                            'id': item.id,
+                            'name': item.firstname + " " + item.lastname,
+                            'profile_medium': item.profile_medium,
+                            'sex': item.sex
+                        }
+                    });
+
+                    res.end(JSON.stringify(friends));
+                }
+                else
+                {
+                    res.end(JSON.stringify(false));
+                }
+            }
+            catch (error)
+            {
+                console.log("ERROR: " + error);
+                console.log(error.stack);
+            }
+        })
+    }
+    else
+    {
+        res.end( JSON.stringify(false) );
+    }
+});
+
 module.exports = router;

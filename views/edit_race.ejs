@@ -181,7 +181,7 @@
                     <tr ng-repeat="stage in stages | filter:{name:stageSeachText}" ng-click="selectStage(stage)" ng-class="stage == selectedStage | isStageSelected">
                         <td style="vertical-align:center"><span ng-if="stage == selectedStage" class="glyphicon glyphicon-ok"></span></td>
                         <td style="vertical-align:center">{{stage.activity_type}}</td>
-                        <td style="vertical-align:center"><a ng-href="{{ 'https://www.strava.com/segments/' + stage.id}}" target="_blank">{{stage.name}}</a></td>
+                        <td style="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                         <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                     </tr>
                     </tbody>

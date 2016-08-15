@@ -2,6 +2,7 @@ var database = require('./database');
 var strava = require('strava-v3');
 var race_utils = require('./public/javascripts/race');
 var result_utils = require('./public/javascripts/result');
+var array_utils = require('./public/javascripts/array_utils');
 
 function Results()
 {
@@ -32,22 +33,53 @@ function Results()
             participant.results = [];
         }
 
+        participant.results.forEach(function (result)
+        {
+            var stage = race.stages.find(function (item)
+            {
+                return item.segmentId === result.segmentId;
+            });
+
+            if(!stage)
+            {
+                array_utils.remove(participant.results, result);
+            }
+        });
+
         race.stages.forEach(function (stage)
         {
             var result = participant.results.find(function(item){return item.segmentId === stage.segmentId;});
+            var oldresultTime = undefined;
+            var oldresultActiviy = undefined;
             if(!result)
             {
                 result = new result_utils.Result(stage.segmentId);
                 participant.results.push(result);
                 participant.changed = true;
             }
+            else
+            {
+                oldresultTime = result.time;
+                oldresultActiviy = result.activityId;
+                result.time = undefined;
+                result.activityId = undefined;
+            }
+
+            var startUTC = new Date(race.startTime).getTime();
+            var endUTC = new Date(race.endTime).getTime();
+
+            var startTime = new Date(race.startTime);
+            startTime.setHours(startTime.getHours()-12);
+
+            var endTime = new Date(race.endTime);
+            endTime.setHours(endTime.getHours()+12);
 
             strava.segments.listEfforts(
                 {
                     id : stage.segmentId,
                     access_token : accessToken,
-                    start_date_local : race.startTime,
-                    end_date_local : race.endTime,
+                    start_date_local : startTime.toJSON(),
+                    end_date_local : endTime.toJSON(),
                     athlete_id : participant.athleteId
                 }, function (err, efforts)
             {
@@ -57,25 +89,47 @@ function Results()
                 }
                 else
                 {
-                    var effort = efforts.reduce(function (prev, current)
+                    efforts = efforts.filter(function (item)
                     {
-                        return (prev.elapsed_time < current.elapsed_time) ? prev : current
+                        var time = new Date(item.start_date).getTime();
+                        return (time >= startUTC) && (time < endUTC)
                     });
 
-                    if (effort)
+                    if(efforts.length !== 0)
                     {
-                        if (result.time === undefined || result.time !== effort.elapsed_time)
+                        var effort = efforts.reduce(function (prev, current)
+                        {
+                            return (prev.elapsed_time < current.elapsed_time) ? prev : current
+                        });
+
+                        if (effort)
                         {
                             result.time = effort.elapsed_time;
+                            if (oldresultTime !== effort.elapsed_time)
+                            {
+                                participant.changed = true;
+                            }
+
+                            result.activityId = effort.activity.id;
+                            if (oldresultActiviy !== effort.activity.id)
+                            {
+                                participant.changed = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (oldresultTime !== undefined)
+                        {
                             participant.changed = true;
                         }
 
-                        if (result.activityId === undefined || result.activityId !== effort.activity.id)
+                        if (oldresultActiviy !== undefined)
                         {
-                            result.activityId = effort.activity.id;
                             participant.changed = true;
                         }
                     }
+
                 }
 
                 stagesProcessed++;
@@ -88,6 +142,7 @@ function Results()
                         participant.changed = true;
                     }
 
+                    var totalTime = undefined;
                     if(!participant.results.some(function (result)
                         {
                             return result.time === undefined;
@@ -96,12 +151,12 @@ function Results()
                         var totalTime = participant.results.reduce(function (total, item) {
                             return total + item.time;
                         }, 0);
+                    }
 
-                        if(participant.time === undefined  || participant.time !== totalTime)
-                        {
-                            participant.time = totalTime;
-                            participant.changed = true;
-                        }
+                    if(participant.time !== totalTime)
+                    {
+                        participant.time = totalTime;
+                        participant.changed = true;
                     }
 
                     done();
@@ -139,6 +194,19 @@ function Results()
                     if(participant.out_of === undefined || participant.outOf !== rank)
                     {
                         participant.out_of = stageParticipants.length;
+                        participant.changed = true;
+                    }
+                });
+
+                rank=undefined;
+                stageParticipants.filter(function (item)
+                {
+                    return item.time == undefined;
+                }).forEach(function (participant)
+                {
+                    if(participant.rank !== rank)
+                    {
+                        participant.rank = rank;
                         participant.changed = true;
                     }
                 });

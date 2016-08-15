@@ -55,7 +55,7 @@
                 </div>
             </div>
             <h6>Created by <a href="https://www.strava.com/athletes/<%= race.ownerId%>" target="_blank"><%= race.ownerName %></a></h6>
-            <h5><label>Start:</label> {{ race.startTime | date: 'short'}} <label>to</label> <% if(Math.round((new Date(race.endTime)-new Date(race.startTime))/(1000*60*60*24)) !== 0){%>{{ race.endTime | date: 'short'}}<%}else{%><%}%>{{ race.endTime | date: 'shortTime'}}</h5>
+            <h5><label>Start:</label> {{ race.startTime | date: 'short'}} <label>to</label> <% if(Math.round((new Date(race.endTime)-new Date(race.startTime))/(1000*60*60*24)) !== 0){%>{{ race.endTime | date: 'short'}}<%}else{%>{{ race.endTime | date: 'shortTime'}}<%}%></h5>
             <p><%= race.description %></p>
 
             <div class="well">

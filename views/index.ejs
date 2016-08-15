@@ -9,6 +9,32 @@
 
       var $app = angular.module('app', []);
 
+      $app.filter('rankToPannelType', function()
+      {
+        return function(rank) {
+            if (!rank)
+            {
+              return "panel panel-default";
+            }
+              if (rank == 1)
+              {
+                return "panel panel-first";
+              }
+
+          if (rank == 2)
+          {
+            return "panel panel-second";
+          }
+
+          if (rank == 3)
+          {
+            return "panel panel-third";
+          }
+
+          return "panel panel-default";
+        };
+      });
+
       function padTime(t) {
         return t < 10 ? "0"+t : t;
       }

@@ -181,10 +181,10 @@
                 <%}%>
                 <%}%>
                 <%if(race.ownerId == athlete.id){%>
-                <%if(race.state === 'upcomming'){%>
                 <%if(user.isAdmin){%>
-                    <a href="#" class="list-group-item" data-toggle="modal" data-target="#addFriendDialog" ng-click="showAddFriend()">Add Friend</a>
+                <a href="#" class="list-group-item" data-toggle="modal" data-target="#addFriendDialog" ng-click="showAddFriend()">Add Friend</a>
                 <%}%>
+                <%if(race.state === 'upcomming'){%>
                 <a href="#" class="list-group-item" ng-click="edit()">Edit</a>
                 <%}else{%>
                 <a href="#" class="list-group-item" ng-click="updateRaceResults()">Update Results</a>

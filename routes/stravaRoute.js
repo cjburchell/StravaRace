@@ -85,7 +85,6 @@ router.get('/segmentmap/:id', function(req, res) {
     }
 });
 
-
 router.get('/friends/:id', function(req, res) {
     if(req.session.isLoggedIn)
     {

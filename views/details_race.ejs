@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta property="og:url"                content="http://www.strava-race.net/race/details/<%= race._id %>" />
+    <meta property="og:url"                content="<%=url%>/race/details/<%= race._id %>" />
     <meta property="og:type"               content="website" />
     <meta property="og:title"              content="<%= race.name %>" />
     <meta property="og:description"        content="<%= race.description %>" />
-    <meta property="og:site_name"        content="Strava Race" />
+    <meta property="og:site_name"        content="<%=appName%>" />
     <meta property="fb:app_id"        content="1204847022870716" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://use.fontawesome.com/3a216218fd.js"></script>

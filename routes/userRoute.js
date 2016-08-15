@@ -15,6 +15,8 @@ router.get('/history', function(req, res) {
             {
                 var data = {
                     titleText: "History | ",
+                    url : process.env.APP_URL,
+                    appName : process.env.APP_NAME,
                     mode : 'race',
                     athlete : req.session.athlete,
                     races : races

@@ -23,6 +23,8 @@ var renderPage = function (session, res) {
 
                             var data = {
                                 mode: 'home',
+                                appName : process.env.APP_NAME,
+                                url : process.env.APP_URL,
                                 titleText: "Home | ",
                                 athlete: session.athlete,
                                 racesInProgress: racesInProgress,
@@ -46,6 +48,8 @@ router.get('/', function (req, res) {
     else {
         var data = {
             titleText: "",
+            url : process.env.APP_URL,
+            appName : process.env.APP_NAME,
             stravaClientId: process.env.STRAVA_CLIENT_ID,
             stravaRedirect: process.env.STRAVA_REDIRECT_URI
         };

@@ -26,6 +26,8 @@ router.get('/create', function(req, res) {
         newRace.categories.push(newCat);
         var data = {
             titleText: "Create | Race | ",
+            url : process.env.APP_URL,
+            appName : process.env.APP_NAME,
             mode : 'race',
             user: req.session.user,
             athlete : req.session.athlete,
@@ -50,6 +52,8 @@ router.get('/edit/:id', function(req, res) {
                     race.UpdateRaceState(editRace);
                     var data = {
                         titleText: editRace.name + " | Edit | Race | ",
+                        url : process.env.APP_URL,
+                        appName : process.env.APP_NAME,
                         mode: 'race',
                         athlete: req.session.athlete,
                         user: req.session.user,
@@ -81,6 +85,8 @@ router.get('/manage', function(req, res) {
             if(!err) {
                 var data = {
                     titleText: "Manage Races | ",
+                    url : process.env.APP_URL,
+                    appName : process.env.APP_NAME,
                     mode: 'race',
                     athlete: req.session.athlete,
                     races: result
@@ -108,6 +114,8 @@ router.get('/join', function(req, res) {
             if(!err) {
                 var data = {
                     titleText: "Join Race | ",
+                    url : process.env.APP_URL,
+                    appName : process.env.APP_NAME,
                     mode: 'race',
                     athlete: req.session.athlete,
                     races: []
@@ -201,6 +209,8 @@ router.get('/details/:id', function(req, res) {
 
                     var data = {
                         titleText: editRace.name + " | Race | ",
+                        url : process.env.APP_URL,
+                        appName : process.env.APP_NAME,
                         mode : 'race',
                         isLoggedIn : req.session.isLoggedIn,
                         athlete : req.session.athlete,

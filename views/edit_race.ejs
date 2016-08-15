@@ -111,12 +111,12 @@
                     </table>
                 </div>
 
-                <div ng-if="race.stages.length != 0">
+                <div ng-if="race.stages.length == 0">
                     <p style="color: red">You must have at least one catagory, please add a catogory</p>
                 </div>
 
                 <button class="btn btn-default" data-toggle="modal" data-target="#addStageDialog" ng-click="showAddStage()">Add Stage</button>
-                <p><label>Total Distance</label> {{totalDistance/1000 | number : 2}}km</p>
+                <p><label>Total Distance</label> {{race.totalDistance/1000 | number : 2}}km</p>
 
             </div>
         </div>
@@ -308,7 +308,7 @@
             $scope.race.stages.push(newStage);
             arrayUtils.remove($scope.stages, $scope.selectedStage);
 
-            $scope.totalDistance = $scope.race.stages.reduce(function (total, item) {
+            $scope.race.totalDistance = $scope.race.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
 

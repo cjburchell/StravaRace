@@ -27,6 +27,7 @@ router.get('/create', function(req, res) {
         var data = {
             titleText: "Create | Race | ",
             mode : 'race',
+            user: req.session.user,
             athlete : req.session.athlete,
             isCreating : true,
             race : newRace

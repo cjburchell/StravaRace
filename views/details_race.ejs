@@ -55,11 +55,12 @@
                 </div>
             </div>
             <h6>Created by <a href="https://www.strava.com/athletes/<%= race.ownerId%>" target="_blank"><%= race.ownerName %></a></h6>
-            <h5>Start Time: {{ race.startTime | date: 'short'}}</h5>
-            <h5>End Time: {{ race.endTime | date: 'short'}}</h5>
+            <h5><label>Start:</label> {{ race.startTime | date: 'short'}} <label>to</label> <% if(Math.round((new Date(race.endTime)-new Date(race.startTime))/(1000*60*60*24)) !== 0){%>{{ race.endTime | date: 'short'}}<%}else{%><%}%>{{ race.endTime | date: 'shortTime'}}</h5>
             <p><%= race.description %></p>
 
             <div class="well">
+
+                <%if(participants.length != 0){%>
             <% if(race.categories.length > 1){%>
             <div class="btn-group">
                 <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="">All</label>
@@ -117,6 +118,14 @@
                 </tbody>
             </table>
         <%}%>
+                <%} else {%>
+                <p style="color: red">
+                    There are no participants entered in the race.
+                    <%if(isLoggedIn){%>
+                     Press join to enter the race.
+                    <%}%>
+                </p>
+                <%}%>
     </div>
 
             <div class="row">
@@ -145,6 +154,7 @@
                             </tr>
                             </tbody>
                         </table>
+                        <p><label>Total Distance</label> {{race.totalDistance/1000 | number : 2}}km</p>
                     </div>
                 </div>
             </div>
@@ -172,6 +182,9 @@
                 <%}%>
                 <%if(race.ownerId == athlete.id){%>
                 <%if(race.state === 'upcomming'){%>
+                <%if(user.isAdmin){%>
+                    <a href="#" class="list-group-item">Add Friend</a>
+                <%}%>
                 <a href="#" class="list-group-item" ng-click="edit()">Edit</a>
                 <%}else{%>
                 <a href="#" class="list-group-item" ng-click="updateRaceResults()">Update Results</a>

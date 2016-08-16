@@ -1,0 +1,161 @@
+<script type="text/javascript" src="/javascripts/category.js"></script>
+<script type="text/javascript" src="/javascripts/stage.js"></script>
+<script type="text/javascript" src="/javascripts/guid.js"></script>
+<script type="text/javascript">
+    var app = angular.module('app', [ 'ui.bootstrap.datetimepicker', 'ui.bootstrap', 'ngAnimate']);
+
+    app.filter('isStageSelected',
+            function() {
+                return function(value) {
+                    return value? "success" : "";
+                };
+            });
+
+    app.controller('createControler', function($scope, $http) {
+        $scope.race = <%- JSON.stringify(race)%>;
+        $scope.stages = [];
+
+        $scope.race.startTime = new Date($scope.race.startTime);
+        $scope.race.endTime = new Date($scope.race.endTime);
+
+        $scope.deleteCategory = function (cat) {
+            arrayUtils.remove($scope.race.categories, cat);
+        }
+
+        $scope.deleteStage = function (stage) {
+            arrayUtils.remove($scope.race.stages, stage);
+
+            var stageNumber = 1;
+            $scope.race.stages.sort(function (item1, item2)
+            {
+                return item1.number-item2.number;
+            }).forEach(function (item)
+            {
+                item.number = stageNumber;
+                stageNumber++;
+            });
+
+            $scope.totalDistance = $scope.race.stages.reduce(function (total, item) {
+                return total + item.distance;
+            }, 0);
+        }
+
+        $scope.moveStageUp = function (stage) {
+            var otherStage = $scope.race.stages.find(function (item)
+            {
+                return item.number === (stage.number-1)
+            });
+
+            if(otherStage)
+            {
+                otherStage.number = stage.number
+                stage.number--;
+            }
+        }
+
+        $scope.moveStageDown = function (stage) {
+            var otherStage = $scope.race.stages.find(function (item)
+            {
+                return item.number === (stage.number+1)
+            });
+
+            if(otherStage)
+            {
+                otherStage.number = stage.number
+                stage.number++;
+            }
+        }
+
+        $scope.onApply = function () {
+            <% if(isCreating){%>
+            $http.put("/data/race", $scope.race)
+            <% } else {%>
+            $http.post("/data/race/" + $scope.race._id, $scope.race)
+            <%}%>
+                    .then(function(response) {
+                        if(response.data)
+                        {
+                            location.replace("/race/details/" + response.data);
+                        }
+                    });
+        };
+
+        $scope.back = function () {
+            <% if(isCreating){%>
+            location.replace("/home");
+            <% } else {%>
+            location.replace("/race/details/" + $scope.race._id);
+            <%}%>
+        };
+
+        $scope.showAddCategory = function () {
+            $scope.newCategory = new category.Category(createGuid());
+        };
+
+        $scope.addCategory = function () {
+            $scope.race.categories.push($scope.newCategory);
+        };
+
+        function GetStages(page)
+        {
+            $http.get("/strava/starredsegments/" + page)
+                    .then(function(response) {
+                        $scope.stages = $scope.stages.concat(response.data);
+
+                        $scope.race.stages.forEach(function (stage)
+                        {
+                            arrayUtils.remove($scope.stages, stage);
+                        });
+
+                        if(response.data.length === 30)
+                        {
+                            page++;
+                            GetStages(page);
+                        }
+                    });
+        }
+
+        $scope.getStages = function()
+        {
+            $scope.stages = [];
+            GetStages(1);
+        }
+
+        $scope.showAddStage = function () {
+            $scope.stageSeachText = undefined;
+            $scope.selectedStage = undefined;
+            if($scope.stages.length === 0)
+            {
+                $scope.getStages();
+            }
+        };
+
+        $scope.addStage = function () {
+            var newStage = new stage.Stage($scope.selectedStage.id);
+            newStage.number = $scope.race.stages.length + 1;
+            newStage.name = $scope.selectedStage.name;
+            newStage.distance = $scope.selectedStage.distance;
+            newStage.activity_type = $scope.selectedStage.activity_type;
+            newStage.map = $scope.selectedStage.map;
+            newStage.start_latlng = $scope.selectedStage.start_latlng;
+            newStage.end_latlng = $scope.selectedStage.end_latlng;
+
+            $scope.race.stages.push(newStage);
+            arrayUtils.remove($scope.stages, $scope.selectedStage);
+
+            $scope.race.totalDistance = $scope.race.stages.reduce(function (total, item) {
+                return total + item.distance;
+            }, 0);
+
+            $http.get("/strava/segmentmap/" + $scope.selectedStage.id)
+                    .then(function(response) {
+                        newStage.map = response.data.map;
+                    });
+        };
+
+        $scope.selectStage = function (stage) {
+            $scope.selectedStage = stage;
+        };
+    });
+
+</script>

@@ -70,7 +70,7 @@
             </div>
             <% } %>
 
-            <div class="btn-group">
+            <div ng-if="showSexFilter" class="btn-group">
                 <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="">All</label>
                 <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'M'">Men</label>
                 <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'F'">Women</label>
@@ -80,16 +80,20 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th></th>
                     <th>Name</th>
-                    <th>Sex</th>
+                    <% if(race.categories.length > 1){%>
+                        <th ng-if="!catagoryFilter">Category</th>
+                    <% } %>
+                    <th ng-if="!sexFilter && showSexFilter">Sex</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr ng-repeat="participant in participants | filter:{categoryId:catagoryFilter, sex:sexFilter}">
-                    <td><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/></td>
-                    <td style="vertical-align:center"><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}">{{participant.name}}</a></td>
-                    <td style="vertical-align:center">{{participant.sex}}</td>
+                    <td style="vertical-align:center"><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/> <a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}">{{participant.name}}</a></td>
+                    <% if(race.categories.length > 1){%>
+                    <td ng-if="!catagoryFilter">{{participant.catagoryName}}</td>
+                    <% } %>
+                    <td ng-if="!sexFilter && showSexFilter" style="vertical-align:center">{{participant.sex}}</td>
                 </tr>
                 </tbody>
             </table>
@@ -97,20 +101,24 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th></th>
                         <th>Rank</th>
                         <th>Name</th>
-                        <th>Sex</th>
+                        <% if(race.categories.length > 1){%>
+                        <th ng-if="!catagoryFilter">Category</th>
+                        <% } %>
+                        <th ng-if="!sexFilter && showSexFilter">Sex</th>
                         <th ng-if="race.stages.lenght !== 1" ng-repeat="stage in race.stages | orderBy : 'number' ">Stage {{stage.number}}</th>
                         <th>Total Time</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="participant in participants | orderBy : 'rank' | filter:{categoryId:catagoryFilter, sex:sexFilter}">
-                        <td><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/></td>
                         <td style="vertical-align:center"><i ng-if="participant.rank===1" class="fa fa-trophy" style="color: gold"></i><i ng-if="participant.rank===2"class="fa fa-trophy" style="color: silver"></i><i ng-if="participant.rank===3" class="fa fa-trophy" style="color: #8C7853"></i> {{participant.rank}}</td>
-                        <td style="vertical-align:center"><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}" target="_blank">{{participant.name}}</a></td>
-                        <td style="vertical-align:center">{{participant.sex}}</td>
+                        <td style="vertical-align:center"><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}" target="_blank">{{participant.name}}</a></td>
+                        <% if(race.categories.length > 1){%>
+                        <td>{{participant.catagoryName}}</td>
+                        <% } %>
+                        <td ng-if="!sexFilter && showSexFilter" style="vertical-align:center">{{participant.sex}}</td>
                         <td style="vertical-align:center" ng-repeat="result in participant.results | orderBy : 'stageNumber'"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a></td>
                         <td ng-if="participant.time && race.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
                         <td ng-if="!participant.time && race.stages.lenght !== 1" style="vertical-align:center">DNF</td>
@@ -169,7 +177,7 @@
                 <%if(race.state !== 'finished'){%>
                     <%if((race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1) && race.maxParticipants > participants.length){%>
                         <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
-                            <a href="#" class="list-group-item" ng-click="join()">Join Race</a>
+                            <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Race</a>
                         <%}else{%>
                             <a href="#" class="list-group-item" ng-click="leave()">Leave Race</a>
                         <%}%>
@@ -185,7 +193,7 @@
 
                 <a href="#" class="list-group-item" data-toggle="modal" data-target="#addFriendDialog" ng-click="showAddFriend()">Add Friend</a>
                     <%if(race.state === 'finished'){%>
-                        <a href="#" class="list-group-item" ng-click="join()">Join Race</a>
+                        <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Race</a>
                     <%}%>
 
                     <%if(race.state !== 'upcomming'){%>
@@ -252,322 +260,37 @@
     </div>
 </div>
 
+<div class="modal fade" id="joinDialog" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select Catagory</h4>
+            </div>
+            <div class="modal-body" >
+                <div class="form-group">
+                    <label for="catagory">Catagory:</label>
+                    <div class='input-group' id='privacy'>
+                        <select class="form-control" id="catagory" ng-model="selectedCatagoryId">
+                            <% for(var i=0; i<race.categories.length; i++) { var catagory = race.categories[i];%>
+                                <option value="<%= catagory.id%>"><%= catagory.name%></option>
+                            <%}%>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="join()">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <% include partials/template/footer.ejs %>
 
+<% include ../controlers/race_details_controler.ejs %>
 
-
-<script type="text/javascript">
-
-    var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
-
-    app.filter('isFriendSelected',
-            function() {
-                return function(value) {
-                    return value? "success" : "";
-                };
-            });
-
-    function padTime(t) {
-        return t < 10 ? "0"+t : t;
-    }
-
-    app.filter('secondsToTime', function() {
-        return function(_seconds) {
-            if (typeof _seconds !== "number" || _seconds < 0)
-                return "DNS";
-
-            var hours = Math.floor(_seconds / 3600);
-            var minutes = Math.floor((_seconds % 3600) / 60)
-            var seconds = Math.floor(_seconds % 60);
-
-            if(hours === 0)
-            {
-                return padTime(minutes) + ":" + padTime(seconds);
-            }
-            else
-            {
-                return padTime(hours) + ":" + padTime(minutes) + ":" + padTime(seconds);
-            }
-        };
-    });
-
-    app.filter('secondsToCountdown', function() {
-        return function(_seconds) {
-            if (typeof _seconds !== "number" || _seconds < 0)
-                return "0m";
-
-            var time = _seconds;
-            time = Math.floor(time / 1000);
-            time = Math.floor(time / 60);
-            var minutes = Math.floor(time % 60);
-            time = Math.floor(time / 60);
-            var hours = Math.floor(time % 24);
-            var days = Math.floor(time / 24);
-
-            if(days === 0)
-            {
-                if(hours === 0)
-                {
-                    return minutes + "m ";
-                }
-                else
-                {
-                    return hours + "h " + padTime(minutes) + "m ";
-                }
-            }
-            else
-            {
-                return days + "d " + padTime(hours) + "h " + padTime(minutes) + "m ";
-            }
-        };
-    });
-
-    app.controller('raceControler', function($scope, $http) {
-        $scope.race = <%- JSON.stringify(race) %>;
-        $scope.participants = <%- JSON.stringify(participants) %>;
-        $scope.friends = [];
-
-        $scope.participants.forEach(function (item)
-        {
-            var index = $scope.race.categories.findIndex(function(category){
-                return category.id === item.categoryId;
-            });
-
-            if(index !== -1)
-            {
-                item.catagoryName = $scope.race.categories[index].name;
-            }
-            else
-            {
-                item.catagoryName = "Unknown";
-            }
-        });
-
-        L.mapbox.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
-        var map = L.mapbox.map('map', 'mapbox.outdoors')
-                .setView($scope.race.centerPoint, 12);
-
-       /// var myLayer = L.mapbox.styleLayer('mapbox://styles/mapbox/outdoors-v9').addTo(map);
-
-        var myLayer = L.mapbox.featureLayer().addTo(map);
-
-        map.fitBounds($scope.race.boundingBox);
-
-        var polyline_options = {
-            color: '#F00'
-        };
-
-
-        var points = [];
-
-            var stage_numb = 0;
-            $scope.race.stages.forEach(function (stage)
-            {
-                stage_numb++;
-                if(stage.map !== undefined)
-                {
-                    L.polyline(stage.map.points, polyline_options).addTo(map);
-
-                    var stage_name = "Start Stage " + stage_numb;
-                    var end_name = "End Stage " + stage_numb;
-                    if($scope.race.stages.length === 1)
-                    {
-                        stage_name = "Start";
-                        end_name = "End";
-                    }
-
-                    var icon = "star";
-                    if(stage.activity_type == "Ride")
-                    {
-                        icon = "bicycle";
-                    }
-
-                    var start = {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": [stage.start_latlng[1], stage.start_latlng[0]]
-                        },
-                        "properties": {
-                            "title": stage_name,
-                            'description': stage.name,
-                            'marker-size': 'small',
-                            'marker-color': '#00AA00',
-                            "marker-symbol": icon,
-                            url: 'https://www.strava.com/segments/' + stage.segmentId
-                        }
-                    };
-
-                    var end = {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": [stage.end_latlng[1], stage.end_latlng[0]]
-                        },
-                        "properties": {
-                            "title": end_name,
-                            'description': stage.name,
-                            'marker-size': 'small',
-                            'marker-color': '#FF0000',
-                            "marker-symbol": 'star',
-                            url: 'https://www.strava.com/segments/' + stage.segmentId
-                        }
-                    };
-
-                    points.push(end);
-                    points.push(start);
-                }
-
-
-
-            });
-
-        var geojson = {
-            type: 'FeatureCollection',
-            features: points
-        };
-
-        myLayer.setGeoJSON(geojson);
-
-        myLayer.on('click', function(e) {
-            window.open(e.layer.feature.properties.url);
-        });
-
-        <% if(isLoggedIn){%>
-
-        function GetFriends(page)
-        {
-            $http.get("/strava/friends/" + page)
-                    .then(function(response) {
-                        $scope.friends = $scope.friends.concat(response.data);
-
-                        $scope.participants.forEach(function (participant)
-                        {
-                            var friend = $scope.friends.find(function (item)
-                            {
-                                return item.id === participant.athleteId;
-                            });
-
-                            if(friend)
-                            {
-                                arrayUtils.remove($scope.friends, friend);
-                            }
-                        });
-
-                        if(response.data.length === 30)
-                        {
-                            page++;
-                            GetFriends(page);
-                        }
-                    });
-        }
-
-        $scope.getFriends = function()
-        {
-            $scope.friends = [];
-            GetFriends(1);
-        }
-
-        $scope.showAddFriend = function () {
-            $scope.friendSeachText = undefined;
-            $scope.selectedFriend = undefined;
-            if($scope.friends.length === 0)
-            {
-                $scope.getFriends();
-            }
-        };
-
-        $scope.addFriend = function () {
-            var newParticipant = new participant.Participant($scope.selectedFriend.id, $scope.race._id, $scope.race.categories[0].id);
-            newParticipant.athleteImage = $scope.selectedFriend.profile_medium;
-            newParticipant.name = $scope.selectedFriend.name;
-            newParticipant.sex = $scope.selectedFriend.sex;
-
-            newParticipant.raceStartTime = $scope.race.startTime;
-            $http.put("/data/participant", newParticipant)
-                    .then(function(response) {
-                        if(response.data)
-                        {
-                            location.replace("/race/details/<%= race._id%>");
-                        }
-                    });
-        };
-
-        $scope.selectFriend = function (friend) {
-            $scope.selectedFriend = friend;
-        };
-
-
-
-        $scope.join = function () {
-            var newParticipant = new participant.Participant(<%= athlete.id %>, $scope.race._id, $scope.race.categories[0].id);
-            newParticipant.athleteImage = "<%= athlete.profile_medium%>";
-            newParticipant.name = "<%= athlete.firstname + " " + athlete.lastname%>";
-            newParticipant.sex = "<%= athlete.sex===null?"M":athlete.sex %>";
-
-            newParticipant.raceStartTime = $scope.race.startTime;
-            $http.put("/data/participant", newParticipant)
-                    .then(function(response) {
-                        if(response.data)
-                        {
-                            location.replace("/race/details/<%= race._id%>");
-                        }
-                    });
-        };
-
-        <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
-            $scope.leave = function () {
-                $http.delete("/data/participant/<%= participants.find(function(item){return item.athleteId === athlete.id;})._id %>")
-                        .then(function(response) {
-                            if(response.data)
-                            {
-                                location.replace("/race/details/<%= race._id%>");
-                            }
-                        });
-            };
-
-            $scope.updateMyResults = function () {
-                $http.post("/update/participant/<%= participants.find(function(item){return item.athleteId === athlete.id;})._id %>")
-                        .then(function(response) {
-                            if(response.data)
-                            {
-                                location.replace("/race/details/<%= race._id%>");
-                            }
-                        });
-            };
-            <%}%>
-
-            $scope.edit = function () {
-                location.replace("/race/edit/<%= race._id%>");
-            };
-
-            $scope.deleteRace = function () {
-                $http.delete("/data/race/<%= race._id%>")
-                        .then(function(response) {
-                            if(response.data)
-                            {
-                                location.replace("/race/manage");
-                            }
-                        });
-            };
-
-            $scope.updateRaceResults = function () {
-                $http.post("/update/race/<%= race._id%>")
-                        .then(function(response) {
-                            if(response.data)
-                            {
-                                location.replace("/race/details/<%= race._id%>");
-                            }
-                        });
-
-
-        };
-        <%}%>
-    });
-
-
-
-</script>
 </body>
 
 </html>

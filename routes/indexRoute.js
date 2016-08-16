@@ -1,43 +1,150 @@
 var express = require('express');
 var strava = require('strava-v3');
+var async = require('async');
 var database = require('../database');
 var user_utils = require('../public/javascripts/user');
 var race_utils = require('../public/javascripts/race');
 var router = express.Router();
 
 var renderPage = function (session, res) {
-    database.getInProgressAthleteRaces(session.athlete.id, function (err, docs, racesInProgress)
-    {
-        if(!err)
-        {
-            database.getFinishedAthleteRaces(session.athlete.id, function (err, docs, racesFinished){
-                if(!err)
-                {
-                    database.getUpcommingAthleteRaces(session.athlete.id, function (err, docs, racesUpcomming){
-                        if(!err)
-                        {
-                            racesUpcomming.forEach(function (item)
-                            {
-                                race_utils.UpdateRaceState(item.doc);
-                            });
+    async.waterfall([
+        function(callback) {
+            var data = {
+                mode: 'home',
+                appName: process.env.APP_NAME,
+                url: process.env.APP_URL,
+                titleText: "Home | ",
+                athlete: session.athlete,
+                user: session.user
+            };
 
-                            var data = {
-                                mode: 'home',
-                                appName : process.env.APP_NAME,
-                                url : process.env.APP_URL,
-                                titleText: "Home | ",
-                                athlete: session.athlete,
-                                racesInProgress: racesInProgress,
-                                racesFinished: racesFinished,
-                                racesUpcomming: racesUpcomming
-                            };
-                            res.render('index', data);
-                        }
-                    });
+            callback(null, data);
+        },
+        function (data, callback)
+        {
+            database.getInProgressAthleteRaces(session.athlete.id, function (err, docs, racesInProgress)
+            {
+                if (err)
+                {
+                    callback(err);
                 }
-            });
+
+                data.racesInProgress = racesInProgress;
+                callback(null, data);
+            }
+            );
+        },
+        function (data, callback)
+        {
+            database.getFinishedAthleteRaces(session.athlete.id, function (err, docs, racesFinished)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                    }
+
+                    data.racesFinished = racesFinished;
+                    callback(null, data);
+                }
+            );
+        },
+        function (data, callback)
+        {
+            database.getUpcommingAthleteRaces(session.athlete.id, function (err, docs, racesUpcomming)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                    }
+
+                    racesUpcomming.forEach(function (item)
+                    {
+                        race_utils.UpdateRaceState(item.doc);
+                    });
+
+                    data.racesUpcomming = racesUpcomming;
+                    callback(null, data);
+                }
+            );
+        },
+        function (data, callback)
+        {
+            database.getCreatedUpcommingCount(session.athlete.id, function (err, createdUpcommingCount)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                    }
+
+                    data.createdUpcommingCount = createdUpcommingCount;
+                    callback(null, data);
+                }
+            );
+        },
+        function (data, callback)
+        {
+            database.getFinishedCount(session.athlete.id, function (err, finishedCount)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                    }
+
+                    data.finishedCount = finishedCount;
+                    callback(null, data);
+                }
+            );
+        },
+        function (data, callback)
+        {
+            database.getFirstPlaceCount(session.athlete.id, function (err, firstCount)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                    }
+
+                    data.firstCount = firstCount;
+                    callback(null, data);
+                }
+            );
+        },
+        function (data, callback)
+        {
+            database.getSecondPlaceCount(session.athlete.id, function (err, secondCount)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                    }
+
+                    data.secondCount = secondCount;
+                    callback(null, data);
+                }
+            );
+        },
+        function (data, callback)
+        {
+            database.getThirdPlaceCount(session.athlete.id, function (err, thridCount)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                    }
+
+                    data.thridCount = thridCount;
+                    callback(null, data);
+                }
+            );
         }
-    })
+    ], function (err, result) {
+        if(err)
+        {
+            return;
+        }
+
+        res.render('index', result);
+    });
 };
 
 /* GET home page. */
@@ -70,76 +177,70 @@ router.get('/login', function (req, res) {
     if (req.session.isLoggedIn)
     {
         renderPage(req.session, res);
+        return;
     }
-    else
+
+    console.log("STRAVA: Get Token");
+    strava.oauth.getToken(req.query.code, function (err, payload)
     {
-        console.log("STRAVA: Get Token");
-        strava.oauth.getToken(req.query.code, function (err, payload)
+        try
         {
-            try
+            if (err)
             {
-                if (!err)
+                console.log("ERROR: " + err);
+                res.render('nav_to', {navLocation: "/"});
+                return;
+            }
+
+            database.getUser(payload.athlete.id, function (result, user)
+            {
+                if (result)
                 {
-                    database.getUser(payload.athlete.id, function (result, user)
+                    res.render('nav_to', {navLocation: "/"});
+                    return;
+                }
+
+                function updateResult(result, id)
+                {
+                    if (!result)
                     {
-                        if(!result)
-                        {
-                            function updateResult(result, id)
-                            {
-                                if(result)
-                                {
-                                    if(!payload.athlete.profile_medium)
-                                    {
-                                        payload.athlete.profile_medium = "/images/medium.png";
-                                    }
+                        res.render('nav_to', {navLocation: "/"});
+                        return;
+                    }
 
-                                    if(payload.athlete.profile_medium ==="avatar/athlete/medium.png")
-                                    {
-                                        payload.athlete.profile_medium = "/images/medium.png";
-                                    }
+                    if (!payload.athlete.profile_medium)
+                    {
+                        payload.athlete.profile_medium = "/images/medium.png";
+                    }
+                    if (payload.athlete.profile_medium === "avatar/athlete/medium.png")
+                    {
+                        payload.athlete.profile_medium = "/images/medium.png";
+                    }
+                    user._id = id;
+                    req.session.isLoggedIn = true;
+                    req.session.user = user;
+                    req.session.athlete = payload.athlete;
+                    req.session.accessToken = payload.access_token;
+                    res.render('nav_to', {navLocation: "/home"});
+                }
 
-                                    user._id = id;
-                                    req.session.isLoggedIn = true;
-                                    req.session.user = user;
-                                    req.session.athlete = payload.athlete;
-                                    req.session.accessToken = payload.access_token;
-                                    res.render('nav_to', {navLocation: "/home"});
-                                }
-                                else
-                                {
-                                    res.render('nav_to', {navLocation: "/"});
-                                }
-                            }
-
-                            if(!user)
-                            {
-                                user = new user_utils.User(payload.athlete.id);
-                                database.updateDocument(user, updateResult);
-                            }
-                            else
-                            {
-                                updateResult(true, user._id);
-                            }
-                        }
-                        else
-                        {
-                            res.render('nav_to', {navLocation: "/"});
-                        }
-                    });
+                if (!user)
+                {
+                    user = new user_utils.User(payload.athlete.id);
+                    database.updateDocument(user, updateResult);
                 }
                 else
                 {
-                    console.log("ERROR: " + err);
-                    res.render('nav_to', {navLocation: "/"});
+                    updateResult(true, user._id);
                 }
-            }
-            catch (error)
-            {
-                console.log("ERROR: " + error);
-                console.log(error.stack);
-            }
-        });
-    }
+            });
+        }
+        catch (error)
+        {
+            console.log("ERROR: " + error);
+            console.log(error.stack);
+        }
+    });
 });
 
 router.get('/logout', function (req, res) {

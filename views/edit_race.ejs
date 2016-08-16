@@ -47,7 +47,6 @@
                     </div>
                 </div>
 
-            <%if(user.isAdmin){%>
             <div class="form-group">
                 <label for="privacy">Privacy:</label>
                 <div class='input-group' id='privacy'>
@@ -56,6 +55,11 @@
                         <option value="friends">Only Friends</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label for="maxParticipants">Maxumum number of participants:</label>
+                <input type="number" class="form-control" id="name" ng-model="race.maxParticipants", min="2", max="100">
             </div>
 
             <!--<div class="well">
@@ -83,7 +87,6 @@
                 <button class="btn btn-default" data-toggle="modal" data-target="#addCategoryDialog" ng-click="showAddCategory()">Add Catagory</button>
             </div>-->
 
-            <%}%>
         </div>
         <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
             <div class="well">
@@ -100,12 +103,16 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="stage in race.stages track by $index">
-                            <td style="vertical-align:center">{{$index + 1}}</td>
+                        <tr ng-repeat="stage in race.stages | orderBy : 'number'">
+                            <td style="vertical-align:center">{{stage.number}}</td>
                             <td style="vertical-align:center">{{stage.activity_type}}</td>
                             <td style="vertical-align:center"><a ng-href="{{ 'https://www.strava.com/segments/' + stage.id}}" target="_blank">{{stage.name}}</a></td>
                             <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
-                            <td><a ng-click="deleteStage(stage)"><span class="glyphicon glyphicon-remove-circle"></span></a></td>
+                            <td class="btn-group">
+                                <button class="btn btn-default" ng-disabled="stage.number === 1" ng-click="moveStageUp(stage)"><span class="glyphicon glyphicon-arrow-up"></span></button>
+                                <button class="btn btn-default" ng-disabled="stage.number === race.stages.length"ng-click="moveStageDown(stage)"><span class="glyphicon glyphicon-arrow-down"></span></button>
+                                <button class="btn btn-default" ng-click="deleteStage(stage)"><span class="glyphicon glyphicon-remove-circle"></span></button>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -195,6 +202,7 @@
         </div>
     </div>
 </div>
+
 <% include partials/template/footer.ejs %>
 <% include partials/template/jsdefaults.ejs %>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.min.js"></script>
@@ -227,9 +235,45 @@
         $scope.deleteStage = function (stage) {
             arrayUtils.remove($scope.race.stages, stage);
 
+            var stageNumber = 1;
+            $scope.race.stages.sort(function (item1, item2)
+            {
+                return item1.number-item2.number;
+            }).forEach(function (item)
+            {
+                item.number = stageNumber;
+                stageNumber++;
+            });
+
             $scope.totalDistance = $scope.race.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
+        }
+
+        $scope.moveStageUp = function (stage) {
+            var otherStage = $scope.race.stages.find(function (item)
+            {
+                return item.number === (stage.number-1)
+            });
+
+            if(otherStage)
+            {
+                otherStage.number = stage.number
+                stage.number--;
+            }
+        }
+
+        $scope.moveStageDown = function (stage) {
+            var otherStage = $scope.race.stages.find(function (item)
+            {
+                return item.number === (stage.number+1)
+            });
+
+            if(otherStage)
+            {
+                otherStage.number = stage.number
+                stage.number++;
+            }
         }
 
         $scope.onApply = function () {
@@ -298,6 +342,7 @@
 
         $scope.addStage = function () {
             var newStage = new stage.Stage($scope.selectedStage.id);
+            newStage.number = $scope.race.stages.length + 1;
             newStage.name = $scope.selectedStage.name;
             newStage.distance = $scope.selectedStage.distance;
             newStage.activity_type = $scope.selectedStage.activity_type;

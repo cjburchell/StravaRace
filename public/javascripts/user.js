@@ -7,6 +7,7 @@
         this._rev = undefined;
         this.type = "user";
         this.athleteId = athleteId;
-        this.isAdmin = false;
+        this.role = "user";
+        this.maxActiveRaces = 3;
     };
 })(typeof exports === 'undefined'? this['user']={}: exports);

@@ -101,17 +101,17 @@
                         <th>Rank</th>
                         <th>Name</th>
                         <th>Sex</th>
-                        <th ng-if="race.stages.lenght !== 1" ng-repeat="stage in race.stages track by $index">Stage {{$index + 1}}</th>
+                        <th ng-if="race.stages.lenght !== 1" ng-repeat="stage in race.stages | orderBy : 'number' ">Stage {{stage.number}}</th>
                         <th>Total Time</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="participant in participants | orderBy : 'rank' | filter:{categoryId:catagoryFilter, sex:sexFilter}">
                         <td><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/></td>
-                        <td style="vertical-align:center">{{participant.rank}}</td>
+                        <td style="vertical-align:center"><i ng-if="participant.rank===1" class="fa fa-trophy" style="color: gold"></i><i ng-if="participant.rank===2"class="fa fa-trophy" style="color: silver"></i><i ng-if="participant.rank===3" class="fa fa-trophy" style="color: #8C7853"></i> {{participant.rank}}</td>
                         <td style="vertical-align:center"><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}" target="_blank">{{participant.name}}</a></td>
                         <td style="vertical-align:center">{{participant.sex}}</td>
-                        <td style="vertical-align:center" ng-repeat="result in participant.results"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a></td>
+                        <td style="vertical-align:center" ng-repeat="result in participant.results | orderBy : 'stageNumber'"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a></td>
                         <td ng-if="participant.time && race.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
                         <td ng-if="!participant.time && race.stages.lenght !== 1" style="vertical-align:center">DNF</td>
                     </tr>
@@ -167,7 +167,7 @@
             <div class="panel-body list-group" style="padding: 0">
                 <%if(isLoggedIn){%>
                 <%if(race.state !== 'finished'){%>
-                    <%if(race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1 ){%>
+                    <%if((race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1) && race.maxParticipants > participants.length){%>
                         <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
                             <a href="#" class="list-group-item" ng-click="join()">Join Race</a>
                         <%}else{%>
@@ -181,7 +181,7 @@
                 <%}%>
                 <%}%>
                 <%if(race.ownerId == athlete.id){%>
-                <%if(user.isAdmin){%>
+                <%if(user.role === "dev"){%>
 
                 <a href="#" class="list-group-item" data-toggle="modal" data-target="#addFriendDialog" ng-click="showAddFriend()">Add Friend</a>
                     <%if(race.state === 'finished'){%>

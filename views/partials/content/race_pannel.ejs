@@ -23,7 +23,7 @@
         <h5><%= race.doc.stages.length %> Stages</h5>
         <%}else{%>
             <%if(race.value.participant.stagesComplete === race.value.participant.results.length){ %>
-            <h3> <% if(race.value.participant.rank && race.value.participant.rank<=3){%><i class="fa fa-trophy"></i> <%}%>Rank: <%= race.value.participant.rank%>/<%= race.value.participant.out_of%></h3>
+            <h3 class="rank"><% if(race.value.participant.rank && race.value.participant.rank<=3){%><i class="fa fa-trophy"></i> <%}%>Rank: <%= race.value.participant.rank%>/<%= race.value.participant.out_of%></h3>
         <%}else{%>
         <h3>Stages: <%= race.value.participant.stagesComplete%>/<%= race.value.participant.results.length%></h3>
         <%}%>

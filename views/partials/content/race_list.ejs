@@ -34,7 +34,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="race in races | filter: {name:seachText, state:raceFilter}">
+        <tr ng-repeat="race in races | orderBy: 'startTime' : true | filter: {name:seachText, state:raceFilter}">
             <td><a ng-href="{{ '/race/details/' + race._id }}">{{race.name}}</a></td>
             <td>{{race.ownerName}}</td>
             <td>{{race.stages.length}}</td>

@@ -18,17 +18,17 @@
             }
               if (rank == 1)
               {
-                return "panel panel-first";
+                return "panel panel-first panel-default";
               }
 
           if (rank == 2)
           {
-            return "panel panel-second";
+            return "panel panel-second panel-default";
           }
 
           if (rank == 3)
           {
-            return "panel panel-third";
+            return "panel panel-third panel-default";
           }
 
           return "panel panel-default";
@@ -95,6 +95,27 @@
     <% include partials/template/header.ejs %>
     <div class="container-fluid" ng-app="app" >
         <div class="row">
+          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+            <% include partials/template/actions.ejs %>
+
+            <div class="panel panel-default">
+              <div class="panel-heading"><b>Stats</b></div>
+              <div class="panel-body">
+                <p><label>Finished:</label> <%=finishedCount%></p>
+                <%if(firstCount !== 0){%>
+                <p><i class="fa fa-trophy" style="color: gold"></i> <%=firstCount%></p>
+                <%}%>
+                <%if(secondCount !== 0){%>
+                <p><i class="fa fa-trophy" style="color: silver"></i> <%=secondCount%></p>
+                <%}%>
+                <%if(thridCount !== 0){%>
+                <p><i class="fa fa-trophy" style="color: #8C7853"></i> <%=thridCount%></p>
+                <%}%>
+                <p><label>My Active Races:</label> <%=createdUpcommingCount%>/<%=user.maxActiveRaces%></p>
+              </div>
+            </div>
+
+          </div>
           <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
             <div class="row">
 
@@ -130,9 +151,6 @@
             </div>
           </div>
 
-          <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
-            <% include partials/template/actions.ejs %>
-          </div>
         </div>
     </div>
     <% include partials/template/footer.ejs %>

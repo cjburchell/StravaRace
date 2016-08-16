@@ -21,6 +21,11 @@ const UpcommingRacebyParticipantView = "_design/race/_view/upcomming_by_particip
 const InProgressRacebyParticipantView = "_design/race/_view/inprogress_by_participant";
 const FinishedRacebyParticipantView = "_design/race/_view/finished_by_participant";
 
+const UpcommingByOwner ="_design/race/_view/upcomming_by_owner";
+
+const FinishedRaces ="_design/participant/_view/finished";
+const RankRaces = "_design/participant/_view/rank";
+
 const userView = "_design/user/_view/by_athlete";
 
 /**
@@ -69,20 +74,29 @@ function Database() {
         });
     };
 
-    this.getView = function (key, view, done, descending, limit)
+    this.getView = function (key, view, done, descending, limit, reduce)
     {
         console.log("DB: getView"+ " key:" +  key + " view: " + view);
         var couch = connect();
+
+        var include_docs = reduce !== undefined? !reduce : true;
         var queryOptions = {
-            include_docs : true,
+            include_docs : include_docs,
             key : key,
             descending: descending,
-            limit: limit
+            limit: limit,
+            reduce: reduce
         };
 
         couch.get(StravaDatabaseName, view, queryOptions).then( function(data) {
             try
             {
+                if(!include_docs)
+                {
+                    done(undefined, undefined, data.data.rows);
+                    return;
+                }
+
                 var docs = data.data.rows.filter(function (item)
                 {
                     return item.doc !== null;
@@ -133,7 +147,58 @@ function Database() {
 
     this.getRaceParticipants = function (raceId, done)
     {
-        this.getView(raceId, ParticipantbyRaceView, done);
+        this.getView(raceId, ParticipantbyRaceView, done, undefined, undefined, false);
+    };
+
+    this.getCount = function (key, view, done)
+    {
+        this.getView(key, view, function (err, docs, values)
+        {
+            if(err)
+            {
+                done(err);
+                return;
+            }
+
+            if(values.length !== 0)
+            {
+                done(undefined,values[0].value);
+            }
+            else
+            {
+                done(undefined,0);
+            }
+        }, undefined, undefined, true);
+    }
+
+    this.getRaceParticipantsCount = function (raceId, done)
+    {
+        this.getCount(raceId, ParticipantbyRaceView, done);
+    };
+
+    this.getCreatedUpcommingCount = function (ownerId, done)
+    {
+        this.getCount(ownerId, UpcommingByOwner, done);
+    };
+
+    this.getFinishedCount = function (athleteId, done)
+    {
+        this.getCount(athleteId, FinishedRaces, done);
+    };
+
+    this.getFirstPlaceCount = function (athleteId, done)
+    {
+        this.getCount([athleteId,1], RankRaces, done);
+    };
+
+    this.getSecondPlaceCount = function (athleteId, done)
+    {
+        this.getCount([athleteId,2], RankRaces, done);
+    };
+
+    this.getThirdPlaceCount = function (athleteId, done)
+    {
+        this.getCount([athleteId,3], RankRaces, done);
     };
 
     this.getPublicRaces = function (done) {

@@ -17,8 +17,26 @@ function createGuid()
 }
 
 router.get('/create', function(req, res) {
-    if(req.session.isLoggedIn)
+    if (!req.session.isLoggedIn)
     {
+        res.render('nav_to', {navLocation: "/"});
+        return;
+    }
+
+    database.getCreatedUpcommingCount(req.session.athlete.id, function (err, upcommingCount)
+    {
+        if (err)
+        {
+            res.render('nav_to', {navLocation: "/"});
+            return;
+        }
+
+        if(upcommingCount >= req.session.user.maxActiveRaces )
+        {
+            res.render('nav_to', {navLocation: "/"});
+            return;
+        }
+
         var newRace = new race.Race();
         race.ownerId = req.session.athlete.id;
         var newCat = new category.Category(createGuid());
@@ -26,20 +44,16 @@ router.get('/create', function(req, res) {
         newRace.categories.push(newCat);
         var data = {
             titleText: "Create | Race | ",
-            url : process.env.APP_URL,
-            appName : process.env.APP_NAME,
-            mode : 'race',
+            url: process.env.APP_URL,
+            appName: process.env.APP_NAME,
+            mode: 'race',
             user: req.session.user,
-            athlete : req.session.athlete,
-            isCreating : true,
-            race : newRace
+            athlete: req.session.athlete,
+            isCreating: true,
+            race: newRace
         };
         res.render('edit_race', data);
-    }
-    else
-    {
-        res.render('nav_to', {navLocation:"/"});
-    }
+    });
 });
 
 router.get('/edit/:id', function(req, res) {
@@ -110,44 +124,56 @@ router.get('/manage', function(req, res) {
 router.get('/join', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getPublicRaces(function (err, result) {
-            if(!err) {
+        database.getAthleteRaces(req.session.athlete.id, function (err, joinedRaces)
+        {
+            if (err)
+            {
+                res.render('nav_to', {navLocation: "/"});
+                return;
+            }
+
+            database.getPublicRaces(function (err, result) {
+                if (err)
+                {
+                    res.render('nav_to', {navLocation: "/"});
+                    return;
+                }
+
                 var data = {
                     titleText: "Join Race | ",
-                    url : process.env.APP_URL,
-                    appName : process.env.APP_NAME,
+                    url: process.env.APP_URL,
+                    appName: process.env.APP_NAME,
                     mode: 'race',
                     athlete: req.session.athlete,
                     races: []
                 };
-                var currentTime = new Date();
 
-                function filterRace(item) {
-                    if((new Date(item.endTime) - currentTime) > 0)
-                    {
-                        data.races.push(item);
-                    }
+                var currentTime = new Date();
+                function filterRace(item)
+                {
+                    var isJoined = joinedRaces.findIndex(function (joined)
+                        {
+                            return item._id === joined._id;
+                        }) === -1;
+                    return (new Date(item.endTime) - currentTime) > 0 && isJoined;
                 }
 
-                result.forEach(filterRace);
+                data.races = data.races.concat(result.filter(filterRace));
 
-                database.getPrivateRaces(req.session.athlete.id, function (err, result) {
-                    if(!err)
+                database.getPrivateRaces(req.session.athlete.id, function (err, result)
+                {
+                    if (err)
                     {
-                        result.forEach(filterRace);
-
-                        race.UpdateRaces(data);
-
-                        res.render('join', data);
-                    }else
-                    {
-                        res.render('nav_to', {navLocation:"/"});
+                        res.render('nav_to', {navLocation: "/"});
+                        return;
                     }
+
+                    data.races = data.races.concat(result.filter(filterRace));
+                    race.UpdateRaces(data);
+                    res.render('join', data);
                 });
-            }else
-            {
-                res.render('nav_to', {navLocation:"/"});
-            }
+
+            });
         });
     }
     else

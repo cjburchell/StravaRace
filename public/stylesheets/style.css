@@ -61,35 +61,22 @@ td {
 .left-addon input  { padding-left:  30px; }
 .right-addon input { padding-right: 30px; }
 
-.panel-first {
-  border-color: #FFD700;
-  border-width: 5px;
+.panel-first>.panel-body>.rank>.fa {
+  color: gold;
 }
 
-.panel-second {
-  border-color: #C0C0C0;
-  border-width: 5px;
+.panel-second>.panel-body>.rank>.fa {
+  color: silver;
 }
 
-.panel-third {
-  border-color: #8C7853;
-  border-width: 5px;
+.panel-third>.panel-body>.rank>.fa {
+  color: #8C7853;
 }
 
-.panel-first>.panel-heading {
-  color: #222;
-  background-color: #f5f5f5;
-  border-color: #FFD700;
+.panel-heading {
+  padding: 5px 15px;
 }
 
-.panel-second>.panel-heading {
-  color: #222;
-  background-color: #f5f5f5;
-  border-color: #C0C0C0;
-}
-
-.panel-third>.panel-heading {
-  color: #222;
-  background-color: #f5f5f5;
-  border-color: #8C7853;
+.panel-body>h3 {
+  margin-top: 0px;
 }

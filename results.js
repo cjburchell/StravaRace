@@ -59,11 +59,19 @@ function Results()
             }
             else
             {
+
                 oldresultTime = result.time;
                 oldresultActiviy = result.activityId;
                 result.time = undefined;
                 result.activityId = undefined;
             }
+
+            if(result.stageNumber === undefined || result.stageNumber !== stage.number)
+            {
+                result.stageNumber = stage.number;
+                participant.changed = true;
+            }
+
 
             var startUTC = new Date(race.startTime).getTime();
             var endUTC = new Date(race.endTime).getTime();

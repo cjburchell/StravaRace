@@ -11,71 +11,39 @@ router.put('/participant', function (req, res) {
         var participant = req.body;
         var athlete = req.session.athlete;
 
-
         database.getDocument(participant.raceId, function (err, race) {
-            if(!err)
+            if (err)
             {
-                if(race.privaicy == 'public' || race.friends.indexOf(participant.athleteId) !== -1 )
-                {
-                    database.updateDocument(participant, function (result, id) {
-                        if (!result) {
-                            res.end(JSON.stringify(false));
-                        } else {
-                            res.end(id);
-                        }
-                    });
-                }
-                else
-                {
-                    res.end( JSON.stringify(false) );
-                }
+                res.end(JSON.stringify(false));
+                return;
             }
-            else
-            {
-                res.end( JSON.stringify(false) );
-            }
-        });
-    }
-    else {
-        res.end( JSON.stringify(false) );
-    }
-});
 
-router.post('/participant/:id', function (req, res) {
-    if(req.session.isLoggedIn) {
-        var newParticipant = req.body;
-        var athlete = req.session.athlete;
-
-        database.getDocument(req.params.id, function (err, old)
-        {
-            if(!err)
+            database.getRaceParticipantsCount(participant.raceId, function (err, participantCount)
             {
-                newParticipant._rev = old._rev;
-                newParticipant.raceId = old.raceId;
-                newParticipant._id = req.params.id;
-                if(old.athleteId === req.session.athlete.id)
+                if (err)
                 {
-                    database.updateDocument(newParticipant, function (result, id)
+                    res.end(JSON.stringify(false));
+                    return;
+                }
+
+                if (!((race.privaicy == 'public' || race.friends.indexOf(participant.athleteId) !== -1) && race.maxParticipants > participantCount))
+                {
+                    res.end(JSON.stringify(false));
+                    return;
+                }
+
+                database.updateDocument(participant, function (result, id)
+                {
+                    if (!result)
                     {
-                        if (!result)
-                        {
-                            res.end(JSON.stringify(false));
-                        }
-                        else
-                        {
-                            res.end(id);
-                        }
-                    });
-                }
-                else
-                {
-                    res.end( JSON.stringify(false) );
-                }
-            }
-            else
-            {
-                res.end( JSON.stringify(false) );
-            }
+                        res.end(JSON.stringify(false));
+                    }
+                    else
+                    {
+                        res.end(id);
+                    }
+                });
+            });
         });
     }
     else {

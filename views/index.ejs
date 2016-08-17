@@ -111,7 +111,7 @@
                 <%if(thridCount !== 0){%>
                 <p><i class="fa fa-trophy" style="color: #8C7853"></i> <%=thridCount%></p>
                 <%}%>
-                <p><label>My Active Races:</label> <%=createdUpcommingCount%>/<%=user.maxActiveRaces%></p>
+                <p><label>My Active Races:</label> <%=createdUpcomingCount%>/<%=user.maxActiveRaces%></p>
               </div>
             </div>
 
@@ -119,10 +119,10 @@
           <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
             <div class="row">
 
-              <%if(racesUpcomming.length != 0){%>
+              <%if(racesUpcoming.length != 0){%>
               <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                 <h3>Upcoming</h3>
-                <% for(var i=0; i<racesUpcomming.length; i++) { var race = racesUpcomming[i];%>
+                <% for(var i=0; i<racesUpcoming.length; i++) { var race = racesUpcoming[i];%>
                 <% include partials/content/race_pannel.ejs %>
                 <%}%>
               </div>

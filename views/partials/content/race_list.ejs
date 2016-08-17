@@ -4,13 +4,13 @@
         <input type="text" class="form-control" ng-model="seachText">
     </div>
 
-    <% if( isRaceUpcomming && isRaceInProgress ||
-            isRaceUpcomming && isRaceFinished ||
+    <% if( isRaceUpcoming && isRaceInProgress ||
+            isRaceUpcoming && isRaceFinished ||
             isRaceFinished && isRaceInProgress){ %>
         <div class="btn-group">
             <label class="btn btn-primary" ng-model="raceFilter" uib-btn-radio="">All</label>
-            <% if(isRaceUpcomming){ %>
-            <label class="btn btn-primary" ng-model="raceFilter" uib-btn-radio="'upcomming'">Upcoming</label>
+            <% if(isRaceUpcoming){ %>
+            <label class="btn btn-primary" ng-model="raceFilter" uib-btn-radio="'upcoming'">Upcoming</label>
             <%}%>
             <% if(isRaceInProgress){ %>
             <label class="btn btn-primary" ng-model="raceFilter" uib-btn-radio="'in_progress'">In Progress</label>
@@ -40,7 +40,7 @@
             <td>{{race.stages.length}}</td>
             <td>{{race.totalDistance/1000 | number : 2}} km</td>
             <td>{{ race.startTime | date: 'short'}}</td>
-            <td ng-if="race.state === 'upcomming'">Starts in {{ race.startsIn | date : 'd' : 'UTC'}}d {{ race.startsIn | date: 'H': 'UTC'}}h {{ race.startsIn | date: 'm': 'UTC'}}m</td>
+            <td ng-if="race.state === 'upcoming'">Starts in {{ race.startsIn | date : 'd' : 'UTC'}}d {{ race.startsIn | date: 'H': 'UTC'}}h {{ race.startsIn | date: 'm': 'UTC'}}m</td>
             <td ng-if="race.state === 'in_progress'">Time left: {{ race.timeLeft | date : 'd' : 'UTC'}}d {{ race.timeLeft | date: 'H': 'UTC'}}h {{ race.timeLeft | date: 'm': 'UTC'}}m</td>
             <td ng-if="race.state === 'finished'">Finished</td>
             <td>{{ race.privaicy }}</td>

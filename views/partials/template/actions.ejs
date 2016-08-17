@@ -2,7 +2,7 @@
     <div class="panel-heading"><b>Actions</b></div>
     <div class="panel-body list-group" style="padding: 0">
         <a href="/race/join" class="list-group-item">Join a race</a>
-        <%if(createdUpcommingCount >= user.maxActiveRaces){%>
+        <%if(createdUpcomingCount >= user.maxActiveRaces){%>
             <a href="#" class="list-group-item disabled">Create a race</a>
         <%} else {%>
             <a href="/race/create" class="list-group-item">Create a race</a>

@@ -8,7 +8,7 @@
         this.athleteId = athleteId;
         this.athleteImage = "";
         this.raceId = raceId;
-        this.raceState = "upcomming";
+        this.raceState = "upcoming";
         this.categoryId = categoryId;
         this.results = [];
         this.name = "";

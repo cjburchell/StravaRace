@@ -18,7 +18,7 @@
         this.privaicy = "friends";
         this.categories = [];
         this.stages = [];
-        this.state = "upcomming";
+        this.state = "upcoming";
         this.maxParticipants = 20;
     };
 
@@ -43,7 +43,7 @@
         }
         else
         {
-            race.state = 'upcomming';
+            race.state = 'upcoming';
         }
     };
 
@@ -61,9 +61,9 @@
             return item.state === 'in_progress';
         });
 
-        data.isRaceUpcomming = data.races.some(function (item)
+        data.isRaceUpcoming = data.races.some(function (item)
         {
-            return item.state === 'upcomming';
+            return item.state === 'upcoming';
         });
     };
 

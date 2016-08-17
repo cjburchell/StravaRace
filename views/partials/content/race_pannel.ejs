@@ -6,7 +6,7 @@
                 <a href="/race/details/<%= race.doc._id%>"><h4><%= race.doc.name%></h4></a>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                <h4 style="text-align: right"><%if(race.doc.state === 'upcomming'){%>
+                <h4 style="text-align: right"><%if(race.doc.state === 'upcoming'){%>
                     {{ race.doc.startsIn | secondsToCountdown}}
                     <%}%>
 
@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="panel-body">
-        <%if(race.doc.state === "upcomming"){%>
+        <%if(race.doc.state === "upcoming"){%>
             <h3>{{race.doc.totalDistance/1000 | number : 2}}km</h3>
         <h5><%= race.doc.stages.length %> Stages</h5>
         <%}else{%>

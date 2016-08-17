@@ -23,7 +23,7 @@ router.get('/create', function(req, res) {
         return;
     }
 
-    database.getCreatedUpcommingCount(req.session.athlete.id, function (err, upcommingCount)
+    database.getCreatedUpcomingCount(req.session.athlete.id, function (err, upcomingCount)
     {
         if (err)
         {
@@ -31,7 +31,7 @@ router.get('/create', function(req, res) {
             return;
         }
 
-        if(upcommingCount >= req.session.user.maxActiveRaces )
+        if(upcomingCount >= req.session.user.maxActiveRaces )
         {
             res.render('nav_to', {navLocation: "/"});
             return;

@@ -263,7 +263,7 @@ class Results
             });
         }
 
-        if(race.state != 'upcomming')
+        if(race.state != 'upcoming')
         {
             database.getRaceParticipants(race._id, function (err, participants)
             {
@@ -346,7 +346,7 @@ class Results
     updateAllRaces(accessToken)
     {
 
-        database.getUpcommingRaces(function (err, races)
+        database.getUpcomingRaces(function (err, races)
         {
             if (!err)
             {

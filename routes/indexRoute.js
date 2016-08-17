@@ -48,33 +48,33 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getUpcommingAthleteRaces(session.athlete.id, function (err, docs, racesUpcomming)
+            database.getUpcomingAthleteRaces(session.athlete.id, function (err, docs, racesUpcoming)
                 {
                     if (err)
                     {
                         callback(err);
                     }
 
-                    racesUpcomming.forEach(function (item)
+                    racesUpcoming.forEach(function (item)
                     {
                         race_utils.UpdateRaceState(item.doc);
                     });
 
-                    data.racesUpcomming = racesUpcomming;
+                    data.racesUpcoming = racesUpcoming;
                     callback(null);
                 }
             );
         },
         callback =>
         {
-            database.getCreatedUpcommingCount(session.athlete.id, function (err, createdUpcommingCount)
+            database.getCreatedUpcomingCount(session.athlete.id, function (err, createdUpcomingCount)
                 {
                     if (err)
                     {
                         callback(err);
                     }
 
-                    data.createdUpcommingCount = createdUpcommingCount;
+                    data.createdUpcomingCount = createdUpcomingCount;
                     callback(null);
                 }
             );
@@ -123,14 +123,14 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getThirdPlaceCount(session.athlete.id, function (err, thridCount)
+            database.getThirdPlaceCount(session.athlete.id, function (err, thirdCount)
                 {
                     if (err)
                     {
                         callback(err);
                     }
 
-                    data.thridCount = thridCount;
+                    data.thridCount = thirdCount;
                     callback(null);
                 }
             );

@@ -15,14 +15,14 @@ const PublicRacesView = "_design/race/_view/public_races";
 const ParticipantbyRaceView = "_design/participant/_view/by_race";
 const RacebyParticipantView = "_design/race/_view/by_participant";
 
-const UpcommingRacesView = "_design/race/_view/upcomming_races";
+const UpcomingRacesView = "_design/race/_view/upcoming_races";
 const InProgressRacesView = "_design/race/_view/inprogress_races";
 
-const UpcommingRacebyParticipantView = "_design/race/_view/upcomming_by_participant";
+const UpcomingRacebyParticipantView = "_design/race/_view/upcoming_by_participant";
 const InProgressRacebyParticipantView = "_design/race/_view/inprogress_by_participant";
 const FinishedRacebyParticipantView = "_design/race/_view/finished_by_participant";
 
-const UpcommingByOwner ="_design/race/_view/upcomming_by_owner";
+const UpcomingByOwner ="_design/race/_view/upcoming_by_owner";
 
 const FinishedRaces ="_design/participant/_view/finished";
 const RankRaces = "_design/participant/_view/rank";
@@ -131,9 +131,9 @@ class Database
         this.getView(athleteId, RacebyParticipantView, done);
     };
 
-    getUpcommingAthleteRaces(athleteId, done)
+    getUpcomingAthleteRaces(athleteId, done)
     {
-        this.getView(athleteId, UpcommingRacebyParticipantView, done);
+        this.getView(athleteId, UpcomingRacebyParticipantView, done);
     };
 
     getInProgressAthleteRaces(athleteId, done)
@@ -177,9 +177,9 @@ class Database
         this.getCount(raceId, ParticipantbyRaceView, done);
     };
 
-    getCreatedUpcommingCount(ownerId, done)
+    getCreatedUpcomingCount(ownerId, done)
     {
-        this.getCount(ownerId, UpcommingByOwner, done);
+        this.getCount(ownerId, UpcomingByOwner, done);
     };
 
     getFinishedCount(athleteId, done)
@@ -212,9 +212,9 @@ class Database
         this.getView(userId, PrivateRacesView, done);
     };
 
-    getUpcommingRaces(done)
+    getUpcomingRaces(done)
     {
-        this.getView(undefined, UpcommingRacesView, done);
+        this.getView(undefined, UpcomingRacesView, done);
     };
 
     getInProgressRaces(done) {

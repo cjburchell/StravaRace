@@ -1,7 +1,7 @@
 /**
  * Created by Christiaan on 2016-08-08.
  */
-
+"use strict";
 var race = require('./public/javascripts/race');
 const NodeCouchDb = require('node-couchdb');
 

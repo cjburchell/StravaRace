@@ -1,3 +1,5 @@
+"use strict";
+
 var database = require('./database');
 var strava = require('strava-v3');
 var race_utils = require('./public/javascripts/race');

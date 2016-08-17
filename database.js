@@ -6,6 +6,7 @@ var race = require('./public/javascripts/race');
 const NodeCouchDb = require('node-couchdb');
 
 const StravaDatabaseName = "strava_race";
+
 const RacebyOwnerView = "_design/race/_view/by_owner";
 
 const PrivateRacesView = "_design/race/_view/private_races";
@@ -28,26 +29,26 @@ const RankRaces = "_design/participant/_view/rank";
 
 const userView = "_design/user/_view/by_athlete";
 
+function connect()
+{
+    return new NodeCouchDb({
+        host: process.env.RACE_DB_HOST,
+        port: process.env.RACE_DB_PORT,
+        protocol: process.env.RACE_DB_PROTOCOL,
+        auth:{
+            user: process.env.RACE_DB_USER,
+            pass: process.env.RACE_DB_PASSWORD
+        }
+    });
+}
+
 /**
  * Creates Database Object
  * @return {Object} Database
  */
-function Database() {
-
-    function connect()
-    {
-        return new NodeCouchDb({
-            host: process.env.RACE_DB_HOST,
-            port: process.env.RACE_DB_PORT,
-            protocol: process.env.RACE_DB_PROTOCOL,
-            auth:{
-                user: process.env.RACE_DB_USER,
-                pass: process.env.RACE_DB_PASSWORD
-            }
-        });
-    }
-
-    this.getDocument = function (id, done) {
+class Database
+{
+    getDocument(id, done) {
         console.log("DB: getDocument " + id);
         var couch = connect();
         couch.get(StravaDatabaseName, id).then( function(data) {
@@ -74,12 +75,12 @@ function Database() {
         });
     };
 
-    this.getView = function (key, view, done, descending, limit, reduce)
+    getView(key, view, done, descending, limit, reduce = false)
     {
         console.log("DB: getView"+ " key:" +  key + " view: " + view);
         var couch = connect();
 
-        var include_docs = reduce !== undefined? !reduce : true;
+        var include_docs = !reduce;
         var queryOptions = {
             include_docs : include_docs,
             key : key,
@@ -121,36 +122,36 @@ function Database() {
         });
     };
 
-    this.getRaces = function (ownerId, done) {
+    getRaces(ownerId, done) {
         this.getView(ownerId, RacebyOwnerView, done);
     };
 
-    this.getAthleteRaces = function (athleteId, done)
+    getAthleteRaces(athleteId, done)
     {
         this.getView(athleteId, RacebyParticipantView, done);
     };
 
-    this.getUpcommingAthleteRaces = function (athleteId, done)
+    getUpcommingAthleteRaces(athleteId, done)
     {
         this.getView(athleteId, UpcommingRacebyParticipantView, done);
     };
 
-    this.getInProgressAthleteRaces = function (athleteId, done)
+    getInProgressAthleteRaces(athleteId, done)
     {
         this.getView(athleteId, InProgressRacebyParticipantView, done);
     };
 
-    this.getFinishedAthleteRaces = function (athleteId, done)
+    getFinishedAthleteRaces(athleteId, done)
     {
         this.getView(athleteId, FinishedRacebyParticipantView, done, false, 5);
     };
 
-    this.getRaceParticipants = function (raceId, done)
+    getRaceParticipants(raceId, done)
     {
         this.getView(raceId, ParticipantbyRaceView, done, undefined, undefined, false);
     };
 
-    this.getCount = function (key, view, done)
+    getCount(key, view, done)
     {
         this.getView(key, view, function (err, docs, values)
         {
@@ -171,53 +172,57 @@ function Database() {
         }, undefined, undefined, true);
     }
 
-    this.getRaceParticipantsCount = function (raceId, done)
+    getRaceParticipantsCount(raceId, done)
     {
         this.getCount(raceId, ParticipantbyRaceView, done);
     };
 
-    this.getCreatedUpcommingCount = function (ownerId, done)
+    getCreatedUpcommingCount(ownerId, done)
     {
         this.getCount(ownerId, UpcommingByOwner, done);
     };
 
-    this.getFinishedCount = function (athleteId, done)
+    getFinishedCount(athleteId, done)
     {
         this.getCount(athleteId, FinishedRaces, done);
     };
 
-    this.getFirstPlaceCount = function (athleteId, done)
+    getFirstPlaceCount(athleteId, done)
     {
         this.getCount([athleteId,1], RankRaces, done);
     };
 
-    this.getSecondPlaceCount = function (athleteId, done)
+    getSecondPlaceCount(athleteId, done)
     {
         this.getCount([athleteId,2], RankRaces, done);
     };
 
-    this.getThirdPlaceCount = function (athleteId, done)
+    getThirdPlaceCount(athleteId, done)
     {
         this.getCount([athleteId,3], RankRaces, done);
     };
 
-    this.getPublicRaces = function (done) {
+    getPublicRaces(done)
+    {
         this.getView(undefined, PublicRacesView, done);
     };
 
-    this.getPrivateRaces = function (userId, done) {
+    getPrivateRaces(userId, done)
+    {
         this.getView(userId, PrivateRacesView, done);
     };
 
-    this.getUpcommingRaces = function (done) {
+    getUpcommingRaces(done)
+    {
         this.getView(undefined, UpcommingRacesView, done);
     };
 
-    this.getInProgressRaces = function (done) {
+    getInProgressRaces(done) {
         this.getView(undefined, InProgressRacesView, done);
     };
 
-    this.updateDocument = function (document, done) {
+    updateDocument(document, done)
+    {
         console.log("DB: updateDocument"+ " Id:" +  document._id + " Type:" +  document.type);
         var couch = connect();
         if(document._id === undefined || document._id === '')
@@ -292,7 +297,8 @@ function Database() {
         }
     };
 
-    this.deleteDocument = function (id, rev, done) {
+    deleteDocument(id, rev, done)
+    {
         console.log("DB: deleteDocument"+ " Id:" +  id + " rev:" +  rev);
         var couch = connect();
             couch.del(StravaDatabaseName, id, rev).then(function()
@@ -323,7 +329,7 @@ function Database() {
             });
     };
 
-    this.getUser = function (athleteId, done)
+    getUser(athleteId, done)
     {
         this.getView(athleteId, userView, function (result, users)
         {

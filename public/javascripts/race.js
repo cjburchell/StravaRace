@@ -18,8 +18,8 @@
         this.privaicy = "friends";
         this.categories = [];
         this.stages = [];
-        this.state = "upcomming",
-        this.maxParticipants = 20
+        this.state = "upcomming";
+        this.maxParticipants = 20;
     };
 
     exports.UpdateRaceState = function(race)

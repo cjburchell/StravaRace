@@ -201,9 +201,7 @@ router.get('/details/:id', function(req, res) {
                     {
                         if(stage.map !== undefined)
                         {
-                            var points = polyline.decode(stage.map.polyline);
-
-                            stage.map.points = points;
+                            stage.map.points = polyline.decode(stage.map.polyline);
 
                             maxLat = Math.max(maxLat, stage.start_latlng[0]);
                             minLat = Math.min(minLat, stage.start_latlng[0]);
@@ -217,8 +215,8 @@ router.get('/details/:id', function(req, res) {
                         }
                     });
 
-                    centerLat = (maxLat-minLat)/2 + minLat;
-                    centerLong = (maxLong-minLong)/2 + minLong;
+                    var centerLat = (maxLat-minLat)/2 + minLat;
+                    var centerLong = (maxLong-minLong)/2 + minLong;
 
                     editRace.centerPoint = [
                         centerLat,

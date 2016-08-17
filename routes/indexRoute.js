@@ -18,7 +18,7 @@ var renderPage = function (session, res) {
     };
 
     async.parallel([
-        function (callback)
+        callback =>
         {
             database.getInProgressAthleteRaces(session.athlete.id, function (err, docs, racesInProgress)
             {
@@ -32,7 +32,7 @@ var renderPage = function (session, res) {
             }
             );
         },
-        function (callback)
+        callback =>
         {
             database.getFinishedAthleteRaces(session.athlete.id, function (err, docs, racesFinished)
                 {
@@ -46,7 +46,7 @@ var renderPage = function (session, res) {
                 }
             );
         },
-        function (callback)
+        callback =>
         {
             database.getUpcommingAthleteRaces(session.athlete.id, function (err, docs, racesUpcomming)
                 {
@@ -65,7 +65,7 @@ var renderPage = function (session, res) {
                 }
             );
         },
-        function (callback)
+        callback =>
         {
             database.getCreatedUpcommingCount(session.athlete.id, function (err, createdUpcommingCount)
                 {
@@ -79,7 +79,7 @@ var renderPage = function (session, res) {
                 }
             );
         },
-        function (callback)
+        callback =>
         {
             database.getFinishedCount(session.athlete.id, function (err, finishedCount)
                 {
@@ -93,7 +93,7 @@ var renderPage = function (session, res) {
                 }
             );
         },
-        function (callback)
+        callback =>
         {
             database.getFirstPlaceCount(session.athlete.id, function (err, firstCount)
                 {
@@ -107,7 +107,7 @@ var renderPage = function (session, res) {
                 }
             );
         },
-        function (callback)
+        callback =>
         {
             database.getSecondPlaceCount(session.athlete.id, function (err, secondCount)
                 {
@@ -121,7 +121,7 @@ var renderPage = function (session, res) {
                 }
             );
         },
-        function (callback)
+        callback =>
         {
             database.getThirdPlaceCount(session.athlete.id, function (err, thridCount)
                 {
@@ -135,7 +135,8 @@ var renderPage = function (session, res) {
                 }
             );
         }
-    ], function (err) {
+    ], err =>
+    {
         if(err)
         {
             return;

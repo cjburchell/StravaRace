@@ -9,7 +9,6 @@ var router = express.Router();
 router.put('/participant', function (req, res) {
     if(req.session.isLoggedIn) {
         var participant = req.body;
-        var athlete = req.session.athlete;
 
         database.getDocument(participant.raceId, function (err, race) {
             if (err)

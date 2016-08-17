@@ -7,20 +7,18 @@ var race_utils = require('../public/javascripts/race');
 var router = express.Router();
 
 var renderPage = function (session, res) {
-    async.waterfall([
-        function(callback) {
-            var data = {
-                mode: 'home',
-                appName: process.env.APP_NAME,
-                url: process.env.APP_URL,
-                titleText: "Home | ",
-                athlete: session.athlete,
-                user: session.user
-            };
 
-            callback(null, data);
-        },
-        function (data, callback)
+    var data = {
+        mode: 'home',
+        appName: process.env.APP_NAME,
+        url: process.env.APP_URL,
+        titleText: "Home | ",
+        athlete: session.athlete,
+        user: session.user
+    };
+
+    async.parallel([
+        function (callback)
         {
             database.getInProgressAthleteRaces(session.athlete.id, function (err, docs, racesInProgress)
             {
@@ -30,11 +28,11 @@ var renderPage = function (session, res) {
                 }
 
                 data.racesInProgress = racesInProgress;
-                callback(null, data);
+                callback(null);
             }
             );
         },
-        function (data, callback)
+        function (callback)
         {
             database.getFinishedAthleteRaces(session.athlete.id, function (err, docs, racesFinished)
                 {
@@ -44,11 +42,11 @@ var renderPage = function (session, res) {
                     }
 
                     data.racesFinished = racesFinished;
-                    callback(null, data);
+                    callback(null);
                 }
             );
         },
-        function (data, callback)
+        function (callback)
         {
             database.getUpcommingAthleteRaces(session.athlete.id, function (err, docs, racesUpcomming)
                 {
@@ -63,11 +61,11 @@ var renderPage = function (session, res) {
                     });
 
                     data.racesUpcomming = racesUpcomming;
-                    callback(null, data);
+                    callback(null);
                 }
             );
         },
-        function (data, callback)
+        function (callback)
         {
             database.getCreatedUpcommingCount(session.athlete.id, function (err, createdUpcommingCount)
                 {
@@ -77,11 +75,11 @@ var renderPage = function (session, res) {
                     }
 
                     data.createdUpcommingCount = createdUpcommingCount;
-                    callback(null, data);
+                    callback(null);
                 }
             );
         },
-        function (data, callback)
+        function (callback)
         {
             database.getFinishedCount(session.athlete.id, function (err, finishedCount)
                 {
@@ -91,11 +89,11 @@ var renderPage = function (session, res) {
                     }
 
                     data.finishedCount = finishedCount;
-                    callback(null, data);
+                    callback(null);
                 }
             );
         },
-        function (data, callback)
+        function (callback)
         {
             database.getFirstPlaceCount(session.athlete.id, function (err, firstCount)
                 {
@@ -105,11 +103,11 @@ var renderPage = function (session, res) {
                     }
 
                     data.firstCount = firstCount;
-                    callback(null, data);
+                    callback(null);
                 }
             );
         },
-        function (data, callback)
+        function (callback)
         {
             database.getSecondPlaceCount(session.athlete.id, function (err, secondCount)
                 {
@@ -119,11 +117,11 @@ var renderPage = function (session, res) {
                     }
 
                     data.secondCount = secondCount;
-                    callback(null, data);
+                    callback(null);
                 }
             );
         },
-        function (data, callback)
+        function (callback)
         {
             database.getThirdPlaceCount(session.athlete.id, function (err, thridCount)
                 {
@@ -133,17 +131,17 @@ var renderPage = function (session, res) {
                     }
 
                     data.thridCount = thridCount;
-                    callback(null, data);
+                    callback(null);
                 }
             );
         }
-    ], function (err, result) {
+    ], function (err) {
         if(err)
         {
             return;
         }
 
-        res.render('index', result);
+        res.render('index', data);
     });
 };
 

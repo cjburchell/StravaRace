@@ -6,15 +6,15 @@ var router = express.Router();
 var results = require('../results');
 var database = require('../database');
 
-router.post('/race/:id', function(req, res) {
+router.post('/activity/:id', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getDocument(req.params.id, function (err, race) {
+        database.getDocument(req.params.id, function (err, activity) {
             if(!err)
             {
-                if (race.ownerId === req.session.athlete.id)
+                if (activity.ownerId === req.session.athlete.id)
                 {
-                    results.updateRace(race, req.session.accessToken, function (result)
+                    results.updateActivity(activity, req.session.accessToken, function (result)
                     {
                         res.end(JSON.stringify(result));
                     });
@@ -44,7 +44,7 @@ router.post('/participant/:id', function(req, res) {
             {
                 if (participant.athleteId === req.session.athlete.id)
                 {
-                    results.updateParticipant(req.params.id, participant.raceId, req.session.accessToken, function (result)
+                    results.updateParticipant(req.params.id, participant.activityId, req.session.accessToken, function (result)
                     {
                         res.end(JSON.stringify(result));
                     });

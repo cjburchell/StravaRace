@@ -2,30 +2,29 @@
  * Created by Christiaan on 2016-08-08.
  */
 "use strict";
-var race = require('./public/javascripts/race');
 const NodeCouchDb = require('node-couchdb');
 
 const StravaDatabaseName = "strava_race";
 
-const RacebyOwnerView = "_design/race/_view/by_owner";
+const ActivitybyOwnerView = "_design/activity/_view/by_owner";
 
-const PrivateRacesView = "_design/race/_view/private_races";
-const PublicRacesView = "_design/race/_view/public_races";
+const PrivateActivitiesView = "_design/activity/_view/private_activities";
+const PublicActivitiesView = "_design/activity/_view/public_activities";
 
-const ParticipantbyRaceView = "_design/participant/_view/by_race";
-const RacebyParticipantView = "_design/race/_view/by_participant";
+const ParticipantbyActivityView = "_design/participant/_view/by_activity";
+const ActivitybyParticipantView = "_design/activity/_view/by_participant";
 
-const UpcomingRacesView = "_design/race/_view/upcoming_races";
-const InProgressRacesView = "_design/race/_view/inprogress_races";
+const UpcomingActivitiesView = "_design/activity/_view/upcoming_activities";
+const InProgressActivitiesView = "_design/activity/_view/inprogress_activities";
 
-const UpcomingRacebyParticipantView = "_design/race/_view/upcoming_by_participant";
-const InProgressRacebyParticipantView = "_design/race/_view/inprogress_by_participant";
-const FinishedRacebyParticipantView = "_design/race/_view/finished_by_participant";
+const UpcomingActivitybyParticipantView = "_design/activity/_view/upcoming_by_participant";
+const InProgressActivitybyParticipantView = "_design/activity/_view/inprogress_by_participant";
+const FinishedActivitybyParticipantView = "_design/activity/_view/finished_by_participant";
 
-const UpcomingByOwner ="_design/race/_view/upcoming_by_owner";
+const UpcomingByOwner ="_design/activity/_view/upcoming_by_owner";
 
-const FinishedRaces ="_design/participant/_view/finished";
-const RankRaces = "_design/participant/_view/rank";
+const FinishedActivities ="_design/participant/_view/finished";
+const RankActivities = "_design/participant/_view/rank";
 
 const userView = "_design/user/_view/by_athlete";
 
@@ -122,33 +121,33 @@ class Database
         });
     };
 
-    getRaces(ownerId, done) {
-        this.getView(ownerId, RacebyOwnerView, done);
+    getActivities(ownerId, done) {
+        this.getView(ownerId, ActivitybyOwnerView, done);
     };
 
-    getAthleteRaces(athleteId, done)
+    getAthleteActivities(athleteId, done)
     {
-        this.getView(athleteId, RacebyParticipantView, done);
+        this.getView(athleteId, ActivitybyParticipantView, done);
     };
 
-    getUpcomingAthleteRaces(athleteId, done)
+    getUpcomingAthleteActivities(athleteId, done)
     {
-        this.getView(athleteId, UpcomingRacebyParticipantView, done);
+        this.getView(athleteId, UpcomingActivitybyParticipantView, done);
     };
 
-    getInProgressAthleteRaces(athleteId, done)
+    getInProgressAthleteActivities(athleteId, done)
     {
-        this.getView(athleteId, InProgressRacebyParticipantView, done);
+        this.getView(athleteId, InProgressActivitybyParticipantView, done);
     };
 
-    getFinishedAthleteRaces(athleteId, done)
+    getFinishedAthleteActivities(athleteId, done)
     {
-        this.getView(athleteId, FinishedRacebyParticipantView, done, false, 5);
+        this.getView(athleteId, FinishedActivitybyParticipantView, done, false, 5);
     };
 
-    getRaceParticipants(raceId, done)
+    getActivityParticipants(activityId, done)
     {
-        this.getView(raceId, ParticipantbyRaceView, done, undefined, undefined, false);
+        this.getView(activityId, ParticipantbyActivityView, done, undefined, undefined, false);
     };
 
     getCount(key, view, done)
@@ -172,9 +171,9 @@ class Database
         }, undefined, undefined, true);
     }
 
-    getRaceParticipantsCount(raceId, done)
+    getActivityParticipantsCount(activityId, done)
     {
-        this.getCount(raceId, ParticipantbyRaceView, done);
+        this.getCount(activityId, ParticipantbyActivityView, done);
     };
 
     getCreatedUpcomingCount(ownerId, done)
@@ -184,41 +183,41 @@ class Database
 
     getFinishedCount(athleteId, done)
     {
-        this.getCount(athleteId, FinishedRaces, done);
+        this.getCount(athleteId, FinishedActivities, done);
     };
 
     getFirstPlaceCount(athleteId, done)
     {
-        this.getCount([athleteId,1], RankRaces, done);
+        this.getCount([athleteId,1], RankActivities, done);
     };
 
     getSecondPlaceCount(athleteId, done)
     {
-        this.getCount([athleteId,2], RankRaces, done);
+        this.getCount([athleteId,2], RankActivities, done);
     };
 
     getThirdPlaceCount(athleteId, done)
     {
-        this.getCount([athleteId,3], RankRaces, done);
+        this.getCount([athleteId,3], RankActivities, done);
     };
 
-    getPublicRaces(done)
+    getPublicActivities(done)
     {
-        this.getView(undefined, PublicRacesView, done);
+        this.getView(undefined, PublicActivitiesView, done);
     };
 
-    getPrivateRaces(userId, done)
+    getPrivateActivities(userId, done)
     {
-        this.getView(userId, PrivateRacesView, done);
+        this.getView(userId, PrivateActivitiesView, done);
     };
 
-    getUpcomingRaces(done)
+    getUpcomingActivities(done)
     {
-        this.getView(undefined, UpcomingRacesView, done);
+        this.getView(undefined, UpcomingActivitiesView, done);
     };
 
-    getInProgressRaces(done) {
-        this.getView(undefined, InProgressRacesView, done);
+    getInProgressActivities(done) {
+        this.getView(undefined, InProgressActivitiesView, done);
     };
 
     updateDocument(document, done)

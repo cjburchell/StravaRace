@@ -10,14 +10,14 @@ router.put('/participant', function (req, res) {
     if(req.session.isLoggedIn) {
         var participant = req.body;
 
-        database.getDocument(participant.raceId, function (err, race) {
+        database.getDocument(participant.activityId, function (err, activity) {
             if (err)
             {
                 res.end(JSON.stringify(false));
                 return;
             }
 
-            database.getRaceParticipantsCount(participant.raceId, function (err, participantCount)
+            database.getActivityParticipantsCount(participant.activityId, function (err, participantCount)
             {
                 if (err)
                 {
@@ -25,7 +25,7 @@ router.put('/participant', function (req, res) {
                     return;
                 }
 
-                if (!((race.privaicy == 'public' || race.friends.indexOf(participant.athleteId) !== -1) && race.maxParticipants > participantCount))
+                if (!((activity.privaicy == 'public' || activity.friends.indexOf(participant.athleteId) !== -1) && activity.maxParticipants > participantCount))
                 {
                     res.end(JSON.stringify(false));
                     return;
@@ -68,9 +68,9 @@ router.delete('/participant/:id', function(req, res) {
                     });
                 }
                 else {
-                    database.getDocument(req.params.id, function (err, race) {
+                    database.getDocument(req.params.id, function (err, activity) {
                         if (!err) {
-                            if (race.ownerId === req.session.athlete.id) {
+                            if (activity.ownerId === req.session.athlete.id) {
                                 database.deleteDocument(req.params.id, participant._rev, function (result1) {
                                     if (!result1) {
                                         res.end(JSON.stringify(false));
@@ -98,16 +98,16 @@ router.delete('/participant/:id', function(req, res) {
     }
 });
 
-router.put('/race', function(req, res) {
+router.put('/activity', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        var newRace = req.body;
-        newRace.ownerId = req.session.athlete.id;
-        newRace.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
-        newRace._id = undefined;
-        newRace._rev = undefined;
-        if(newRace.privaicy === 'public') {
-            database.updateDocument(newRace, function (result, id) {
+        var newActivity = req.body;
+        newActivity.ownerId = req.session.athlete.id;
+        newActivity.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
+        newActivity._id = undefined;
+        newActivity._rev = undefined;
+        if(newActivity.privaicy === 'public') {
+            database.updateDocument(newActivity, function (result, id) {
                 if(!result) {
                     res.end(JSON.stringify(false));
                 } else {
@@ -121,9 +121,9 @@ router.put('/race', function(req, res) {
             strava.athletes.listFriends({ id : req.session.athlete.id }, function (err, payload) {
                 try{
                     if(!err){
-                        newRace.friends = payload.map(function (item){ return item.id});
-                        newRace.friends.push(req.session.athlete.id);
-                        database.updateDocument(newRace, function (result, id) {
+                        newActivity.friends = payload.map(function (item){ return item.id});
+                        newActivity.friends.push(req.session.athlete.id);
+                        database.updateDocument(newActivity, function (result, id) {
                             if(!result) {
                                 res.end(JSON.stringify(false));
                             } else {
@@ -150,7 +150,7 @@ router.put('/race', function(req, res) {
     }
 });
 
-router.delete('/race/:id', function(req, res) {
+router.delete('/activity/:id', function(req, res) {
     if (!req.session.isLoggedIn)
     {
         res.end(JSON.stringify(false));
@@ -175,7 +175,7 @@ router.delete('/race/:id', function(req, res) {
                     return;
                 }
 
-                database.getRaceParticipants(req.params.id, function (err, participants)
+                database.getActivityParticipants(req.params.id, function (err, participants)
                 {
                     if (err)
                     {
@@ -205,19 +205,19 @@ router.delete('/race/:id', function(req, res) {
     })
 });
 
-router.post('/race/:id', function(req, res) {
+router.post('/activity/:id', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        var updateRace = req.body;
-        database.getDocument(req.params.id, function (err, race) {
+        var updateActivity = req.body;
+        database.getDocument(req.params.id, function (err, activity) {
             if(!err) {
-                updateRace._rev = race._rev;
-                updateRace._id = req.params.id;
-                updateRace.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
-                if (race.ownerId === req.session.athlete.id) {
+                updateActivity._rev = activity._rev;
+                updateActivity._id = req.params.id;
+                updateActivity.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
+                if (activity.ownerId === req.session.athlete.id) {
 
-                    if(updateRace.privaicy === 'public') {
-                        database.updateDocument(updateRace, function (result1, id) {
+                    if(updateActivity.privaicy === 'public') {
+                        database.updateDocument(updateActivity, function (result1, id) {
                             if(!result1) {
                                 res.end(JSON.stringify(false));
                             } else {
@@ -232,9 +232,9 @@ router.post('/race/:id', function(req, res) {
                             try
                             {
                                 if(!err){
-                                    updateRace.friends = payload.map(function (item){ return item.id});
-                                    updateRace.friends.push(req.session.athlete.id);
-                                    database.updateDocument(updateRace, function (result, id) {
+                                    updateActivity.friends = payload.map(function (item){ return item.id});
+                                    updateActivity.friends.push(req.session.athlete.id);
+                                    database.updateDocument(updateActivity, function (result, id) {
                                         if(!result) {
                                             res.end(JSON.stringify(false));
                                         } else {

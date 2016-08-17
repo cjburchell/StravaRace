@@ -1,11 +1,11 @@
 <div class="panel panel-default">
     <div class="panel-heading"><b>Actions</b></div>
     <div class="panel-body list-group" style="padding: 0">
-        <a href="/race/join" class="list-group-item">Join a race</a>
-        <%if(createdUpcomingCount >= user.maxActiveRaces){%>
-            <a href="#" class="list-group-item disabled">Create a race</a>
+        <a href="/activity/join" class="list-group-item">Join a activity</a>
+        <%if(createdUpcomingCount >= user.maxActiveActivities){%>
+            <a href="#" class="list-group-item disabled">Create a activity</a>
         <%} else {%>
-            <a href="/race/create" class="list-group-item">Create a race</a>
+            <a href="/activity/create" class="list-group-item">Create a activity</a>
         <%}%>
     </div>
 </div>

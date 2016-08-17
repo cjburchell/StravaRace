@@ -8,29 +8,39 @@
 <% include partials/template/header.ejs %>
 <div class="container-fluid">
     <% if(isCreating){%>
-    <h3>Create Race</h3>
+    <h3>Create Activity</h3>
     <% } else {%>
-    <h3>Edit Race</h3>
+    <h3>Edit Activity</h3>
     <%}%>
     <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+            <div class="form-group">
+                <label for="privacy">Type:</label>
+                <div class='input-group' id='type'>
+                    <select class="form-control" id="type" ng-model="activity.activityType">
+                        <option value="group_ride">Group Ride</option>
+                        <option value="race">Race</option>
+                    </select>
+                </div>
+            </div>
+
                 <div class="form-group">
                     <label for="name">Name:</label>
-                    <input type="text" class="form-control" id="name" ng-model="race.name">
+                    <input type="text" class="form-control" id="name" ng-model="activity.name">
                 </div>
             <div class="form-group">
                 <label for="description">Description:</label>
-                <textarea class="form-control" rows="5" id="description" ng-model="race.description"></textarea>
+                <textarea class="form-control" rows="5" id="description" ng-model="activity.description"></textarea>
             </div>
                 <div class="form-group">
                     <label for="startTime">Start Time:</label>
                     <div class="dropdown">
                         <a class="dropdown-toggle" id="startTimeDropDown" role="button" data-toggle="dropdown" data-target="#" href="#">
-                            <div class="input-group"><input type="text" class="form-control" data-ng-model="race.startTime | date: 'short' "><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            <div class="input-group"><input type="text" class="form-control" data-ng-model="activity.startTime | date: 'short' "><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                             </div>
                         </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                            <datetimepicker data-ng-model="race.startTime" data-datetimepicker-config="{ dropdownSelector: '#startTimeDropDown' }"/>
+                            <datetimepicker data-ng-model="activity.startTime" data-datetimepicker-config="{ dropdownSelector: '#startTimeDropDown' }"/>
                         </ul>
                     </div>
                 </div>
@@ -38,11 +48,11 @@
                     <label for="endTime">End Time:</label>
                     <div class="dropdown">
                         <a class="dropdown-toggle" id="endTimeDropDown" role="button" data-toggle="dropdown" data-target="#" href="#">
-                            <div class="input-group"><input type="text" class="form-control" data-ng-model="race.endTime | date: 'short' "><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                            <div class="input-group"><input type="text" class="form-control" data-ng-model="activity.endTime | date: 'short' "><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                             </div>
                         </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                            <datetimepicker data-ng-model="race.endTime" data-datetimepicker-config="{ dropdownSelector: '#endTimeDropDown' }"/>
+                            <datetimepicker data-ng-model="activity.endTime" data-datetimepicker-config="{ dropdownSelector: '#endTimeDropDown' }"/>
                         </ul>
                     </div>
                 </div>
@@ -50,7 +60,7 @@
             <div class="form-group">
                 <label for="privacy">Privacy:</label>
                 <div class='input-group' id='privacy'>
-                    <select class="form-control" id="privacy" ng-model="race.privaicy">
+                    <select class="form-control" id="privacy" ng-model="activity.privaicy">
                         <option value="public">Public</option>
                         <option value="friends">Only Friends</option>
                     </select>
@@ -59,12 +69,12 @@
 
             <div class="form-group">
                 <label for="maxParticipants">Maxumum number of participants:</label>
-                <input type="number" class="form-control" id="name" ng-model="race.maxParticipants", min="2", max="100">
+                <input type="number" class="form-control" id="name" ng-model="activity.maxParticipants", min="2", max="100">
             </div>
 
             <div class="well">
                 <label>Categories:</label>
-                <div ng-if="race.categories.length !== 0">
+                <div ng-if="activity.categories.length !== 0">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -73,7 +83,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="category in race.categories">
+                        <tr ng-repeat="category in activity.categories">
                             <td style="vertical-align:center">{{category.name}}</td>
                             <td><a ng-click="deleteCategory(category)"> <span class="glyphicon glyphicon-remove-circle"></span>
                             </a></td>
@@ -81,7 +91,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div ng-if="race.categories.length === 0">
+                <div ng-if="activity.categories.length === 0">
                     <p style="color: red">No catagories, You must have at least one catagory</p>
                 </div>
                 <button class="btn btn-default" data-toggle="modal" data-target="#addCategoryDialog" ng-click="showAddCategory()">Add Catagory</button>
@@ -91,7 +101,7 @@
         <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
             <div class="well">
                 <label>Stages:</label>
-                <div ng-if="race.stages.length != 0">
+                <div ng-if="activity.stages.length != 0">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -103,14 +113,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="stage in race.stages | orderBy : 'number'">
+                        <tr ng-repeat="stage in activity.stages | orderBy : 'number'">
                             <td style="vertical-align:center">{{stage.number}}</td>
                             <td style="vertical-align:center">{{stage.activity_type}}</td>
                             <td style="vertical-align:center"><a ng-href="{{ 'https://www.strava.com/segments/' + stage.id}}" target="_blank">{{stage.name}}</a></td>
                             <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                             <td class="btn-group">
                                 <button class="btn btn-default" ng-disabled="stage.number === 1" ng-click="moveStageUp(stage)"><span class="glyphicon glyphicon-arrow-up"></span></button>
-                                <button class="btn btn-default" ng-disabled="stage.number === race.stages.length"ng-click="moveStageDown(stage)"><span class="glyphicon glyphicon-arrow-down"></span></button>
+                                <button class="btn btn-default" ng-disabled="stage.number === activity.stages.length"ng-click="moveStageDown(stage)"><span class="glyphicon glyphicon-arrow-down"></span></button>
                                 <button class="btn btn-default" ng-click="deleteStage(stage)"><span class="glyphicon glyphicon-remove-circle"></span></button>
                             </td>
                         </tr>
@@ -118,19 +128,19 @@
                     </table>
                 </div>
 
-                <div ng-if="race.stages.length == 0">
+                <div ng-if="activity.stages.length == 0">
                     <p style="color: red">You must have at least one catagory, please add a catogory</p>
                 </div>
 
                 <button class="btn btn-default" data-toggle="modal" data-target="#addStageDialog" ng-click="showAddStage()">Add Stage</button>
-                <p><label>Total Distance</label> {{race.totalDistance/1000 | number : 2}}km</p>
+                <p><label>Total Distance</label> {{activity.totalDistance/1000 | number : 2}}km</p>
 
             </div>
         </div>
     </div>
 
-    <button ng-disabled ="race.name === '' || race.stages.length === 0 || race.categories.length === 0" style="margin-top: 20px" class="btn btn-primary" ng-click="onApply()"><% if(isCreating){%>
-        Create Race
+    <button ng-disabled ="activity.name === '' || activity.stages.length === 0 || activity.categories.length === 0" style="margin-top: 20px" class="btn btn-primary" ng-click="onApply()"><% if(isCreating){%>
+        Create Activity
         <% } else {%>
         Apply
         <%}%></button>
@@ -208,7 +218,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.templates.min.js"></script>
 
-<% include ../controlers/edit_race_controler.ejs %>
+<% include ../controlers/edit_controler.ejs %>
 
 </body>
 </html>

@@ -3,7 +3,7 @@ var strava = require('strava-v3');
 var async = require('async');
 var database = require('../database');
 var user_utils = require('../public/javascripts/user');
-var race_utils = require('../public/javascripts/race');
+var activity_utils = require('../public/javascripts/activity');
 var router = express.Router();
 
 var renderPage = function (session, res) {
@@ -20,47 +20,47 @@ var renderPage = function (session, res) {
     async.parallel([
         callback =>
         {
-            database.getInProgressAthleteRaces(session.athlete.id, function (err, docs, racesInProgress)
+            database.getInProgressAthleteActivities(session.athlete.id, function (err, docs, activitiesInProgress)
             {
                 if (err)
                 {
                     callback(err);
                 }
 
-                data.racesInProgress = racesInProgress;
+                data.activitiesInProgress = activitiesInProgress;
                 callback(null);
             }
             );
         },
         callback =>
         {
-            database.getFinishedAthleteRaces(session.athlete.id, function (err, docs, racesFinished)
+            database.getFinishedAthleteActivities(session.athlete.id, function (err, docs, activitiesFinished)
                 {
                     if (err)
                     {
                         callback(err);
                     }
 
-                    data.racesFinished = racesFinished;
+                    data.activitiesFinished = activitiesFinished;
                     callback(null);
                 }
             );
         },
         callback =>
         {
-            database.getUpcomingAthleteRaces(session.athlete.id, function (err, docs, racesUpcoming)
+            database.getUpcomingAthleteActivities(session.athlete.id, function (err, docs, activitiesUpcoming)
                 {
                     if (err)
                     {
                         callback(err);
                     }
 
-                    racesUpcoming.forEach(function (item)
+                    activitiesUpcoming.forEach(function (item)
                     {
-                        race_utils.UpdateRaceState(item.doc);
+                        activity_utils.UpdateActivityState(item.doc);
                     });
 
-                    data.racesUpcoming = racesUpcoming;
+                    data.activitiesUpcoming = activitiesUpcoming;
                     callback(null);
                 }
             );

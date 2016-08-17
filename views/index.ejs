@@ -101,7 +101,6 @@
             <div class="panel panel-default">
               <div class="panel-heading"><b>Stats</b></div>
               <div class="panel-body">
-                <p><label>Finished:</label> <%=finishedCount%></p>
                 <%if(firstCount !== 0){%>
                 <p><i class="fa fa-trophy" style="color: gold"></i> <%=firstCount%></p>
                 <%}%>
@@ -111,7 +110,7 @@
                 <%if(thridCount !== 0){%>
                 <p><i class="fa fa-trophy" style="color: #8C7853"></i> <%=thridCount%></p>
                 <%}%>
-                <p><label>My Active Races:</label> <%=createdUpcomingCount%>/<%=user.maxActiveRaces%></p>
+                <p><i class="fa fa-flag-checkered" aria-hidden="true"></i> <%=finishedCount%></p>
               </div>
             </div>
 
@@ -119,30 +118,30 @@
           <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
             <div class="row">
 
-              <%if(racesUpcoming.length != 0){%>
+              <%if(activitiesUpcoming.length != 0){%>
               <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                 <h3>Upcoming</h3>
-                <% for(var i=0; i<racesUpcoming.length; i++) { var race = racesUpcoming[i];%>
-                <% include partials/content/race_pannel.ejs %>
+                <% for(var i=0; i<activitiesUpcoming.length; i++) { var activity = activitiesUpcoming[i];%>
+                <% include partials/content/activity_pannel.ejs %>
                 <%}%>
               </div>
               <%}%>
 
-              <%if(racesInProgress.length != 0){%>
+              <%if(activitiesInProgress.length != 0){%>
               <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                 <h3>In Progress</h3>
-                <% for(var i=0; i<racesInProgress.length; i++) { var race = racesInProgress[i];%>
-                <% include partials/content/race_pannel.ejs %>
+                <% for(var i=0; i<activitiesInProgress.length; i++) { var activity = activitiesInProgress[i];%>
+                <% include partials/content/activity_pannel.ejs %>
                 <%}%>
               </div>
 
               <%}%>
 
-              <%if(racesFinished.length != 0){%>
+              <%if(activitiesFinished.length != 0){%>
               <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                 <h3>Finished</h3>
-              <% for(var i=0; i<racesFinished.length; i++) { var race = racesFinished[i];%>
-              <% include partials/content/race_pannel.ejs %>
+              <% for(var i=0; i<activitiesFinished.length; i++) { var activity = activitiesFinished[i];%>
+              <% include partials/content/activity_pannel.ejs %>
               <%}%>
               </div>
               <%}%>

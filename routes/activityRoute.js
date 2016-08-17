@@ -3,7 +3,7 @@
  */
 var express = require('express');
 var database = require('../database');
-var race = require('../public/javascripts/race');
+var activity = require('../public/javascripts/activity');
 var category = require('../public/javascripts/category');
 var polyline = require('polyline');
 var router = express.Router();
@@ -31,28 +31,28 @@ router.get('/create', function(req, res) {
             return;
         }
 
-        if(upcomingCount >= req.session.user.maxActiveRaces )
+        if(upcomingCount >= req.session.user.maxActiveActivities )
         {
             res.render('nav_to', {navLocation: "/"});
             return;
         }
 
-        var newRace = new race.Race();
-        race.ownerId = req.session.athlete.id;
+        var newActivity = new activity.Activity();
+        activity.ownerId = req.session.athlete.id;
         var newCat = new category.Category(createGuid());
         newCat.name = "Open";
-        newRace.categories.push(newCat);
+        newActivity.categories.push(newCat);
         var data = {
-            titleText: "Create | Race | ",
+            titleText: "Create | Activity | ",
             url: process.env.APP_URL,
             appName: process.env.APP_NAME,
-            mode: 'race',
+            mode: 'activity',
             user: req.session.user,
             athlete: req.session.athlete,
             isCreating: true,
-            race: newRace
+            activity: newActivity
         };
-        res.render('edit_race', data);
+        res.render('edit', data);
     });
 });
 
@@ -61,20 +61,20 @@ router.get('/edit/:id', function(req, res) {
     {
         database.getDocument(req.params.id, function (err , result) {
             if(!err) {
-                var editRace = result;
-                if (editRace.ownerId === req.session.athlete.id) {
-                    race.UpdateRaceState(editRace);
+                var editActivity = result;
+                if (editActivity.ownerId === req.session.athlete.id) {
+                    activity.UpdateActivityState(editActivity);
                     var data = {
-                        titleText: editRace.name + " | Edit | Race | ",
+                        titleText: editActivity.name + " | Edit | Activity | ",
                         url : process.env.APP_URL,
                         appName : process.env.APP_NAME,
-                        mode: 'race',
+                        mode: 'activity',
                         athlete: req.session.athlete,
                         user: req.session.user,
                         isCreating: false,
-                        race: editRace
+                        activity: editActivity
                     };
-                    res.render('edit_race', data);
+                    res.render('edit', data);
                 }
                 else {
                     res.render('nav_to', {navLocation: "/"});
@@ -95,18 +95,18 @@ router.get('/edit/:id', function(req, res) {
 router.get('/manage', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getRaces(req.session.athlete.id, function (err, result) {
+        database.getActivities(req.session.athlete.id, function (err, result) {
             if(!err) {
                 var data = {
-                    titleText: "Manage Races | ",
+                    titleText: "Manage Activities | ",
                     url : process.env.APP_URL,
                     appName : process.env.APP_NAME,
-                    mode: 'race',
+                    mode: 'activity',
                     athlete: req.session.athlete,
-                    races: result
+                    activities: result
                 };
 
-                race.UpdateRaces(data);
+                activity.UpdateActivities(data);
                 res.render('manage', data);
             }
             else
@@ -124,7 +124,7 @@ router.get('/manage', function(req, res) {
 router.get('/join', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getAthleteRaces(req.session.athlete.id, function (err, joinedRaces)
+        database.getAthleteActivities(req.session.athlete.id, function (err, joinedActivities)
         {
             if (err)
             {
@@ -132,7 +132,7 @@ router.get('/join', function(req, res) {
                 return;
             }
 
-            database.getPublicRaces(function (err, result) {
+            database.getPublicActivities(function (err, result) {
                 if (err)
                 {
                     res.render('nav_to', {navLocation: "/"});
@@ -140,27 +140,27 @@ router.get('/join', function(req, res) {
                 }
 
                 var data = {
-                    titleText: "Join Race | ",
+                    titleText: "Join Activity | ",
                     url: process.env.APP_URL,
                     appName: process.env.APP_NAME,
-                    mode: 'race',
+                    mode: 'activity',
                     athlete: req.session.athlete,
-                    races: []
+                    activities: []
                 };
 
                 var currentTime = new Date();
-                function filterRace(item)
+                function filterActivity(item)
                 {
-                    var isJoined = joinedRaces.findIndex(function (joined)
+                    var isJoined = joinedActivities.findIndex(function (joined)
                         {
                             return item._id === joined._id;
                         }) === -1;
                     return (new Date(item.endTime) - currentTime) > 0 && isJoined;
                 }
 
-                data.races = data.races.concat(result.filter(filterRace));
+                data.activities = data.activities.concat(result.filter(filterActivity));
 
-                database.getPrivateRaces(req.session.athlete.id, function (err, result)
+                database.getPrivateActivities(req.session.athlete.id, function (err, result)
                 {
                     if (err)
                     {
@@ -168,8 +168,8 @@ router.get('/join', function(req, res) {
                         return;
                     }
 
-                    data.races = data.races.concat(result.filter(filterRace));
-                    race.UpdateRaces(data);
+                    data.activities = data.activities.concat(result.filter(filterActivity));
+                    activity.UpdateActivities(data);
                     res.render('join', data);
                 });
 
@@ -183,21 +183,21 @@ router.get('/join', function(req, res) {
 });
 
 router.get('/details/:id', function(req, res) {
-    database.getDocument(req.params.id, function (err, editRace)
+    database.getDocument(req.params.id, function (err, editActivity)
     {
         if(!err)
         {
-            database.getRaceParticipants(req.params.id, function (err, participants)
+            database.getActivityParticipants(req.params.id, function (err, participants)
             {
                 if(!err)
                 {
-                    race.UpdateRaceState(editRace);
+                    activity.UpdateActivityState(editActivity);
 
                     var maxLat = -180;
                     var minLat = 180;
                     var maxLong = -180;
                     var minLong = 180;
-                    editRace.stages.forEach(function (stage)
+                    editActivity.stages.forEach(function (stage)
                     {
                         if(stage.map !== undefined)
                         {
@@ -218,12 +218,12 @@ router.get('/details/:id', function(req, res) {
                     var centerLat = (maxLat-minLat)/2 + minLat;
                     var centerLong = (maxLong-minLong)/2 + minLong;
 
-                    editRace.centerPoint = [
+                    editActivity.centerPoint = [
                         centerLat,
                         centerLong
                     ];
 
-                    editRace.boundingBox = [[
+                    editActivity.boundingBox = [[
                         minLat,
                         minLong
                     ],[
@@ -232,19 +232,19 @@ router.get('/details/:id', function(req, res) {
                     ]];
 
                     var data = {
-                        titleText: editRace.name + " | Race | ",
+                        titleText: editActivity.name + " | Activity | ",
                         url : process.env.APP_URL,
                         appName : process.env.APP_NAME,
-                        mode : 'race',
+                        mode : 'activity',
                         isLoggedIn : req.session.isLoggedIn,
                         athlete : req.session.athlete,
                         user: req.session.user,
                         stravaClientId: process.env.STRAVA_CLIENT_ID,
                         stravaRedirect: process.env.STRAVA_REDIRECT_URI,
-                        race : editRace,
+                        activity : editActivity,
                         participants : participants
                     };
-                    res.render('details_race', data);
+                    res.render('details', data);
                 }
                 else
                 {

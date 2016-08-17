@@ -64,23 +64,23 @@
         };
     });
 
-    app.controller('raceControler', function($scope, $http) {
-        $scope.race = <%- JSON.stringify(race) %>;
+    app.controller('activityControler', function($scope, $http) {
+        $scope.activity = <%- JSON.stringify(activity) %>;
         $scope.participants = <%- JSON.stringify(participants) %>;
         $scope.friends = [];
-        $scope.selectedCatagoryId = $scope.race.categories[0].id;
+        $scope.selectedCatagoryId = $scope.activity.categories[0].id;
 
         var foundMale = false;
         var foundFemale = false;
         $scope.participants.forEach(function (item)
         {
-            var index = $scope.race.categories.findIndex(function(category){
+            var index = $scope.activity.categories.findIndex(function(category){
                 return category.id === item.categoryId;
             });
 
             if(index !== -1)
             {
-                item.catagoryName = $scope.race.categories[index].name;
+                item.catagoryName = $scope.activity.categories[index].name;
             }
             else
             {
@@ -101,11 +101,11 @@
 
         L.mapbox.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
         var map = L.mapbox.map('map', 'mapbox.outdoors')
-                .setView($scope.race.centerPoint, 12);
+                .setView($scope.activity.centerPoint, 12);
 
         var myLayer = L.mapbox.featureLayer().addTo(map);
 
-        map.fitBounds($scope.race.boundingBox);
+        map.fitBounds($scope.activity.boundingBox);
 
         var polyline_options = {
             color: '#F00'
@@ -114,7 +114,7 @@
 
         var points = [];
 
-        $scope.race.stages.forEach(function (stage)
+        $scope.activity.stages.forEach(function (stage)
         {
             if(stage.map !== undefined)
             {
@@ -122,7 +122,7 @@
 
                 var stage_name = "Start Stage " + stage.number;
                 var end_name = "End Stage " + stage.number;
-                if($scope.race.stages.length === 1)
+                if($scope.activity.stages.length === 1)
                 {
                     stage_name = "Start";
                     end_name = "End";
@@ -230,17 +230,17 @@
         };
 
         $scope.addFriend = function () {
-            var newParticipant = new participant.Participant($scope.selectedFriend.id, $scope.race._id, $scope.race.categories[0].id);
+            var newParticipant = new participant.Participant($scope.selectedFriend.id, $scope.activity._id, $scope.activity.categories[0].id);
             newParticipant.athleteImage = $scope.selectedFriend.profile_medium;
             newParticipant.name = $scope.selectedFriend.name;
             newParticipant.sex = $scope.selectedFriend.sex;
 
-            newParticipant.raceStartTime = $scope.race.startTime;
+            newParticipant.activityStartTime = $scope.activity.startTime;
             $http.put("/data/participant", newParticipant)
                     .then(function(response) {
                         if(response.data)
                         {
-                            location.replace("/race/details/<%= race._id%>");
+                            location.replace("/activity/details/<%= activity._id%>");
                         }
                     });
         };
@@ -252,21 +252,21 @@
 
         $scope.showCatagorySelection = function ()
         {
-            $scope.selectedCatagoryId = $scope.race.categories[0].id;
+            $scope.selectedCatagoryId = $scope.activity.categories[0].id;
         }
 
         $scope.join = function () {
-            var newParticipant = new participant.Participant(<%= athlete.id %>, $scope.race._id, $scope.selectedCatagoryId);
+            var newParticipant = new participant.Participant(<%= athlete.id %>, $scope.activity._id, $scope.selectedCatagoryId);
             newParticipant.athleteImage = "<%= athlete.profile_medium%>";
             newParticipant.name = "<%= athlete.firstname + " " + athlete.lastname%>";
             newParticipant.sex = "<%= athlete.sex===null?"M":athlete.sex %>";
-            newParticipant.raceStartTime = $scope.race.startTime;
+            newParticipant.activityStartTime = $scope.activity.startTime;
 
             $http.put("/data/participant", newParticipant)
                     .then(function(response) {
                         if(response.data)
                         {
-                            location.replace("/race/details/<%= race._id%>");
+                            location.replace("/activity/details/<%= activity._id%>");
                         }
                     });
         };
@@ -277,7 +277,7 @@
                     .then(function(response) {
                         if(response.data)
                         {
-                            location.replace("/race/details/<%= race._id%>");
+                            location.replace("/activity/details/<%= activity._id%>");
                         }
                     });
         };
@@ -287,32 +287,32 @@
                     .then(function(response) {
                         if(response.data)
                         {
-                            location.replace("/race/details/<%= race._id%>");
+                            location.replace("/activity/details/<%= activity._id%>");
                         }
                     });
         };
         <%}%>
 
         $scope.edit = function () {
-            location.replace("/race/edit/<%= race._id%>");
+            location.replace("/activity/edit/<%= activity._id%>");
         };
 
-        $scope.deleteRace = function () {
-            $http.delete("/data/race/<%= race._id%>")
+        $scope.deleteActivity = function () {
+            $http.delete("/data/activity/<%= activity._id%>")
                     .then(function(response) {
                         if(response.data)
                         {
-                            location.replace("/race/manage");
+                            location.replace("/activity/manage");
                         }
                     });
         };
 
-        $scope.updateRaceResults = function () {
-            $http.post("/update/race/<%= race._id%>")
+        $scope.updateActivityResults = function () {
+            $http.post("/update/activity/<%= activity._id%>")
                     .then(function(response) {
                         if(response.data)
                         {
-                            location.replace("/race/details/<%= race._id%>");
+                            location.replace("/activity/details/<%= activity._id%>");
                         }
                     });
 

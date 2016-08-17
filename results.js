@@ -2,27 +2,27 @@
 
 var database = require('./database');
 var strava = require('strava-v3');
-var race_utils = require('./public/javascripts/race');
+var activity_utils = require('./public/javascripts/activity');
 var result_utils = require('./public/javascripts/result');
 var array_utils = require('./public/javascripts/array_utils');
 
-function UpdateParticipant(participant, race, accessToken, done)
+function UpdateParticipant(participant, activity, accessToken, done)
 {
     var stagesProcessed = 0;
 
-    if(participant.raceState !== race.state)
+    if(participant.activityState !== activity.state)
     {
-        participant.raceState = race.state;
+        participant.activityState = activity.state;
         participant.changed = true;
     }
 
-    if(participant.raceStartTime !== race.startTime)
+    if(participant.activityStartTime !== activity.startTime)
     {
-        participant.raceStartTime = race.state;
+        participant.activityStartTime = activity.state;
         participant.changed = true;
     }
 
-    if(race.stages.length === 0)
+    if(activity.stages.length === 0)
     {
         done(true);
         return;
@@ -35,7 +35,7 @@ function UpdateParticipant(participant, race, accessToken, done)
 
     participant.results.forEach(function (result)
     {
-        var stage = race.stages.find(function (item)
+        var stage = activity.stages.find(function (item)
         {
             return item.segmentId === result.segmentId;
         });
@@ -46,7 +46,7 @@ function UpdateParticipant(participant, race, accessToken, done)
         }
     });
 
-    race.stages.forEach(function (stage)
+    activity.stages.forEach(function (stage)
     {
         var result = participant.results.find(function(item){return item.segmentId === stage.segmentId;});
         var oldresultTime = undefined;
@@ -73,13 +73,13 @@ function UpdateParticipant(participant, race, accessToken, done)
         }
 
 
-        var startUTC = new Date(race.startTime).getTime();
-        var endUTC = new Date(race.endTime).getTime();
+        var startUTC = new Date(activity.startTime).getTime();
+        var endUTC = new Date(activity.endTime).getTime();
 
-        var startTime = new Date(race.startTime);
+        var startTime = new Date(activity.startTime);
         startTime.setHours(startTime.getHours()-12);
 
-        var endTime = new Date(race.endTime);
+        var endTime = new Date(activity.endTime);
         endTime.setHours(endTime.getHours()+12);
 
         strava.segments.listEfforts(
@@ -141,7 +141,7 @@ function UpdateParticipant(participant, race, accessToken, done)
                 }
 
                 stagesProcessed++;
-                if(stagesProcessed >= race.stages.length)
+                if(stagesProcessed >= activity.stages.length)
                 {
                     var complete = participant.results.filter(item => item.time !== undefined).length;
                     if(participant.stagesComplete === undefined  || participant.stagesComplete !== complete)
@@ -168,11 +168,11 @@ function UpdateParticipant(participant, race, accessToken, done)
     })
 }
 
-function UpdateStandings(participants, race)
+function UpdateStandings(participants, activity)
 {
     const sexList = ['M', 'F'];
 
-    race.categories.forEach(function (category)
+    activity.categories.forEach(function (category)
     {
         sexList.forEach(function (sex)
         {
@@ -249,25 +249,25 @@ function SaveParticipants(participants, done)
 
 class Results
 {
-    updateRace(race, accessToken, done)
+    updateActivity(activity, accessToken, done)
     {
-        var oldState = race.state;
-        race_utils.UpdateRaceState(race);
+        var oldState = activity.state;
+        activity_utils.UpdateActivityState(activity);
 
-        if(oldState !== race.state)
+        if(oldState !== activity.state)
         {
-            database.updateDocument(race, function (result)
+            database.updateDocument(activity, function (result)
             {
                 if (!result)
                 {
-                    console.log("ERROR: Unable to Update Race, Race: %s", race._id);
+                    console.log("ERROR: Unable to Update Activity, Activity: %s", activity._id);
                 }
             });
         }
 
-        if(race.state != 'upcoming')
+        if(activity.state != 'upcoming')
         {
-            database.getRaceParticipants(race._id, function (err, participants)
+            database.getActivityParticipants(activity._id, function (err, participants)
             {
                 if (!err)
                 {
@@ -281,13 +281,13 @@ class Results
                         participants.forEach(function (participant)
                         {
                             participant.changed = false;
-                            UpdateParticipant(participant, race, accessToken, function ()
+                            UpdateParticipant(participant, activity, accessToken, function ()
                             {
                                 participantProcessed++;
 
                                 if (participantProcessed >= participants.length)
                                 {
-                                    UpdateStandings(participants, race);
+                                    UpdateStandings(participants, activity);
                                     SaveParticipants(participants, done);
                                 }
                             });
@@ -296,16 +296,16 @@ class Results
                 }
                 else
                 {
-                    console.log("ERROR: Unable to Get Race Participants, Race: %s", race._id);
+                    console.log("ERROR: Unable to Get Activity Participants, Activity: %s", activity._id);
                     done(false);
                 }
             });
         }
     }
 
-    updateParticipant(participantId, raceId, accessToken, done)
+    updateParticipant(participantId, activityId, accessToken, done)
     {
-    database.getDocument(raceId, function (err, race)
+    database.getDocument(activityId, function (err, activity)
     {
         if (err)
         {
@@ -313,7 +313,7 @@ class Results
             return;
         }
 
-        database.getRaceParticipants(raceId, function (err, participants)
+        database.getActivityParticipants(activityId, function (err, participants)
         {
             if (err)
             {
@@ -336,25 +336,25 @@ class Results
                 item.changed = false;
             });
 
-            UpdateParticipant(participant, race, accessToken, function ()
+            UpdateParticipant(participant, activity, accessToken, function ()
             {
-                UpdateStandings(participants, race);
+                UpdateStandings(participants, activity);
                 SaveParticipants(participants, done);
             });
         });
     });
 };
 
-    updateAllRaces(accessToken)
+    updateAllActivities(accessToken)
     {
 
-        database.getUpcomingRaces(function (err, races)
+        database.getUpcomingActivities(function (err, activities)
         {
             if (!err)
             {
-                races.forEach(function (race)
+                activities.forEach(function (activity)
                 {
-                    this.updateRace(race, accessToken, function ()
+                    this.updateActivity(activity, accessToken, function ()
                     {
 
                     });
@@ -362,24 +362,24 @@ class Results
             }
             else
             {
-                console.log("ERROR: Unable to Upcoming Races");
+                console.log("ERROR: Unable to Upcoming Activities");
             }
         });
 
-        database.getInProgressRaces(function (err, races)
+        database.getInProgressActivities(function (err, activities)
         {
             if (!err)
             {
-                races.forEach(function (race)
+                activities.forEach(function (activity)
                 {
-                    this.updateRace(race, accessToken, function ()
+                    this.updateActivity(activity, accessToken, function ()
                     {
                     });
                 });
             }
             else
             {
-                console.log("ERROR: Unable to In Progress Races");
+                console.log("ERROR: Unable to In Progress Activities");
             }
         });
     };

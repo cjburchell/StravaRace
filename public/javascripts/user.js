@@ -8,6 +8,6 @@
         this.type = "user";
         this.athleteId = athleteId;
         this.role = "user";
-        this.maxActiveRaces = 3;
+        this.maxActiveActivities = 3;
     };
 })(typeof exports === 'undefined'? this['user']={}: exports);

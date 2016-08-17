@@ -4,12 +4,12 @@
 var express = require('express');
 var router = express.Router();
 var database = require('../database');
-var race = require('../public/javascripts/race');
+var activity = require('../public/javascripts/activity');
 
 router.get('/history', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getAthleteRaces(req.session.athlete.id, function (err, races)
+        database.getAthleteActivities(req.session.athlete.id, function (err, activities)
         {
             if(!err)
             {
@@ -17,12 +17,12 @@ router.get('/history', function(req, res) {
                     titleText: "History | ",
                     url : process.env.APP_URL,
                     appName : process.env.APP_NAME,
-                    mode : 'race',
+                    mode : 'activity',
                     athlete : req.session.athlete,
-                    races : races
+                    activities : activities
                 };
 
-                race.UpdateRaces(data);
+                activity.UpdateActivities(data);
 
                 res.render('history', data);
             }

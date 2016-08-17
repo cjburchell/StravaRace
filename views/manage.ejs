@@ -6,14 +6,14 @@
 </head>
 <body>
 <% include partials/template/header.ejs %>
-<div class="container-fluid"><%if(races.length ===0){%>
+<div class="container-fluid"><%if(activities.length ===0){%>
     <div class="panel panel-warning">
-        <div class="panel-heading"><h3>You have not created any races.</h3></div>
-        <div class="panel-body">You should create a race! You can do this by selecting selecting 'Create' in the actions</div>
+        <div class="panel-heading"><h3>You have not created any activities.</h3></div>
+        <div class="panel-body">You should create a activity! You can do this by selecting selecting 'Create' in the actions</div>
     </div>
     <%}else{%>
-    <h3>My created races</h3>
-    <% include partials/content/race_list.ejs %>
+    <h3>My created activities</h3>
+    <% include partials/content/activity_list.ejs %>
     <%}%>
 </div>
 <% include partials/template/footer.ejs %>

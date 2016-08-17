@@ -2,13 +2,13 @@
  * Created by Christiaan on 2016-08-08.
  */
 (function(exports){
-    exports.Participant = function Participant(athleteId, raceId, categoryId) {
+    exports.Participant = function Participant(athleteId, activityId, categoryId) {
         this._id = undefined;
         this.type = 'participant';
         this.athleteId = athleteId;
         this.athleteImage = "";
-        this.raceId = raceId;
-        this.raceState = "upcoming";
+        this.activityId = activityId;
+        this.activityState = "upcoming";
         this.categoryId = categoryId;
         this.results = [];
         this.name = "";

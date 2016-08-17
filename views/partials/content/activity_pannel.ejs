@@ -1,0 +1,45 @@
+<div ng-controller="activityPannelControler<%= activity.doc._id%>">
+<div ng-class="activity.value.participant.rank | rankToPannelType" >
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+
+                <h4><%if( activity.doc.activityType === "race"){%>
+                        <i class="fa fa-flag-checkered" aria-hidden="true"></i>
+                        <%}%><a href="/activity/details/<%= activity.doc._id%>"><%= activity.doc.name%></a></h4>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                <h4 style="text-align: right"><%if(activity.doc.state === 'upcoming'){%>
+                    {{ activity.doc.startsIn | secondsToCountdown}}
+                    <%}%>
+
+                    <%if(activity.doc.state === 'in_progress'){%>
+                    {{ activity.doc.timeLeft | secondsToCountdown}}
+                    <%}%>
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <%if(activity.doc.state === "upcoming"){%>
+            <h3>{{activity.doc.totalDistance/1000 | number : 2}}km</h3>
+        <h5><%= activity.doc.stages.length %> Stages</h5>
+        <%}else{%>
+            <%if(activity.value.participant.stagesComplete === activity.value.participant.results.length){ %>
+            <h3 class="rank"><% if(activity.value.participant.rank && activity.value.participant.rank<=3){%><i class="fa fa-trophy"></i> <%}%>Rank: <%= activity.value.participant.rank%>/<%= activity.value.participant.out_of%></h3>
+        <%}else{%>
+        <h3>Stages: <%= activity.value.participant.stagesComplete%>/<%= activity.value.participant.results.length%></h3>
+        <%}%>
+            <h5>Total Time: {{activity.value.participant.time | secondsToTime }}</h5>
+        <%}%>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+    $app.controller('activityPannelControler<%= activity.doc._id%>', function($scope) {
+        $scope.activity = <%- JSON.stringify(activity) %>;
+    });
+
+</script>

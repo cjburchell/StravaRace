@@ -12,21 +12,21 @@
             });
 
     app.controller('createControler', function($scope, $http) {
-        $scope.race = <%- JSON.stringify(race)%>;
+        $scope.activity = <%- JSON.stringify(activity)%>;
         $scope.stages = [];
 
-        $scope.race.startTime = new Date($scope.race.startTime);
-        $scope.race.endTime = new Date($scope.race.endTime);
+        $scope.activity.startTime = new Date($scope.activity.startTime);
+        $scope.activity.endTime = new Date($scope.activity.endTime);
 
         $scope.deleteCategory = function (cat) {
-            arrayUtils.remove($scope.race.categories, cat);
+            arrayUtils.remove($scope.activity.categories, cat);
         }
 
         $scope.deleteStage = function (stage) {
-            arrayUtils.remove($scope.race.stages, stage);
+            arrayUtils.remove($scope.activity.stages, stage);
 
             var stageNumber = 1;
-            $scope.race.stages.sort(function (item1, item2)
+            $scope.activity.stages.sort(function (item1, item2)
             {
                 return item1.number-item2.number;
             }).forEach(function (item)
@@ -35,13 +35,13 @@
                 stageNumber++;
             });
 
-            $scope.totalDistance = $scope.race.stages.reduce(function (total, item) {
+            $scope.totalDistance = $scope.activity.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
         }
 
         $scope.moveStageUp = function (stage) {
-            var otherStage = $scope.race.stages.find(function (item)
+            var otherStage = $scope.activity.stages.find(function (item)
             {
                 return item.number === (stage.number-1)
             });
@@ -54,7 +54,7 @@
         }
 
         $scope.moveStageDown = function (stage) {
-            var otherStage = $scope.race.stages.find(function (item)
+            var otherStage = $scope.activity.stages.find(function (item)
             {
                 return item.number === (stage.number+1)
             });
@@ -68,14 +68,14 @@
 
         $scope.onApply = function () {
             <% if(isCreating){%>
-            $http.put("/data/race", $scope.race)
+            $http.put("/data/activity", $scope.activity)
             <% } else {%>
-            $http.post("/data/race/" + $scope.race._id, $scope.race)
+            $http.post("/data/activity/" + $scope.activity._id, $scope.activity)
             <%}%>
                     .then(function(response) {
                         if(response.data)
                         {
-                            location.replace("/race/details/" + response.data);
+                            location.replace("/activity/details/" + response.data);
                         }
                     });
         };
@@ -84,7 +84,7 @@
             <% if(isCreating){%>
             location.replace("/home");
             <% } else {%>
-            location.replace("/race/details/" + $scope.race._id);
+            location.replace("/activity/details/" + $scope.activity._id);
             <%}%>
         };
 
@@ -93,7 +93,7 @@
         };
 
         $scope.addCategory = function () {
-            $scope.race.categories.push($scope.newCategory);
+            $scope.activity.categories.push($scope.newCategory);
         };
 
         function GetStages(page)
@@ -102,7 +102,7 @@
                     .then(function(response) {
                         $scope.stages = $scope.stages.concat(response.data);
 
-                        $scope.race.stages.forEach(function (stage)
+                        $scope.activity.stages.forEach(function (stage)
                         {
                             arrayUtils.remove($scope.stages, stage);
                         });
@@ -132,18 +132,21 @@
 
         $scope.addStage = function () {
             var newStage = new stage.Stage($scope.selectedStage.id);
-            newStage.number = $scope.race.stages.length + 1;
+            newStage.number = $scope.activity.stages.length + 1;
             newStage.name = $scope.selectedStage.name;
             newStage.distance = $scope.selectedStage.distance;
             newStage.activity_type = $scope.selectedStage.activity_type;
             newStage.map = $scope.selectedStage.map;
             newStage.start_latlng = $scope.selectedStage.start_latlng;
             newStage.end_latlng = $scope.selectedStage.end_latlng;
+            newStage.city = $scope.selectedStage.city;
+            newStage.state = $scope.selectedStage.state;
+            newStage.country = $scope.selectedStage.country;
 
-            $scope.race.stages.push(newStage);
+            $scope.activity.stages.push(newStage);
             arrayUtils.remove($scope.stages, $scope.selectedStage);
 
-            $scope.race.totalDistance = $scope.race.stages.reduce(function (total, item) {
+            $scope.activity.totalDistance = $scope.activity.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
 

@@ -7,14 +7,14 @@
 <body>
 <% include partials/template/header.ejs %>
 <div class="container-fluid">
-    <%if(races.length ===0){%>
+    <%if(activities.length ===0){%>
     <div class="panel panel-warning">
-        <div class="panel-heading"><h3>You have not joined any races.</h3></div>
+        <div class="panel-heading"><h3>You have not joined any activities.</h3></div>
         <div class="panel-body">You should join one! You can do this by selecting 'Join' in the actions</div>
     </div>
     <%}else{%>
     <h3>History</h3>
-    <% include partials/content/race_list.ejs %>
+    <% include partials/content/activity_list.ejs %>
     <%}%>
 </div>
 <% include partials/template/footer.ejs %>

@@ -7,7 +7,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/indexRoute');
-var race = require('./routes/raceRoute');
+var activity = require('./routes/activityRoute');
 var strava = require('./routes/stravaRoute');
 var user = require('./routes/userRoute');
 var data = require('./routes/dataRoute');
@@ -36,7 +36,7 @@ app.use(session(
     }));
 
 app.use('/', routes);
-app.use('/race', race);
+app.use('/activity', activity);
 app.use('/strava', strava);
 app.use('/user', user);
 app.use('/data', data);
@@ -78,8 +78,8 @@ if(process.env.POLL_INTERVAL !== "0")
 {
     setInterval(function ()
     {
-        console.log("THREAD: Update all races");
-        results.updateAllRaces(process.env.STRAVA_ACCESS_TOKEN);
+        console.log("THREAD: Update all activities");
+        results.updateAllActivities(process.env.STRAVA_ACCESS_TOKEN);
     }, process.env.POLL_INTERVAL);
 }
 

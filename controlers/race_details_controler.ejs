@@ -68,6 +68,7 @@
         $scope.race = <%- JSON.stringify(race) %>;
         $scope.participants = <%- JSON.stringify(participants) %>;
         $scope.friends = [];
+        $scope.selectedCatagoryId = $scope.race.categories[0].id;
 
         var foundMale = false;
         var foundFemale = false;

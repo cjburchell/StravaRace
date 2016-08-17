@@ -177,7 +177,11 @@
                 <%if(race.state !== 'finished'){%>
                     <%if((race.privaicy == 'public' || race.friends.indexOf(athlete.id) !== -1) && race.maxParticipants > participants.length){%>
                         <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
+                            <%if(race.categories.length != 1){%>
                             <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Race</a>
+                <%}else{%>
+                        <a href="#" class="list-group-item" ng-click="join()">Join Race</a>
+                <%}%>
                         <%}else{%>
                             <a href="#" class="list-group-item" ng-click="leave()">Leave Race</a>
                         <%}%>

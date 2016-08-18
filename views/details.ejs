@@ -103,27 +103,35 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <%if(activity.activityType === 'race'){%>
                         <th>Rank</th>
+                        <%}%>
                         <th>Name</th>
                         <% if(activity.categories.length > 1){%>
                         <th ng-if="!catagoryFilter">Category</th>
                         <% } %>
                         <th ng-if="!sexFilter && showSexFilter">Sex</th>
                         <th ng-if="activity.stages.lenght !== 1" ng-repeat="stage in activity.stages | orderBy : 'number' ">Stage {{stage.number}}</th>
-                        <th>Total Time</th>
+                        <%if(activity.activityType === 'race'){%>
+                            <th>Total Time</th>
+                        <%}%>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="participant in participants | orderBy : 'rank' | filter:{categoryId:catagoryFilter, sex:sexFilter}">
-                        <td style="vertical-align:center"><i ng-if="participant.rank===1" class="fa fa-trophy" style="color: gold"></i><i ng-if="participant.rank===2"class="fa fa-trophy" style="color: silver"></i><i ng-if="participant.rank===3" class="fa fa-trophy" style="color: #8C7853"></i> {{participant.rank}}</td>
+                        <%if(activity.activityType === 'race'){%>
+                            <td style="vertical-align:center"><i ng-if="participant.rank===1" class="fa fa-trophy" style="color: gold"></i><i ng-if="participant.rank===2"class="fa fa-trophy" style="color: silver"></i><i ng-if="participant.rank===3" class="fa fa-trophy" style="color: #8C7853"></i> {{participant.rank}}</td>
+                        <%}%>
                         <td style="vertical-align:center"><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}" target="_blank">{{participant.name}}</a></td>
                         <% if(activity.categories.length > 1){%>
                         <td>{{participant.catagoryName}}</td>
                         <% } %>
                         <td ng-if="!sexFilter && showSexFilter" style="vertical-align:center">{{participant.sex}}</td>
                         <td style="vertical-align:center" ng-repeat="result in participant.results | orderBy : 'stageNumber'"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a></td>
-                        <td ng-if="participant.time && activity.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
-                        <td ng-if="!participant.time && activity.stages.lenght !== 1" style="vertical-align:center">DNF</td>
+                        <%if(activity.activityType === 'race'){%>
+                            <td ng-if="participant.time && activity.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
+                            <td ng-if="!participant.time && activity.stages.lenght !== 1" style="vertical-align:center">DNF</td>
+                        <%}%>
                     </tr>
                 </tbody>
             </table>
@@ -138,6 +146,9 @@
                 <%}%>
     </div>
 
+            <%if(activity.stages.length === 0){%>
+                <div id='map' style="top:0; bottom:0; width:100%; height:300px"></div>
+            <%} else { %>
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <div id='map' style="top:0; bottom:0; width:100%; height:300px"></div>
@@ -159,7 +170,7 @@
                             <tr ng-repeat="stage in activity.stages track by $index">
                                 <td style="vertical-align:center">{{$index + 1}}</td>
                                 <td style="vertical-align:center">{{stage.activity_type}}</td>
-                                <td style="vertical-align:center"><a ng-href="{{'https://www.strava.com/segments/' + stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
+                                <td style="vertical-align:center"><a ng-href="https://www.strava.com/segments/{{stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                                 <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                             </tr>
                             </tbody>
@@ -168,8 +179,8 @@
                     </div>
                 </div>
             </div>
-
-            </div>
+            <%}%>
+        </div>
 
     <div div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
         <div class="panel panel-default">
@@ -180,43 +191,42 @@
                     <%if((activity.privaicy == 'public' || activity.friends.indexOf(athlete.id) !== -1) && activity.maxParticipants > participants.length){%>
                         <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
                             <%if(activity.categories.length != 1){%>
-                            <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Activity</a>
-                <%}else{%>
-                        <a href="#" class="list-group-item" ng-click="join()">Join Activity</a>
-                <%}%>
+                                <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Activity</a>
+                            <%}else{%>
+                                <a href="#" class="list-group-item" ng-click="join()">Join Activity</a>
+                            <%}%>
                         <%}else{%>
                             <a href="#" class="list-group-item" ng-click="leave()">Leave Activity</a>
                         <%}%>
                     <%}%>
                 <%}%>
                 <%if(activity.state !== 'upcoming' && activity.ownerId != athlete.id){%>
-                <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
-                <a href="#" class="list-group-item" ng-click="updateMyResults()">Update My Results</a>
-                <%}%>
+                    <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
+                        <a href="#" class="list-group-item" ng-click="updateMyResults()">Update My Results</a>
+                    <%}%>
                 <%}%>
                 <%if(activity.ownerId == athlete.id){%>
-                <%if(user.role === "dev"){%>
+                    <%if(user.role === "dev"){%>
+                        <a href="#" class="list-group-item" data-toggle="modal" data-target="#addFriendDialog" ng-click="showAddFriend()">Add Friend</a>
+                        <%if(activity.state === 'finished'){%>
+                            <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Activity</a>
+                        <%}%>
 
-                <a href="#" class="list-group-item" data-toggle="modal" data-target="#addFriendDialog" ng-click="showAddFriend()">Add Friend</a>
-                    <%if(activity.state === 'finished'){%>
-                        <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Activity</a>
+                        <%if(activity.state !== 'upcoming'){%>
+                            <a href="#" class="list-group-item" ng-click="edit()">Edit</a>
+                        <%}%>
                     <%}%>
-
-                    <%if(activity.state !== 'upcoming'){%>
+                    <%if(activity.state === 'upcoming'){%>
                         <a href="#" class="list-group-item" ng-click="edit()">Edit</a>
+                    <%}else{%>
+                        <a href="#" class="list-group-item" ng-click="updateActivityResults()">Update Results</a>
                     <%}%>
-                <%}%>
-                <%if(activity.state === 'upcoming'){%>
-                <a href="#" class="list-group-item" ng-click="edit()">Edit</a>
-                <%}else{%>
-                <a href="#" class="list-group-item" ng-click="updateActivityResults()">Update Results</a>
-                <%}%>
-                <a href="#" class="list-group-item" ng-click="deleteActivity()">Delete</a>
+                    <a href="#" class="list-group-item" ng-click="deleteActivity()">Delete</a>
                 <%}%>
                 <%}else{%>
-                <div style="margin-top: 10px; margin-left: 10px">
-                    <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
-                </div>
+                    <div style="margin-top: 10px; margin-left: 10px">
+                        <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
+                    </div>
                 <%}%>
                 <div class="fb-share-button" style="margin-top: 10px; margin-left: 10px" data-href="http://www.strava-activity.net/activity/details/<%= activity._id %>" data-layout="button" data-size="small" data-mobile-iframe="true">
                     <a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.strava-activity.net%2Factivity%2Fdetails%2<%= activity._id %>&amp;src=sdkpreparse">Share</a>
@@ -252,7 +262,7 @@
                         <tbody>
                         <tr ng-repeat="friend in friends | filter:{name:friendSeachText}" ng-click="selectFriend(friend)" ng-class="friend == selectedFriend | isFriendSelected">
                             <td style="vertical-align:center"><span ng-if="friend == selectedFriend" class="glyphicon glyphicon-ok"></span></td>
-                            <td style="vertical-align:center"><img class="img-circle" ng-src="{{friend.profile_medium}}" width="20" height="20"/> <a ng-href="{{ 'https://www.strava.com/athletes/' + friend.id}}" target="_blank">{{friend.name}}</a></td>
+                            <td style="vertical-align:center"><img class="img-circle" ng-src="{{friend.profile_medium}}" width="20" height="20"/> <a ng-href="https://www.strava.com/athletes/{{friend.id}}" target="_blank">{{friend.name}}</a></td>
                         </tr>
                         </tbody>
                     </table>

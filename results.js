@@ -1,6 +1,7 @@
 "use strict";
 
 var database = require('./database');
+var async = require('async');
 var strava = require('strava-v3');
 var activity_utils = require('./public/javascripts/activity');
 var result_utils = require('./public/javascripts/result');
@@ -8,8 +9,6 @@ var array_utils = require('./public/javascripts/array_utils');
 
 function UpdateParticipant(participant, activity, accessToken, done)
 {
-    var stagesProcessed = 0;
-
     if(participant.activityState !== activity.state)
     {
         participant.activityState = activity.state;
@@ -46,9 +45,8 @@ function UpdateParticipant(participant, activity, accessToken, done)
         }
     });
 
-    activity.stages.forEach(function (stage)
-    {
-        var result = participant.results.find(function(item){return item.segmentId === stage.segmentId;});
+    async.each(activity.stages, (stage, callback)=>{
+        var result = participant.results.find(item => item.segmentId === stage.segmentId);
         var oldresultTime = undefined;
         var oldresultActiviy = undefined;
         if(!result)
@@ -93,83 +91,90 @@ function UpdateParticipant(participant, activity, accessToken, done)
             {
                 if (err)
                 {
-                    console.log("ERROR: " + err);
+                    callback(err);
+                    return;
+                }
+
+                efforts = efforts.filter( item   =>
+                {
+                    var time = new Date(item.start_date).getTime();
+                    return (time >= startUTC) && (time < endUTC)
+                });
+
+                if (efforts.length !== 0)
+                {
+                    var effort = efforts.reduce(function (prev, current)
+                    {
+                        return (prev.elapsed_time < current.elapsed_time) ? prev : current
+                    });
+                    if (effort)
+                    {
+                        result.time = effort.elapsed_time;
+                        if (oldresultTime !== effort.elapsed_time)
+                        {
+                            participant.changed = true;
+                        }
+                        result.activityId = effort.activity.id;
+                        if (oldresultActiviy !== effort.activity.id)
+                        {
+                            participant.changed = true;
+                        }
+                    }
                 }
                 else
                 {
-                    efforts = efforts.filter(function (item)
+                    if (oldresultTime !== undefined)
                     {
-                        var time = new Date(item.start_date).getTime();
-                        return (time >= startUTC) && (time < endUTC)
-                    });
-
-                    if(efforts.length !== 0)
-                    {
-                        var effort = efforts.reduce(function (prev, current)
-                        {
-                            return (prev.elapsed_time < current.elapsed_time) ? prev : current
-                        });
-
-                        if (effort)
-                        {
-                            result.time = effort.elapsed_time;
-                            if (oldresultTime !== effort.elapsed_time)
-                            {
-                                participant.changed = true;
-                            }
-
-                            result.activityId = effort.activity.id;
-                            if (oldresultActiviy !== effort.activity.id)
-                            {
-                                participant.changed = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (oldresultTime !== undefined)
-                        {
-                            participant.changed = true;
-                        }
-
-                        if (oldresultActiviy !== undefined)
-                        {
-                            participant.changed = true;
-                        }
-                    }
-
-                }
-
-                stagesProcessed++;
-                if(stagesProcessed >= activity.stages.length)
-                {
-                    var complete = participant.results.filter(item => item.time !== undefined).length;
-                    if(participant.stagesComplete === undefined  || participant.stagesComplete !== complete)
-                    {
-                        participant.stagesComplete = complete;
                         participant.changed = true;
                     }
-
-                    var totalTime = undefined;
-                    if(!participant.results.some(result => result.time === undefined))
+                    if (oldresultActiviy !== undefined)
                     {
-                        totalTime = participant.results.reduce((total, item) => total + item.time, 0);
-                    }
-
-                    if(participant.time !== totalTime)
-                    {
-                        participant.time = totalTime;
                         participant.changed = true;
                     }
-
-                    done();
                 }
+
+                callback();
             });
-    })
+    }, err => {
+        if (err)
+        {
+            console.log("ERROR: " + err);
+            return;
+        }
+
+        if(activity.activityType === 'race')
+        {
+            var complete = participant.results.filter(item => item.time !== undefined).length;
+            if (participant.stagesComplete === undefined || participant.stagesComplete !== complete)
+            {
+                participant.stagesComplete = complete;
+                participant.changed = true;
+            }
+
+            var totalTime = undefined;
+            if (!participant.results.some(result => result.time === undefined))
+            {
+                totalTime = participant.results.reduce((total, item) => total + item.time, 0);
+            }
+
+            if (participant.time !== totalTime)
+            {
+                participant.time = totalTime;
+                participant.changed = true;
+            }
+        }
+
+        done();
+    });
 }
 
 function UpdateStandings(participants, activity)
 {
+    if(activity.activityType !== 'race')
+    {
+        return;
+    }
+
     const sexList = ['M', 'F'];
 
     activity.categories.forEach(function (category)
@@ -219,11 +224,10 @@ function UpdateStandings(participants, activity)
 
 function SaveParticipants(participants, done)
 {
-    var processed = 0;
     var changedItems = participants.filter(function (item) { return item.changed } );
     if(changedItems.length !== 0)
     {
-        changedItems.forEach(function (participant)
+        async.each(changedItems, function (participant, callback)
         {
             participant.changed = undefined;
             database.updateDocument(participant, function (result)
@@ -233,12 +237,16 @@ function SaveParticipants(participants, done)
                     console.log("ERROR: Unable to update Participant %s", participant._id);
                 }
 
-                processed++;
-                if (processed >= changedItems.length)
-                {
-                    done(true);
-                }
+                callback();
             });
+        }, err =>{
+            if(err)
+            {
+                done(false);
+                return;
+            }
+
+            done(true);
         });
     }
     else
@@ -254,7 +262,7 @@ class Results
         var oldState = activity.state;
         activity_utils.UpdateActivityState(activity);
 
-        if(oldState !== activity.state)
+        if (oldState !== activity.state)
         {
             database.updateDocument(activity, function (result)
             {
@@ -265,55 +273,48 @@ class Results
             });
         }
 
-        if(activity.state != 'upcoming')
+        if (activity.state === 'upcoming')
         {
-            database.getActivityParticipants(activity._id, function (err, participants)
-            {
-                if (!err)
-                {
-                    if(participants.length == 0)
-                    {
-                        done(true);
-                    }
-                    else
-                    {
-                        var participantProcessed = 0;
-                        participants.forEach(function (participant)
-                        {
-                            participant.changed = false;
-                            UpdateParticipant(participant, activity, accessToken, function ()
-                            {
-                                participantProcessed++;
-
-                                if (participantProcessed >= participants.length)
-                                {
-                                    UpdateStandings(participants, activity);
-                                    SaveParticipants(participants, done);
-                                }
-                            });
-                        });
-                    }
-                }
-                else
-                {
-                    console.log("ERROR: Unable to Get Activity Participants, Activity: %s", activity._id);
-                    done(false);
-                }
-            });
+            return;
         }
+
+        database.getActivityParticipants(activity._id, function (err, participants)
+        {
+            if (err)
+            {
+                console.log("ERROR: Unable to Get Activity Participants, Activity: %s", activity._id);
+                done(false);
+                return;
+            }
+
+            if (participants.length === 0)
+            {
+                done(true);
+                return;
+            }
+
+            async.each(participants, (participant, callback) =>
+                {
+                    participant.changed = false;
+                    UpdateParticipant(participant, activity, accessToken, () => callback());
+                }
+            , err =>
+                {
+
+                    if( err ) {
+                        return;
+                    }
+
+
+                    UpdateStandings(participants, activity);
+                    SaveParticipants(participants, done);
+                });
+        });
     }
 
     updateParticipant(participantId, activityId, accessToken, done)
     {
-    database.getDocument(activityId, function (err, activity)
-    {
-        if (err)
-        {
-            done(false);
-            return;
-        }
-
-        database.getActivityParticipants(activityId, function (err, participants)
+        database.getDocument(activityId, function (err, activity)
         {
             if (err)
             {
@@ -321,33 +322,37 @@ class Results
                 return;
             }
 
-            var participant = participants.find(function (item)
+            database.getActivityParticipants(activityId, function (err, participants)
             {
-                return item._id === participantId;
-            });
+                if (err)
+                {
+                    done(false);
+                    return;
+                }
 
-            if (participant === undefined)
-            {
-                return;
-            }
+                var participant = participants.find(function (item)
+                {
+                    return item._id === participantId;
+                });
 
-            participants.forEach(function (item)
-            {
-                item.changed = false;
-            });
+                if (participant === undefined)
+                {
+                    return;
+                }
 
-            UpdateParticipant(participant, activity, accessToken, function ()
-            {
-                UpdateStandings(participants, activity);
-                SaveParticipants(participants, done);
+                participants.forEach(item => item.changed = false);
+
+                UpdateParticipant(participant, activity, accessToken, () =>
+                {
+                    UpdateStandings(participants, activity);
+                    SaveParticipants(participants, done);
+                });
             });
         });
-    });
-};
+    }
 
     updateAllActivities(accessToken)
     {
-
         database.getUpcomingActivities(function (err, activities)
         {
             if (!err)

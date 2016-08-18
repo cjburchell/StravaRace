@@ -6,7 +6,7 @@
     exports.Activity = function Activity() {
         this._id = undefined;
         this.type = 'activity';
-        this.activityType = "race";
+        this.activityType = "group_ride";
         this.ownerId = "";
         this.name = "";
         this.description = "";

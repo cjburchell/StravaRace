@@ -14,6 +14,7 @@
     app.controller('createControler', function($scope, $http) {
         $scope.activity = <%- JSON.stringify(activity)%>;
         $scope.stages = [];
+        $scope.routes = [];
 
         $scope.activity.startTime = new Date($scope.activity.startTime);
         $scope.activity.endTime = new Date($scope.activity.endTime);
@@ -115,11 +116,40 @@
                     });
         }
 
+        function GetRoutes()
+        {
+            $http.get("/strava/routes")
+                    .then(function(response) {
+                        $scope.routes = response.data;
+                    });
+        }
+
+        $scope.showRoutes = function ()
+        {
+            $scope.selectedRoute = undefined;
+            $scope.routeSeachText = undefined;
+            $scope.autoAddStages = false;
+            if($scope.routes.length === 0)
+            {
+                GetRoutes();
+            }
+        };
+
+        $scope.getRoutes = function()
+        {
+            $scope.routes = [];
+            GetRoutes();
+        };
+
+        $scope.selectRoute = function (route) {
+            $scope.selectedRoute = route;
+        };
+
         $scope.getStages = function()
         {
             $scope.stages = [];
             GetStages(1);
-        }
+        };
 
         $scope.showAddStage = function () {
             $scope.stageSeachText = undefined;
@@ -130,30 +160,59 @@
             }
         };
 
-        $scope.addStage = function () {
-            var newStage = new stage.Stage($scope.selectedStage.id);
+        function AddStage(stage)
+        {
+            var newStage = new stage_utils.Stage(stage.id);
             newStage.number = $scope.activity.stages.length + 1;
-            newStage.name = $scope.selectedStage.name;
-            newStage.distance = $scope.selectedStage.distance;
-            newStage.activity_type = $scope.selectedStage.activity_type;
-            newStage.map = $scope.selectedStage.map;
-            newStage.start_latlng = $scope.selectedStage.start_latlng;
-            newStage.end_latlng = $scope.selectedStage.end_latlng;
-            newStage.city = $scope.selectedStage.city;
-            newStage.state = $scope.selectedStage.state;
-            newStage.country = $scope.selectedStage.country;
+            newStage.name = stage.name;
+            newStage.distance = stage.distance;
+            newStage.activity_type = stage.activity_type;
+            newStage.map = stage.map;
+            newStage.start_latlng = stage.start_latlng;
+            newStage.end_latlng = stage.end_latlng;
+            newStage.city = stage.city;
+            newStage.state = stage.state;
+            newStage.country = stage.country;
 
             $scope.activity.stages.push(newStage);
-            arrayUtils.remove($scope.stages, $scope.selectedStage);
+            arrayUtils.remove($scope.stages, stage);
 
             $scope.activity.totalDistance = $scope.activity.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
 
-            $http.get("/strava/segmentmap/" + $scope.selectedStage.id)
+            $http.get("/strava/segmentmap/" + stage.id)
                     .then(function(response) {
                         newStage.map = response.data.map;
                     });
+        }
+
+        $scope.setRoute = function ()
+        {
+            $scope.activity.routeId = $scope.selectedRoute.id;
+            $scope.activity.routeName = $scope.selectedRoute.name;
+            $scope.activity.routeDistance = $scope.selectedRoute.distance;
+
+            $http.get("/strava/route/" + $scope.selectedRoute.id)
+                    .then(function (response)
+                    {
+                        $scope.activity.routeMap = response.data.map;
+
+                        if($scope.autoAddStages)
+                        {
+                            $scope.stages = [];
+                            $scope.activity.stages = [];
+
+                            response.data.segments.forEach(function (item)
+                            {
+                                AddStage(item);
+                            });
+                        }
+                    });
+        }
+
+        $scope.addStage = function () {
+            AddStage($scope.selectedStage);
         };
 
         $scope.selectStage = function (stage) {

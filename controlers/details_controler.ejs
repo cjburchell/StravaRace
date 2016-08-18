@@ -114,6 +114,12 @@
 
         var points = [];
 
+        var polyline_route_options = {
+            color: '#00F'
+        };
+
+        L.polyline($scope.activity.routeMap.points, polyline_route_options).addTo(map);
+
         $scope.activity.stages.forEach(function (stage)
         {
             if(stage.map !== undefined)
@@ -169,9 +175,6 @@
                 points.push(end);
                 points.push(start);
             }
-
-
-
         });
 
         var geojson = {

@@ -5,4 +5,4 @@
     exports.Stage = function Stage(id) {
         this.segmentId = id;
     }
-})(typeof exports === 'undefined'? this['stage']={}: exports);
+})(typeof exports === 'undefined'? this['stage_utils']={}: exports);

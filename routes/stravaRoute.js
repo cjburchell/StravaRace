@@ -26,20 +26,7 @@ router.get('/starredsegments/:id', function(req, res) {
                 return;
             }
 
-            var segments = payload.filter(item => !item.private).map(item =>
-            {
-                return {
-                    'id': item.id,
-                    'name': item.name,
-                    'activity_type': item.activity_type,
-                    'distance': item.distance,
-                    'start_latlng': item.start_latlng,
-                    'end_latlng': item.end_latlng,
-                    "city": item.city,
-                    "state": item.state,
-                    "country": item.country
-                }
-            });
+            var segments = payload.filter(item => !item.private);
 
             res.end(JSON.stringify(segments));
         }
@@ -75,6 +62,56 @@ router.get('/segmentmap/:id', function(req, res) {
                 'start_latlng': payload.start_latlng,
                 'end_latlng': payload.end_latlng
             }));
+        }
+        catch (error)
+        {
+            console.log("ERROR: " + error);
+            console.log(error.stack);
+        }
+    })
+});
+
+router.get('/routes/', function(req, res) {
+    if (!req.session.isLoggedIn)
+    {
+        res.end(JSON.stringify(false));
+        return;
+    }
+
+    console.log("STRAVA: Get Routes");
+    strava.athlete.listRoutes({access_token: req.session.accessToken, id: req.session.athlete.id}, function (err, payload)
+    {
+        try
+        {
+            res.end(JSON.stringify(payload));
+        }
+        catch (error)
+        {
+            console.log("ERROR: " + error);
+            console.log(error.stack);
+        }
+    })
+});
+
+router.get('/route/:id', function(req, res) {
+    if (!req.session.isLoggedIn)
+    {
+        res.end(JSON.stringify(false));
+        return;
+    }
+
+    console.log("STRAVA: Get route, RouteId: " + req.params.id);
+    strava.routes.get({access_token: req.session.accessToken, id: req.params.id}, function (err, payload)
+    {
+        try
+        {
+            if (err)
+            {
+                res.end(JSON.stringify(false));
+                return;
+            }
+
+            res.end(JSON.stringify(payload));
         }
         catch (error)
         {

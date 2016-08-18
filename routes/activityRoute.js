@@ -5,7 +5,6 @@ var express = require('express');
 var database = require('../database');
 var activity = require('../public/javascripts/activity');
 var category = require('../public/javascripts/category');
-var polyline = require('polyline');
 var router = express.Router();
 
 function createGuid()
@@ -192,44 +191,6 @@ router.get('/details/:id', function(req, res) {
                 if(!err)
                 {
                     activity.UpdateActivityState(editActivity);
-
-                    var maxLat = -180;
-                    var minLat = 180;
-                    var maxLong = -180;
-                    var minLong = 180;
-                    editActivity.stages.forEach(function (stage)
-                    {
-                        if(stage.map !== undefined)
-                        {
-                            stage.map.points = polyline.decode(stage.map.polyline);
-
-                            maxLat = Math.max(maxLat, stage.start_latlng[0]);
-                            minLat = Math.min(minLat, stage.start_latlng[0]);
-                            maxLong = Math.max(maxLong, stage.start_latlng[1]);
-                            minLong = Math.min(minLong, stage.start_latlng[1]);
-
-                            maxLat = Math.max(maxLat, stage.end_latlng[0]);
-                            minLat = Math.min(minLat, stage.end_latlng[0]);
-                            maxLong = Math.max(maxLong, stage.end_latlng[1]);
-                            minLong = Math.min(minLong, stage.end_latlng[1]);
-                        }
-                    });
-
-                    var centerLat = (maxLat-minLat)/2 + minLat;
-                    var centerLong = (maxLong-minLong)/2 + minLong;
-
-                    editActivity.centerPoint = [
-                        centerLat,
-                        centerLong
-                    ];
-
-                    editActivity.boundingBox = [[
-                        minLat,
-                        minLong
-                    ],[
-                        maxLat,
-                        maxLong
-                    ]];
 
                     var data = {
                         titleText: editActivity.name + " | Activity | ",

@@ -2,6 +2,7 @@
  * Created by Christiaan on 2016-08-08.
  */
 var express = require('express');
+var async = require('async');
 var database = require('../database');
 var activity = require('../public/javascripts/activity');
 var category = require('../public/javascripts/category');
@@ -55,75 +56,90 @@ router.get('/create', function(req, res) {
     });
 });
 
-router.get('/edit/:id', function(req, res) {
-    if(req.session.isLoggedIn)
+router.get('/edit/:id', function(req, res)
+{
+    if (!req.session.isLoggedIn)
     {
-        database.getDocument(req.params.id, function (err , result) {
-            if(!err) {
-                var editActivity = result;
-                if (editActivity.ownerId === req.session.athlete.id) {
-                    activity.UpdateActivityState(editActivity);
-                    var data = {
-                        titleText: editActivity.name + " | Edit | Activity | ",
-                        url : process.env.APP_URL,
-                        appName : process.env.APP_NAME,
-                        mode: 'activity',
-                        athlete: req.session.athlete,
-                        user: req.session.user,
-                        isCreating: false,
-                        activity: editActivity
-                    };
-                    res.render('edit', data);
-                }
-                else {
-                    res.render('nav_to', {navLocation: "/"});
-                }
-            }
-            else
-            {
-                res.render('nav_to', {navLocation:"/"});
-            }
-        });
+        res.render('nav_to', {navLocation: "/"});
+        return;
     }
-    else
+
+    database.getDocument(req.params.id, function (err, result)
     {
-        res.render('nav_to', {navLocation:"/"});
-    }
+        if (err)
+        {
+            res.render('nav_to', {navLocation: "/"});
+            return;
+        }
+
+        var editActivity = result;
+        if (editActivity.ownerId !== req.session.athlete.id)
+        {
+            res.render('nav_to', {navLocation: "/"});
+            return;
+        }
+
+        activity.UpdateActivityState(editActivity);
+        var data = {
+            titleText: editActivity.name + " | Edit | Activity | ",
+            url: process.env.APP_URL,
+            appName: process.env.APP_NAME,
+            mode: 'activity',
+            athlete: req.session.athlete,
+            user: req.session.user,
+            isCreating: false,
+            activity: editActivity
+        };
+        res.render('edit', data);
+    });
 });
 
-router.get('/manage', function(req, res) {
-    if(req.session.isLoggedIn)
+router.get('/manage', function(req, res)
+{
+    if (!req.session.isLoggedIn)
     {
-        database.getActivities(req.session.athlete.id, function (err, result) {
-            if(!err) {
-                var data = {
-                    titleText: "Manage Activities | ",
-                    url : process.env.APP_URL,
-                    appName : process.env.APP_NAME,
-                    mode: 'activity',
-                    athlete: req.session.athlete,
-                    activities: result
-                };
+        res.render('nav_to', {navLocation: "/"});
+        return;
+    }
 
-                activity.UpdateActivities(data);
-                res.render('manage', data);
-            }
-            else
-            {
-                res.render('nav_to', {navLocation:"/"});
-            }
-        });
-    }
-    else
+    database.getActivities(req.session.athlete.id, function (err, result)
     {
-        res.render('nav_to', {navLocation:"/"});
-    }
+        if (err)
+        {
+            res.render('nav_to', {navLocation: "/"});
+            return;
+        }
+
+        var data = {
+            titleText: "Manage Activities | ",
+            url: process.env.APP_URL,
+            appName: process.env.APP_NAME,
+            mode: 'activity',
+            athlete: req.session.athlete,
+            activities: result
+        };
+
+        activity.UpdateActivities(data);
+        res.render('manage', data);
+    });
 });
 
-router.get('/join', function(req, res) {
-    if(req.session.isLoggedIn)
+router.get('/join', function(req, res)
+{
+    if (!req.session.isLoggedIn)
     {
-        database.getAthleteActivities(req.session.athlete.id, function (err, joinedActivities)
+        res.render('nav_to', {navLocation: "/"});
+        return;
+    }
+    database.getAthleteActivities(req.session.athlete.id, function (err, joinedActivities)
+    {
+        if (err)
+        {
+            res.render('nav_to', {navLocation: "/"});
+            return;
+        }
+
+        database.getPublicActivities(function (err, result)
         {
             if (err)
             {
@@ -131,92 +147,96 @@ router.get('/join', function(req, res) {
                 return;
             }
 
-            database.getPublicActivities(function (err, result) {
+            var data = {
+                titleText: "Join Activity | ",
+                url: process.env.APP_URL,
+                appName: process.env.APP_NAME,
+                mode: 'activity',
+                athlete: req.session.athlete,
+                activities: []
+            };
+
+            var currentTime = new Date();
+
+            function filterActivity(item)
+            {
+                var isJoined = joinedActivities.findIndex(joined => item._id === joined._id) === -1;
+                return (new Date(item.endTime) - currentTime) > 0 && isJoined;
+            }
+
+            data.activities = data.activities.concat(result.filter(filterActivity));
+
+            database.getPrivateActivities(req.session.athlete.id, function (err, result)
+            {
                 if (err)
                 {
                     res.render('nav_to', {navLocation: "/"});
                     return;
                 }
 
-                var data = {
-                    titleText: "Join Activity | ",
-                    url: process.env.APP_URL,
-                    appName: process.env.APP_NAME,
-                    mode: 'activity',
-                    athlete: req.session.athlete,
-                    activities: []
-                };
-
-                var currentTime = new Date();
-                function filterActivity(item)
-                {
-                    var isJoined = joinedActivities.findIndex(function (joined)
-                        {
-                            return item._id === joined._id;
-                        }) === -1;
-                    return (new Date(item.endTime) - currentTime) > 0 && isJoined;
-                }
-
                 data.activities = data.activities.concat(result.filter(filterActivity));
-
-                database.getPrivateActivities(req.session.athlete.id, function (err, result)
-                {
-                    if (err)
-                    {
-                        res.render('nav_to', {navLocation: "/"});
-                        return;
-                    }
-
-                    data.activities = data.activities.concat(result.filter(filterActivity));
-                    activity.UpdateActivities(data);
-                    res.render('join', data);
-                });
-
+                activity.UpdateActivities(data);
+                res.render('join', data);
             });
+
         });
-    }
-    else
-    {
-        res.render('nav_to', {navLocation:"/"});
-    }
+    });
 });
 
 router.get('/details/:id', function(req, res) {
-    database.getDocument(req.params.id, function (err, editActivity)
-    {
-        if(!err)
-        {
-            database.getActivityParticipants(req.params.id, function (err, participants)
-            {
-                if(!err)
-                {
-                    activity.UpdateActivityState(editActivity);
 
-                    var data = {
-                        titleText: editActivity.name + " | Activity | ",
-                        url : process.env.APP_URL,
-                        appName : process.env.APP_NAME,
-                        mode : 'activity',
-                        isLoggedIn : req.session.isLoggedIn,
-                        athlete : req.session.athlete,
-                        user: req.session.user,
-                        stravaClientId: process.env.STRAVA_CLIENT_ID,
-                        stravaRedirect: process.env.STRAVA_REDIRECT_URI,
-                        activity : editActivity,
-                        participants : participants
-                    };
-                    res.render('details', data);
-                }
-                else
-                {
-                    res.render('nav_to', {navLocation:"/"});
-                }
-            });
-        }
-        else
+    async.parallel({
+        activity : callback => {
+        "use strict";
+        database.getDocument(req.params.id, function (err, editActivity)
+        {
+            if(err)
+            {
+                callback(err);
+                return;
+            }
+
+            activity.UpdateActivityState(editActivity);
+            callback(null, editActivity);
+        });
+    },
+        participants: callback => {
+        "use strict";
+
+        database.getActivityParticipants(req.params.id, function (err, participants)
+        {
+            if(err)
+            {
+                callback(err);
+                return;
+            }
+
+            callback(null, participants);
+        });
+    }}, (err, results) =>{
+        "use strict";
+
+        if(err)
         {
             res.render('nav_to', {navLocation:"/"});
+            return;
         }
+
+        var data = {
+            titleText: results.activity.name + " | Activity | ",
+            url : process.env.APP_URL,
+            appName : process.env.APP_NAME,
+            mode : 'activity',
+            isLoggedIn : req.session.isLoggedIn,
+            athlete : req.session.athlete,
+            user: req.session.user,
+            stravaClientId: process.env.STRAVA_CLIENT_ID,
+            stravaRedirect: process.env.STRAVA_REDIRECT_URI,
+            activity : results.activity,
+            participants : results.participants
+        };
+        res.render('details', data);
+
     });
 });
 

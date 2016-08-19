@@ -36,7 +36,7 @@
                 stageNumber++;
             });
 
-            $scope.totalDistance = $scope.activity.stages.reduce(function (total, item) {
+            $scope.activity.totalDistance = $scope.activity.stages.reduce(function (total, item) {
                 return total + item.distance;
             }, 0);
         }

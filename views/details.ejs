@@ -147,16 +147,36 @@
     </div>
 
             <%if(activity.stages.length === 0){%>
-                <div id='map' style="top:0; bottom:0; width:100%; height:300px"></div>
+                <div ng-if="activity.routeId" class="well">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <label>Route:</label> <a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align: right">
+                            {{activity.routeDistance/1000 | number : 2}}km
+                        </div>
+                    </div>
+                </div>
+                <div id='map' style="top:0; bottom:0; width:100%; height:500px"></div>
             <%} else { %>
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <div id='map' style="top:0; bottom:0; width:100%; height:300px"></div>
+                    <div id='map' style="top:0; bottom:0; width:100%; height:500px"></div>
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <div class="well">
-                        <h4>Stages</h4>
+                    <div ng-if="activity.routeId" class="well">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                <label>Route:</label> <a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align: right">
+                                {{activity.routeDistance/1000 | number : 2}}km
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="activity.stages.length !== 0" class="well">
+                        <h4>Timed Stages</h4>
                         <table class="table table-striped">
                             <thead>
                             <tr>

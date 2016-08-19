@@ -21,15 +21,21 @@
         </div>
     </div>
     <div class="panel-body">
-        <%if(activity.doc.state === "upcoming"){%>
+        <%if(activity.doc.state === "upcoming" || activity.doc.activityType != 'race'){%>
+            <%if(!activity.doc.routeId){%>
             <h3>{{activity.doc.totalDistance/1000 | number : 2}}km</h3>
-        <h5><%= activity.doc.stages.length %> Stages</h5>
+            <%}else {%>
+            <h3>{{activity.doc.routeDistance/1000 | number : 2}}km</h3>
+            <%}%>
+            <%if(activity.doc.stages.length !== 0){%>
+                <h5><%= activity.doc.stages.length %> Timed Stages</h5>
+            <%}%>
         <%}else{%>
             <%if(activity.value.participant.stagesComplete === activity.value.participant.results.length){ %>
-            <h3 class="rank"><% if(activity.value.participant.rank && activity.value.participant.rank<=3){%><i class="fa fa-trophy"></i> <%}%>Rank: <%= activity.value.participant.rank%>/<%= activity.value.participant.out_of%></h3>
-        <%}else{%>
-        <h3>Stages: <%= activity.value.participant.stagesComplete%>/<%= activity.value.participant.results.length%></h3>
-        <%}%>
+                <h3 class="rank"><% if(activity.value.participant.rank && activity.value.participant.rank<=3){%><i class="fa fa-trophy"></i> <%}%>Rank: <%= activity.value.participant.rank%>/<%= activity.value.participant.out_of%></h3>
+            <%}else{%>
+                <h3>Stages: <%= activity.value.participant.stagesComplete%>/<%= activity.value.participant.results.length%></h3>
+            <%}%>
             <h5>Total Time: {{activity.value.participant.time | secondsToTime }}</h5>
         <%}%>
     </div>

@@ -79,6 +79,7 @@
             </div>
 
         <%if(activity.state === 'upcoming'){%>
+                <h4>Registered</h4>
             <table class="table table-striped">
                 <thead>
                 <tr>
@@ -100,6 +101,7 @@
                 </tbody>
             </table>
         <%} else {%>
+                <h4>Results</h4>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -148,9 +150,10 @@
 
             <%if(activity.stages.length === 0){%>
                 <div ng-if="activity.routeId" class="well">
+                    <h4>Route</h4>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <label>Route:</label> <a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a>
+                             <a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align: right">
                             {{activity.routeDistance/1000 | number : 2}}km
@@ -166,9 +169,10 @@
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                     <div ng-if="activity.routeId" class="well">
+                        <h4>Route</h4>
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <label>Route:</label> <a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a>
+                                <a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="text-align: right">
                                 {{activity.routeDistance/1000 | number : 2}}km
@@ -187,8 +191,8 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="stage in activity.stages track by $index">
-                                <td style="vertical-align:center">{{$index + 1}}</td>
+                            <tr ng-repeat="stage in activity.stages | orderBy : 'number'">
+                                <td style="vertical-align:center">{{stage.number}}</td>
                                 <td style="vertical-align:center">{{stage.activity_type}}</td>
                                 <td style="vertical-align:center"><a ng-href="https://www.strava.com/segments/{{stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                                 <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>

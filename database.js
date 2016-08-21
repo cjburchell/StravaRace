@@ -14,6 +14,8 @@ const PublicActivitiesView = "_design/activity/_view/public_activities";
 const ParticipantbyActivityView = "_design/participant/_view/by_activity";
 const ActivitybyParticipantView = "_design/activity/_view/by_participant";
 
+const CommentsbyActivityView = "_design/comments/_view/by_activity";
+
 const UpcomingActivitiesView = "_design/activity/_view/upcoming_activities";
 const InProgressActivitiesView = "_design/activity/_view/inprogress_activities";
 
@@ -148,6 +150,11 @@ class Database
     getActivityParticipants(activityId, done)
     {
         this.getView(activityId, ParticipantbyActivityView, done, undefined, undefined, false);
+    };
+
+    getActivityComments(activityId, done)
+    {
+        this.getView(activityId, CommentsbyActivityView, done);
     };
 
     getCount(key, view, done)

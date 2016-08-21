@@ -64,11 +64,75 @@
         };
     });
 
+    app.filter('secondsToDiff', function() {
+        return function(_seconds) {
+            if (typeof _seconds !== "number" || _seconds < 0)
+                return "0m";
+
+            var time = Date.now() - _seconds;
+            time = Math.floor(time / 1000);
+            time = Math.floor(time / 60);
+            var minutes = Math.floor(time % 60);
+            time = Math.floor(time / 60);
+            var hours = Math.floor(time % 24);
+            var days = Math.floor(time / 24);
+
+            if(days === 0)
+            {
+                if(hours === 0)
+                {
+                    if(minutes === 1)
+                    {
+                        return minutes + "min";
+                    }
+
+                    return minutes + "mins";
+                }
+                else
+                {
+                    if(hours === 1)
+                    {
+                        return hours + "hr";
+                    }
+
+                    return hours + "hrs";
+                }
+            }
+            else
+            {
+                if(days === 1)
+                {
+                    return "Yesterday at " + new Date(_seconds).toLocaleTimeString();
+                }
+
+                return new Date(_seconds).ToString();
+            }
+        };
+    });
+
     app.controller('activityControler', function($scope, $http) {
         $scope.activity = <%- JSON.stringify(activity) %>;
         $scope.participants = <%- JSON.stringify(participants) %>;
+        $scope.comments = <%- JSON.stringify(comments) %>;
         $scope.friends = [];
         $scope.selectedCatagoryId = $scope.activity.categories[0].id;
+        $scope.newComment = "";
+
+        $scope.addComment  = function ()
+        {
+            $http.put("/data/comment/activity/" + $scope.activity._id, { text: $scope.newComment }).then(function(response) {
+                if(response.data)
+                {
+                    $scope.newComment = "";
+                    $http.get("/data/comment/activity/" + $scope.activity._id).then(function(response) {
+                        if(response.data)
+                        {
+                            $scope.comments = response.data;
+                        }
+                    });
+                }
+            });
+        };
 
         var foundMale = false;
         var foundFemale = false;

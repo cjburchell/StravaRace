@@ -7,6 +7,7 @@
     <meta property="og:description"        content="<%= activity.description %>" />
     <meta property="og:site_name"        content="<%=appName%>" />
     <meta property="fb:app_id"        content="1204847022870716" />
+    <meta property="og:image" content="https://api.mapbox.com/v4/mapbox.outdoors/<%=activity.centerPoint[1]%>,<%=activity.centerPoint[0]%>,12/500x300.png?access_token=pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://use.fontawesome.com/3a216218fd.js"></script>
     <link rel='stylesheet' href='/stylesheets/style.css' />
@@ -92,7 +93,7 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="participant in participants | filter:{categoryId:catagoryFilter, sex:sexFilter}">
-                    <td style="vertical-align:center"><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/> <a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}">{{participant.name}}</a></td>
+                    <td style="vertical-align:center"><img class="img-circle" ng-src="{{participant.athleteImage}}" width="24" height="24"/> <a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}">{{participant.name}}</a></td>
                     <% if(activity.categories.length > 1){%>
                     <td ng-if="!catagoryFilter">{{participant.catagoryName}}</td>
                     <% } %>
@@ -124,7 +125,7 @@
                         <%if(activity.activityType === 'race'){%>
                             <td style="vertical-align:center"><i ng-if="participant.rank===1" class="fa fa-trophy" style="color: gold"></i><i ng-if="participant.rank===2"class="fa fa-trophy" style="color: silver"></i><i ng-if="participant.rank===3" class="fa fa-trophy" style="color: #8C7853"></i> {{participant.rank}}</td>
                         <%}%>
-                        <td style="vertical-align:center"><img class="img-circle" ng-src="{{participant.athleteImage}}" width="20" height="20"/><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}" target="_blank">{{participant.name}}</a></td>
+                        <td style="vertical-align:center"><img class="img-circle" ng-src="{{participant.athleteImage}}" width="24" height="24"/><a ng-href="https://www.strava.com/athletes/{{participant.athleteId}}" target="_blank">{{participant.name}}</a></td>
                         <% if(activity.categories.length > 1){%>
                         <td>{{participant.catagoryName}}</td>
                         <% } %>
@@ -204,9 +205,37 @@
                 </div>
             </div>
             <%}%>
+
+            <%if(isLoggedIn || comments.length !== 0){%>
+            <div class="panel-group" style="margin-top: 20px">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4>
+                            <a data-toggle="collapse" href="#collapse1">Comments</a> <span ng-if="comments.length !== 0" class="badge">{{comments.length}}</span>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <%if(isLoggedIn){%>
+                            <div style="margin-bottom: 10px">
+                                <img class="img-circle" src="<%= athlete.profile_medium%>" width="32" height="32"/>  <input style="margin-left: 5px; width: 66%; display: initial" type="text" class="form-control" id="newComment" ng-model="newComment" maxlength="300"> <button type="button" class="btn btn-default" ng-click="addComment()">Post</button>
+                            </div>
+                           <%}%>
+                            <table>
+                                <tr ng-repeat="comment in comments | orderBy : 'time' : true">
+                                    <td><img class="img-circle" ng-src="{{comment.athleteImage}}" width="24" height="24" style="margin-left: 20px; margin-right: 5px; margin-bottom: 10px;"/></td>
+                                    <td><a ng-href="https://www.strava.com/athletes/{{comment.athleteId}}" target="_blank">{{comment.name}}</a> {{comment.text}}
+                                    <h6 style="margin-top: 0px; margin-bottom: 10px;">{{comment.time | secondsToDiff}}</h6></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <%}%>
         </div>
 
-    <div div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+        <div div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading"><h4>Actions</h4></div>
             <div class="panel-body list-group" style="padding: 0">

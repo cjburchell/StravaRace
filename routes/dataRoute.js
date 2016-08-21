@@ -5,6 +5,7 @@ var express = require('express');
 var strava = require('strava-v3');
 var database = require('../database');
 var polyline = require('polyline');
+var Comment = require('../documents/comment');
 var async = require('async');
 var router = express.Router();
 
@@ -249,7 +250,8 @@ router.put('/activity', function(req, res)
     });
 });
 
-router.delete('/activity/:id', function(req, res) {
+router.delete('/activity/:id', function(req, res)
+{
     if (!req.session.isLoggedIn)
     {
         res.end(JSON.stringify(false));
@@ -278,45 +280,88 @@ router.delete('/activity/:id', function(req, res) {
                 return;
             }
 
-            database.getActivityParticipants(req.params.id, function (err, participants)
+            async.parallel([callback =>
             {
+                "use strict";
+
+                database.getActivityParticipants(req.params.id, function (err, participants)
+                {
+                    if (err)
+                    {
+                        callback(err);
+                        return;
+                    }
+
+                    if (participants.length === 0)
+                    {
+                        callback(undefined);
+                        return;
+                    }
+
+                    async.each(participants, (participant, participantCallback) =>
+                    {
+                        "use strict";
+                        database.deleteDocument(participant._id, participant.rev, result =>
+                        {
+                            if (!result)
+                            {
+                                participantCallback(true);
+                            }
+                            else
+                            {
+                                participantCallback(undefined);
+                            }
+                        });
+                    }, callback);
+                });
+
+            },
+                callback =>
+                {
+                    "use strict";
+                    database.getActivityComments(req.params.id, function (err, comments)
+                    {
+                        if (err)
+                        {
+                            callback(err);
+                            return;
+                        }
+
+                        if (comments.length === 0)
+                        {
+                            callback(undefined);
+                            return;
+                        }
+
+                        async.each(comments, (comment, commentCallback) =>
+                        {
+                            "use strict";
+                            database.deleteDocument(comment._id, comment.rev, result =>
+                            {
+                                if (!result)
+                                {
+                                    commentCallback(true);
+                                }
+                                else
+                                {
+                                    commentCallback(undefined);
+                                }
+                            });
+                        }, callback);
+                    });
+                }
+            ], err =>
+            {
+                "use strict";
+
                 if (err)
                 {
                     res.end(JSON.stringify(false));
-                    return;
                 }
-
-                if (participants.length === 0)
+                else
                 {
                     res.end(JSON.stringify(true));
-                    return;
                 }
-
-                async.each(participants, (participant, callback) => {
-                    "use strict";
-                    database.deleteDocument(participant._id, participant.rev, result =>
-                    {
-                        if (!result)
-                        {
-                            callback(true);
-                        }
-                        else
-                        {
-                            callback(null);
-                        }
-                    });
-                }, err => {
-                    "use strict";
-
-                    if(err)
-                    {
-                        res.end(JSON.stringify(false));
-                    }
-                    else
-                    {
-                        res.end(JSON.stringify(true));
-                    }
-                });
             });
         });
     });
@@ -386,6 +431,100 @@ router.post('/activity/:id', function(req, res) {
     {
         res.end( JSON.stringify(false) );
     }
+});
+
+router.put('/comment/activity/:id', function (req, res)
+{
+    if (!req.session.isLoggedIn)
+    {
+        res.end(JSON.stringify(false));
+        return;
+    }
+
+    if(req.body === undefined || req.body === '')
+    {
+        res.end(JSON.stringify(false));
+        return;
+    }
+
+    var comment = new Comment(req.body.text, req.session.athlete.id, req.session.athlete.profile_medium, req.session.athlete.firstname + ' ' + req.session.athlete.lastname , req.params.id, Date.now())
+
+    async.parallel(
+        {
+            activity: callback =>
+            {
+                "use strict";
+                database.getDocument(req.params.id, callback);
+            }
+        },
+        (err, result)=>
+        {
+            "use strict";
+            if (err)
+            {
+                res.end(JSON.stringify(false));
+                return;
+            }
+
+            if (!((result.activity.privaicy == 'public' || result.activity.friends.indexOf(req.session.athlete.id) !== -1)))
+            {
+                res.end(JSON.stringify(false));
+                return;
+            }
+
+            database.updateDocument(comment, function (result, id)
+            {
+                if (!result)
+                {
+                    res.end(JSON.stringify(false));
+                }
+                else
+                {
+                    res.end(JSON.stringify(id));
+                }
+            });
+        });
+});
+
+router.get('/comment/activity/:id', function (req, res)
+{
+    if (!req.session.isLoggedIn)
+    {
+        res.end(JSON.stringify(false));
+        return;
+    }
+    var participant = req.body;
+
+    async.parallel(
+        {
+            activity: callback =>
+            {
+                "use strict";
+                database.getDocument(req.params.id, callback);
+            },
+            comments: callback =>
+            {
+                "use strict";
+                database.getActivityComments(req.params.id, callback);
+            }
+        },
+        (err, result)=>
+        {
+            "use strict";
+            if (err)
+            {
+                res.end(JSON.stringify([]));
+                return;
+            }
+
+            if (!((result.activity.privaicy == 'public' || result.activity.friends.indexOf(req.session.athlete.id) !== -1)))
+            {
+                res.end(JSON.stringify([]));
+                return;
+            }
+
+            res.end(JSON.stringify(result.comments[0]));
+        });
 });
 
 module.exports = router;

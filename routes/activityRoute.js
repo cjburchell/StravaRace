@@ -213,7 +213,21 @@ router.get('/details/:id', function(req, res) {
 
             callback(null, participants);
         });
-    }}, (err, results) =>{
+    },
+        comments: callback => {
+            "use strict";
+
+            database.getActivityComments(req.params.id, function (err, comments)
+            {
+                if(err)
+                {
+                    callback(err);
+                    return;
+                }
+
+                callback(null, comments);
+            });
+        }}, (err, results) =>{
         "use strict";
 
         if(err)
@@ -233,6 +247,7 @@ router.get('/details/:id', function(req, res) {
             stravaClientId: process.env.STRAVA_CLIENT_ID,
             stravaRedirect: process.env.STRAVA_REDIRECT_URI,
             activity : results.activity,
+            comments : results.comments,
             participants : results.participants
         };
         res.render('details', data);

@@ -35,6 +35,25 @@
         };
       });
 
+      $app.filter('activityTypeToIcon',
+              function() {
+                return function(value) {
+                  switch (value)
+                  {
+                    case "group_ride":
+                      return "/images/bike.svg";
+                    case "group_run":
+                      return "/images/run.svg";
+                    case "group_ski":
+                      return "/images/ski.svg";
+                    case "race":
+                      return "/images/race.svg";
+                    case "triathlon":
+                      return "/images/triathlon.svg";
+                  }
+                };
+              });
+
       function padTime(t) {
         return t < 10 ? "0"+t : t;
       }

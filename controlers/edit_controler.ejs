@@ -11,6 +11,23 @@
                 };
             });
 
+    app.filter('typeToIcon',
+            function() {
+                return function(value) {
+                    switch (value)
+                    {
+                        case "Ride":
+                            return "/images/bike.svg";
+                        case "Run":
+                            return "/images/run.svg";
+                        case "Swim":
+                            return "/images/swim.svg";
+                        case "Ski":
+                            return "/images/ski.svg";
+                    }
+                };
+            });
+
     app.controller('createControler', function($scope, $http) {
         $scope.activity = <%- JSON.stringify(activity)%>;
         $scope.stages = [];

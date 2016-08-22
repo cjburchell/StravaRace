@@ -21,8 +21,11 @@
                         <label for="type">Type:</label>
                         <div class='input-group' id='type'>
                             <select class="form-control" id="type" ng-model="activity.activityType">
-                                <option value="group_ride">Group Ride</option>
+                                <option value="group_ride">Ride</option>
+                                <option value="group_run">Run</option>
+                                <option value="group_ski">Ski</option>
                                 <option value="race">Race</option>
+                                <option value="triathlon">Triathlon</option>
                             </select>
                         </div>
                     </div>
@@ -124,9 +127,9 @@
             <div class="well">
                 <label ng-if="activity.routeId">Route:</label>
                 <p ng-if="activity.routeId"><a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a></p>
-                <div ng-if="activity.activityType !== 'race'">
+                <div ng-if="activity.activityType !== 'race' && activity.activityType !== 'triathlon'">
                     <div ng-if="activity.stages.length === 0 && !activity.routeId ">
-                        <p style="color: red">You must have at least one stage or a route set, please add a stage or set the route for this ride</p>
+                        <p style="color: red">You must have at least one stage or a route set, please add a stage or set the route for this activity</p>
                     </div>
                 </div>
                 <button class="btn btn-default" data-toggle="modal" data-target="#addRouteDialog" ng-click="showRoutes()">Set Route</button>
@@ -147,7 +150,7 @@
                         <tbody>
                         <tr ng-repeat="stage in activity.stages | orderBy : 'number'">
                             <td style="vertical-align:center">{{stage.number}}</td>
-                            <td style="vertical-align:center">{{stage.activity_type}}</td>
+                            <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20"/></td>
                             <td style="vertical-align:center"><a ng-href="https://www.strava.com/segments/{{stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                             <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                             <td class="btn-group">
@@ -160,15 +163,15 @@
                     </table>
                 </div>
 
-                <div ng-if="activity.activityType === 'race'">
+                <div ng-if="activity.activityType === 'race' || activity.activityType === 'triathlon'">
                     <div ng-if="activity.stages.length === 0">
                         <p style="color: red">You must have at least one stage, please add a stage</p>
                     </div>
                 </div>
 
-                <div ng-if="activity.activityType !== 'race'">
+                <div ng-if="activity.activityType !== 'race' && activity.activityType !== 'triathlon'">
                     <div ng-if="activity.stages.length === 0 && !activity.routeId ">
-                        <p style="color: red">You must have at least one stage or a route set, please add a stage or set the route for this ride</p>
+                        <p style="color: red">You must have at least one stage or a route set, please add a stage or set the route for this activity</p>
                     </div>
                 </div>
 
@@ -180,7 +183,7 @@
         </div>
     </div>
 
-    <button ng-disabled ="activity.name === '' || (activity.stages.length === 0 && activity.activityType ==='race') || ((activity.stages.length === 0 && !activity.routeId) && activity.activityType !=='race') || activity.categories.length === 0" style="margin-top: 20px" class="btn btn-primary" ng-click="onApply()" data-toggle="modal" data-target="#createDialog"><% if(isCreating){%>
+    <button ng-disabled ="activity.name === '' || (activity.stages.length === 0 && (activity.activityType ==='race' || activity.activityType === 'triathlon')) || ((activity.stages.length === 0 && !activity.routeId) && (activity.activityType !=='race' && activity.activityType !== 'triathlon')) || activity.categories.length === 0" style="margin-top: 20px" class="btn btn-primary" ng-click="onApply()" data-toggle="modal" data-target="#createDialog"><% if(isCreating){%>
         Create Activity
         <% } else {%>
         Apply
@@ -238,7 +241,7 @@
                     <tbody>
                     <tr ng-repeat="stage in stages | filter:{name:stageSeachText}" ng-click="selectStage(stage)" ng-class="stage == selectedStage | isStageSelected">
                         <td style="vertical-align:center"><span ng-if="stage == selectedStage" class="glyphicon glyphicon-ok"></span></td>
-                        <td style="vertical-align:center">{{stage.activity_type}}</td>
+                        <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20"/></td>
                         <td style="vertical-align:center"><a ng-href="https://www.strava.com/segments/{{stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                         <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                     </tr>
@@ -283,8 +286,8 @@
                         <tbody>
                         <tr ng-repeat="route in routes | filter:{name:routeSeachText}" ng-click="selectRoute(route)" ng-class="route == selectedRoute | isStageSelected">
                             <td style="vertical-align:center"><span ng-if="route == selectedRoute" class="glyphicon glyphicon-ok"></span></td>
-                            <td ng-if="route.type === 1" style="vertical-align:center">Ride</td>
-                            <td ng-if="route.type === 2" style="vertical-align:center">Run</td>
+                            <td ng-if="route.type === 1" style="vertical-align:center"><img src="/images/bike.svg" height="20" width="20"/></td>
+                            <td ng-if="route.type === 2" style="vertical-align:center"><img src="/images/run.svg" height="20" width="20"/> </td>
                             <td style="vertical-align:center"><a ng-href="https://www.strava.com/routes/{{route.id}}" target="_blank">{{route.name}}</a></td>
                             <td style="vertical-align:center">{{route.distance/1000 | number : 2}}km</td>
                         </tr>

@@ -142,7 +142,7 @@ function UpdateParticipant(participant, activity, accessToken, done)
             return;
         }
 
-        if(activity.activityType === 'race')
+        if(activity.activityType === 'race' || activity.activityType === 'triathlon')
         {
             var complete = participant.results.filter(item => item.time !== undefined).length;
             if (participant.stagesComplete === undefined || participant.stagesComplete !== complete)
@@ -170,7 +170,7 @@ function UpdateParticipant(participant, activity, accessToken, done)
 
 function UpdateStandings(participants, activity)
 {
-    if(activity.activityType !== 'race')
+    if (!(activity.activityType === 'race' || activity.activityType === 'triathlon'))
     {
         return;
     }

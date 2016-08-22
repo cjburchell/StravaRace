@@ -3,9 +3,9 @@
         <div class="row">
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
 
-                <h4><%if( activity.doc.activityType === "race"){%>
-                        <i class="fa fa-flag-checkered" aria-hidden="true"></i>
-                        <%}%><a href="/activity/details/<%= activity.doc._id%>"><%= activity.doc.name%></a></h4>
+                <h4>
+                    <img ng-src="{{activity.doc.activityType | activityTypeToIcon}}" height="24" width="24"/>
+                    <a href="/activity/details/<%= activity.doc._id%>"><%= activity.doc.name%></a></h4>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
 
@@ -24,7 +24,7 @@
                 <%}%>
             </div>
         </div>
-        <%if(activity.doc.state === "upcoming" || activity.doc.activityType != 'race'){%>
+        <%if(activity.doc.state === "upcoming" || (activity.doc.activityType != 'race' && activity.doc.activityType !== 'triathlon')){%>
             <h4>
                 <%if(!activity.doc.routeId){%>
                 {{activity.doc.totalDistance/1000 | number : 2}}km

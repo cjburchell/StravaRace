@@ -64,6 +64,42 @@
         };
     });
 
+    app.filter('typeToIcon',
+            function() {
+                return function(value) {
+                    switch (value)
+                    {
+                        case "Ride":
+                            return "/images/bike.svg";
+                        case "Run":
+                            return "/images/run.svg";
+                        case "Swim":
+                            return "/images/swim.svg";
+                        case "Ski":
+                            return "/images/ski.svg";
+                    }
+                };
+            });
+
+    app.filter('activityTypeToIcon',
+            function() {
+                return function(value) {
+                    switch (value)
+                    {
+                        case "group_ride":
+                            return "/images/bike.svg";
+                        case "group_run":
+                            return "/images/run.svg";
+                        case "group_ski":
+                            return "/images/ski.svg";
+                        case "race":
+                            return "/images/race.svg";
+                        case "triathlon":
+                            return "/images/triathlon.svg";
+                    }
+                };
+            });
+
     app.filter('secondsToDiff', function() {
         return function(_seconds) {
             if (typeof _seconds !== "number" || _seconds < 0)

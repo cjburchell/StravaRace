@@ -24,7 +24,8 @@
                 <%}%>
             </div>
         </div>
-    <h4 class="rank"><%if(activity.doc.state === "upcoming" || (activity.doc.activityType != 'race' && activity.doc.activityType !== 'triathlon')){%>
+    <h4 class="rank">
+        <%if(activity.doc.state === "upcoming" || (activity.doc.activityType != 'race' && activity.doc.activityType !== 'triathlon')){%>
                 <%if(!activity.doc.routeId){%>
                 {{activity.doc.totalDistance/1000 | number : 2}}km
                 <%}else {%>

@@ -139,7 +139,7 @@
             <div class="row">
 
               <%if(activitiesUpcoming.length != 0){%>
-              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+              <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                 <h3 style="margin-top: 5px">Upcoming</h3>
                 <% for(var i=0; i<activitiesUpcoming.length; i++) { var activity = activitiesUpcoming[i];%>
                 <% include partials/content/activity_pannel.ejs %>
@@ -148,7 +148,7 @@
               <%}%>
 
               <%if(activitiesInProgress.length != 0){%>
-              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+              <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                 <h3 style="margin-top: 5px">In Progress</h3>
                 <% for(var i=0; i<activitiesInProgress.length; i++) { var activity = activitiesInProgress[i];%>
                 <% include partials/content/activity_pannel.ejs %>
@@ -158,7 +158,7 @@
               <%}%>
 
               <%if(activitiesFinished.length != 0){%>
-              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+              <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                 <h3 style="margin-top: 5px">Finished</h3>
               <% for(var i=0; i<activitiesFinished.length; i++) { var activity = activitiesFinished[i];%>
               <% include partials/content/activity_pannel.ejs %>

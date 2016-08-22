@@ -46,42 +46,46 @@
         <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                    <h3><%= activity.name %> <%if( activity.activityType === "race"){%>
+                    <h3 style="margin-bottom: 0px"><%= activity.name %> <%if( activity.activityType === "race"){%>
                         <i class="fa fa-flag-checkered" aria-hidden="true"></i>
                         <%}%><% if(activity.privaicy !== 'public') {%><i class="fa fa-lock" aria-hidden="true"></i><%}%></h3>
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="text-align: right">
-                    <h3 ng-if="activity.state === 'upcoming'">Starts in: {{ activity.startsIn | secondsToCountdown}}</h3>
-                    <h3 ng-if="activity.state === 'in_progress'">Time left: {{ activity.timeLeft | secondsToCountdown}}</h3>
-                    <h3 ng-if="activity.state === 'finished'">Finished</h3>
+                    <h3 style="margin-bottom: 0px" ng-if="activity.state === 'upcoming'">Starts in: {{ activity.startsIn | secondsToCountdown}}</h3>
+                    <h3 style="margin-bottom: 0px" ng-if="activity.state === 'in_progress'">Time left: {{ activity.timeLeft | secondsToCountdown}}</h3>
+                    <h3 style="margin-bottom: 0px" ng-if="activity.state === 'finished'">Finished</h3>
                 </div>
             </div>
-            <h6>Created by <a href="https://www.strava.com/athletes/<%= activity.ownerId%>" target="_blank"><%= activity.ownerName %></a></h6>
+            <h5 style="margin-top: 0px"><small>Created by <a href="https://www.strava.com/athletes/<%= activity.ownerId%>" target="_blank"><%= activity.ownerName %></a></small></h5>
             <h5><label>Start:</label> {{ activity.startTime | date: 'short'}} <label>to</label> <% if(Math.round((new Date(activity.endTime)-new Date(activity.startTime))/(1000*60*60*24)) !== 0){%>{{ activity.endTime | date: 'short'}}<%}else{%>{{ activity.endTime | date: 'shortTime'}}<%}%></h5>
             <p><%= activity.description %></p>
 
-            <div class="well">
+            <div class="well details-well">
+
+                <h4><%if(activity.state === 'upcoming'){%>Registered<%} else {%>Results<%}%></h4>
 
                 <%if(participants.length != 0){%>
-            <% if(activity.categories.length > 1){%>
-            <div class="btn-group">
-                <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="">All</label>
-                <% for(var i=0; i<activity.categories.length; i++) { var category = activity.categories[i];%>
-                <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="'<%= category.id %>'"><%= category.name %></label>
-                <% } %>
-            </div>
-            <% } %>
 
-            <div ng-if="showSexFilter" class="btn-group">
-                <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="">All</label>
-                <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'M'">Men</label>
-                <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'F'">Women</label>
-            </div>
+                <div style="text-align: center">
+                    <% if(activity.categories.length > 1){%>
+                    <div class="btn-group">
+                        <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="">All</label>
+                        <% for(var i=0; i<activity.categories.length; i++) { var category = activity.categories[i];%>
+                        <label class="btn btn-primary" ng-model="catagoryFilter" uib-btn-radio="'<%= category.id %>'"><%= category.name %></label>
+                        <% } %>
+                    </div>
+                    <% } %>
 
-        <%if(activity.state === 'upcoming'){%>
-                <h4>Registered</h4>
+                    <div ng-if="showSexFilter" class="btn-group">
+                        <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="">All</label>
+                        <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'M'">Men</label>
+                        <label class="btn btn-primary" ng-model="sexFilter" uib-btn-radio="'F'">Women</label>
+                    </div>
+                </div>
+
             <table class="table table-striped">
+                <%if(activity.state === 'upcoming'){%>
                 <thead>
                 <tr>
                     <th>Name</th>
@@ -100,10 +104,7 @@
                     <td ng-if="!sexFilter && showSexFilter" style="vertical-align:center">{{participant.sex}}</td>
                 </tr>
                 </tbody>
-            </table>
         <%} else {%>
-                <h4>Results</h4>
-            <table class="table table-striped">
                 <thead>
                     <tr>
                         <%if(activity.activityType === 'race'){%>
@@ -137,8 +138,8 @@
                         <%}%>
                     </tr>
                 </tbody>
-            </table>
         <%}%>
+            </table>
                 <%} else {%>
                 <p style="color: red">
                     There are no participants entered in the activity.
@@ -150,7 +151,7 @@
     </div>
 
             <%if(activity.stages.length === 0){%>
-                <div ng-if="activity.routeId" class="well">
+                <div ng-if="activity.routeId" class="well details-well">
                     <h4>Route</h4>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -169,7 +170,7 @@
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                    <div ng-if="activity.routeId" class="well">
+                    <div ng-if="activity.routeId" class="well details-well">
                         <h4>Route</h4>
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -180,7 +181,7 @@
                             </div>
                         </div>
                     </div>
-                    <div ng-if="activity.stages.length !== 0" class="well">
+                    <div ng-if="activity.stages.length !== 0" class="well details-well">
                         <h4>Timed Stages</h4>
                         <table class="table table-striped">
                             <thead>
@@ -225,7 +226,7 @@
                                 <tr ng-repeat="comment in comments | orderBy : 'time' : true">
                                     <td><img class="img-circle" ng-src="{{comment.athleteImage}}" width="24" height="24" style="margin-left: 20px; margin-right: 5px; margin-bottom: 10px;"/></td>
                                     <td><a ng-href="https://www.strava.com/athletes/{{comment.athleteId}}" target="_blank">{{comment.name}}</a> {{comment.text}}
-                                    <h6 style="margin-top: 0px; margin-bottom: 10px;">{{comment.time | secondsToDiff}}</h6></td>
+                                    <h5 style="margin-top: 0px; margin-bottom: 10px;"><small>{{comment.time | secondsToDiff}}</small></h5></td>
                                 </tr>
                             </table>
                         </div>
@@ -237,7 +238,7 @@
 
         <div div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
         <div class="panel panel-default">
-            <div class="panel-heading"><h4>Actions</h4></div>
+            <div class="panel-heading" style="text-align: center"><b>Actions</b></div>
             <div class="panel-body list-group" style="padding: 0">
                 <%if(isLoggedIn){%>
                 <%if(activity.state !== 'finished'){%>
@@ -356,7 +357,9 @@
     </div>
 </div>
 
+<%if(isLoggedIn){%>
 <% include partials/template/footer.ejs %>
+<%}%>
 
 <% include ../controlers/details_controler.ejs %>
 

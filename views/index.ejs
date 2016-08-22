@@ -14,24 +14,24 @@
         return function(rank) {
             if (!rank)
             {
-              return "panel panel-default";
+              return "well activity-well";
             }
               if (rank == 1)
               {
-                return "panel panel-first panel-default";
+                return "well activity-well panel-first";
               }
 
           if (rank == 2)
           {
-            return "panel panel-second panel-default";
+            return "well activity-well panel-second";
           }
 
           if (rank == 3)
           {
-            return "panel panel-third panel-default";
+            return "well activity-well panel-third";
           }
 
-          return "panel panel-default";
+          return "well activity-well";
         };
       });
 
@@ -99,7 +99,7 @@
             <% include partials/template/actions.ejs %>
 
             <div class="panel panel-default">
-              <div class="panel-heading"><b>Stats</b></div>
+              <div class="panel-heading" style="text-align: center" ><b>Stats</b></div>
               <div class="panel-body">
                 <%if(firstCount !== 0){%>
                 <p><i class="fa fa-trophy" style="color: gold"></i> <%=firstCount%></p>

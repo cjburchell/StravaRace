@@ -4,9 +4,10 @@
         <input type="text" class="form-control" ng-model="seachText">
     </div>
 
-    <% if( isActivityUpcoming && isActivityInProgress ||
-            isActivityUpcoming && isActivityFinished ||
-            isActivityFinished && isActivityInProgress){ %>
+    <div style="text-align: center">
+        <% if( isActivityUpcoming && isActivityInProgress ||
+                isActivityUpcoming && isActivityFinished ||
+                isActivityFinished && isActivityInProgress){ %>
         <div class="btn-group">
             <label class="btn btn-primary" ng-model="activityFilter" uib-btn-radio="">All</label>
             <% if(isActivityUpcoming){ %>
@@ -19,7 +20,8 @@
             <label class="btn btn-primary" ng-model="activityFilter" uib-btn-radio="'finished'">Finished</label>
             <%}%>
         </div>
-    <%}%>
+        <%}%>
+    </div>
 
     <table class="table table-striped"  >
         <thead>

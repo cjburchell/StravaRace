@@ -24,6 +24,19 @@
   display: inline-block !important;
 }
 
+.navbar {
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
+/*footer {
+  position: fixed;
+  height: 100px;
+  bottom: 0;
+  width: 100%;
+  background-color: #EEE;
+}*/
+
 .poweredbywrapper {
     display: block;
     text-align: center;
@@ -61,22 +74,34 @@ td {
 .left-addon input  { padding-left:  30px; }
 .right-addon input { padding-right: 30px; }
 
-.panel-first>.panel-body>.rank>.fa {
+.panel-first>.rank>.fa {
   color: gold;
 }
 
-.panel-second>.panel-body>.rank>.fa {
+.panel-second>.rank>.fa {
   color: silver;
 }
 
-.panel-third>.panel-body>.rank>.fa {
+.panel-third>.rank>.fa {
   color: #8C7853;
 }
 
 .panel-heading {
-  padding: 5px 15px;
+  padding: 3px 10px;
 }
 
-.panel-body>h3 {
-  margin-top: 0px;
+.activity-well {
+  padding: 3px 10px;
+}
+
+.activity-well>h4 {
+  margin: 0px;
+}
+
+.details-well>h4 {
+  margin: 5px 0px;
+}
+
+.details-well {
+  padding: 3px 10px;
 }

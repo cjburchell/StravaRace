@@ -11,7 +11,7 @@
 
                 <%if(activity.doc.state === 'upcoming'){%>
                     <h4 style="text-align: right; margin-bottom: 0px">{{ activity.doc.startsIn | secondsToCountdown}}</h4>
-                    <h4 style="text-align: right; margin-top: 0px"><small>{{ activity.doc.startTime | date: 'shortDate'}}</small></h4>
+                    <h4 style="text-align: right; margin-top: 0px"><small>{{ activity.doc.startTime | date: 'short'}}</small></h4>
                 <%} else{%>
                     <h4 style="text-align: right">
                     <%if(activity.doc.state === 'in_progress'){%>

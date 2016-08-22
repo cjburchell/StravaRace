@@ -46,19 +46,19 @@
         <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                    <h3 style="margin-bottom: 0px"><%= activity.name %> <%if( activity.activityType === "race"){%>
+                    <h2 style="margin-bottom: 0px; margin-top: 0px"><%= activity.name %> <%if( activity.activityType === "race"){%>
                         <i class="fa fa-flag-checkered" aria-hidden="true"></i>
-                        <%}%><% if(activity.privaicy !== 'public') {%><i class="fa fa-lock" aria-hidden="true"></i><%}%></h3>
+                        <%}%><% if(activity.privaicy !== 'public') {%><i class="fa fa-lock" aria-hidden="true"></i><%}%></h2>
+                    <h5 style="margin-top: 0px"><small>Created by <a href="https://www.strava.com/athletes/<%= activity.ownerId%>" target="_blank"><%= activity.ownerName %></a></small></h5>
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="text-align: right">
-                    <h3 style="margin-bottom: 0px" ng-if="activity.state === 'upcoming'">Starts in: {{ activity.startsIn | secondsToCountdown}}</h3>
-                    <h3 style="margin-bottom: 0px" ng-if="activity.state === 'in_progress'">Time left: {{ activity.timeLeft | secondsToCountdown}}</h3>
-                    <h3 style="margin-bottom: 0px" ng-if="activity.state === 'finished'">Finished</h3>
+                    <h4 style="margin-bottom: 0px; margin-top: 0px" ng-if="activity.state === 'upcoming'">Starts in: {{ activity.startsIn | secondsToCountdown}}</h4>
+                    <h4 style="margin-bottom: 0px; margin-top: 0px" ng-if="activity.state === 'in_progress'">Time left: {{ activity.timeLeft | secondsToCountdown}}</h4>
+                    <h4 style="margin-bottom: 0px; margin-top: 0px" ng-if="activity.state === 'finished'">Finished</h4>
+                    <h4 style="margin-top: 0px; margin-bottom: 0px;"><small>{{ activity.startTime | date: 'short'}} to <% if(Math.round((new Date(activity.endTime)-new Date(activity.startTime))/(1000*60*60*24)) !== 0){%>{{ activity.endTime | date: 'short'}}<%}else{%>{{ activity.endTime | date: 'shortTime'}}<%}%></small></h4>
                 </div>
             </div>
-            <h5 style="margin-top: 0px"><small>Created by <a href="https://www.strava.com/athletes/<%= activity.ownerId%>" target="_blank"><%= activity.ownerName %></a></small></h5>
-            <h5><label>Start:</label> {{ activity.startTime | date: 'short'}} <label>to</label> <% if(Math.round((new Date(activity.endTime)-new Date(activity.startTime))/(1000*60*60*24)) !== 0){%>{{ activity.endTime | date: 'short'}}<%}else{%>{{ activity.endTime | date: 'shortTime'}}<%}%></h5>
             <p><%= activity.description %></p>
 
             <div class="well details-well">

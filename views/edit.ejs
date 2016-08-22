@@ -7,11 +7,11 @@
 <body ng-app="app" ng-controller="createControler">
 <% include partials/template/header.ejs %>
 <div class="container-fluid">
-    <% if(isCreating){%>
-    <h3>Create Activity</h3>
+    <h2 style="margin-top: 0px"><% if(isCreating){%>
+    Create Activity
     <% } else {%>
-    <h3>Edit Activity</h3>
-    <%}%>
+    Edit Activity
+    <%}%></h2>
     <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
 

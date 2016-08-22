@@ -46,7 +46,7 @@ router.get('/create', function(req, res) {
             titleText: "Create | Activity | ",
             url: process.env.APP_URL,
             appName: process.env.APP_NAME,
-            mode: 'activity',
+            mode: 'manage',
             user: req.session.user,
             athlete: req.session.athlete,
             isCreating: true,
@@ -84,7 +84,7 @@ router.get('/edit/:id', function(req, res)
             titleText: editActivity.name + " | Edit | Activity | ",
             url: process.env.APP_URL,
             appName: process.env.APP_NAME,
-            mode: 'activity',
+            mode : 'manage',
             athlete: req.session.athlete,
             user: req.session.user,
             isCreating: false,
@@ -114,7 +114,7 @@ router.get('/manage', function(req, res)
             titleText: "Manage Activities | ",
             url: process.env.APP_URL,
             appName: process.env.APP_NAME,
-            mode: 'activity',
+            mode: 'manage',
             athlete: req.session.athlete,
             activities: result
         };
@@ -151,7 +151,7 @@ router.get('/join', function(req, res)
                 titleText: "Join Activity | ",
                 url: process.env.APP_URL,
                 appName: process.env.APP_NAME,
-                mode: 'activity',
+                mode : 'home',
                 athlete: req.session.athlete,
                 activities: []
             };
@@ -240,7 +240,7 @@ router.get('/details/:id', function(req, res) {
             titleText: results.activity.name + " | Activity | ",
             url : process.env.APP_URL,
             appName : process.env.APP_NAME,
-            mode : 'activity',
+            mode : 'home',
             isLoggedIn : req.session.isLoggedIn,
             athlete : req.session.athlete,
             user: req.session.user,

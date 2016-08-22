@@ -10,19 +10,9 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                <li class="dropdown <% if(mode === "home"){ %>active<% } %>">
-                    <a class="dropdown" data-toggle="dropdown" href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="/home">Summary</a></li>
-                        <li><a href="/user/history">History</a></li>
-                    </ul>
-                </li>
-                <li class="dropdown <% if(mode === "activity"){ %>active<% } %>">
-                    <a class="dropdown" data-toggle="dropdown" href="#">Activities</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="/activity/manage">Manage</a></li>
-                    </ul>
-                </li>
+                <li <% if(mode === "home"){ %>active<% } %>"><a href="/home"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
+                <li <% if(mode === "history"){ %>active<% } %>><a href="/user/history" >History</a></li>
+                <li <% if(mode === "manage"){ %>active<% } %>><a href="/activity/manage">Manage</a></li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">

@@ -66,37 +66,25 @@
 
     app.filter('typeToIcon',
             function() {
-                return function(value) {
-                    switch (value)
-                    {
-                        case "Ride":
-                            return "/images/bike.svg";
-                        case "Run":
-                            return "/images/run.svg";
-                        case "Swim":
-                            return "/images/swim.svg";
-                        case "Ski":
-                            return "/images/ski.svg";
-                    }
+                return function (value)
+                {
+                    return  SegmentTypeToImage(value);
                 };
             });
 
     app.filter('activityTypeToIcon',
             function() {
-                return function(value) {
-                    switch (value)
-                    {
-                        case "group_ride":
-                            return "/images/bike.svg";
-                        case "group_run":
-                            return "/images/run.svg";
-                        case "group_ski":
-                            return "/images/ski.svg";
-                        case "race":
-                            return "/images/race.svg";
-                        case "triathlon":
-                            return "/images/triathlon.svg";
-                    }
+                return function (value)
+                {
+                    return ActivityTypeToImage(value);
+                };
+            });
+
+    app.filter('activityTypeToString',
+            function() {
+                return function (value)
+                {
+                    return ActivityTypeToString(value);
                 };
             });
 

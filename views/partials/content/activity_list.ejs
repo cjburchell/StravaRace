@@ -39,7 +39,7 @@
         <tbody>
         <tr ng-repeat="activity in activities | orderBy: 'startTime' : true | filter: {name:seachText, state:activityFilter}">
             <td><a ng-href="{{ '/activity/details/' + activity._id }}">{{activity.name}}</a></td>
-            <td>{{activity.activityType}}</td>
+            <td><img ng-src="{{activity.activityType | activityTypeToIcon}}" height="24" width="24" data-toggle="tooltip" title="{{activity.activityType | activityTypeToString}}"/></td>
             <td>{{activity.ownerName}}</td>
             <td>{{activity.stages.length}}</td>
             <td>{{activity.totalDistance/1000 | number : 2}} km</td>
@@ -61,6 +61,23 @@
             function() {
                 return function(value) {
                     return value? "success" : "";
+                };
+            });
+
+    app.filter('activityTypeToIcon',
+            function() {
+                return function (value)
+                {
+                    return ActivityTypeToImage(value);
+                };
+            });
+
+
+    app.filter('activityTypeToString',
+            function() {
+                return function (value)
+                {
+                    return ActivityTypeToString(value);
                 };
             });
 

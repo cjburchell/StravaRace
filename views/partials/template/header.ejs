@@ -1,4 +1,4 @@
-<nav class="navbar navbar-inverse" data-spy="affix" data-offset-top="-3" style="z-index: 2">
+<nav class="navbar navbar-inverse" data-spy="affix" data-offset-top="-3" style="z-index: 2;">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -11,8 +11,8 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
                 <li <% if(mode === "home"){ %>active<% } %>"><a href="/home"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
-                <li <% if(mode === "history"){ %>active<% } %>><a href="/user/history" >History</a></li>
                 <li <% if(mode === "manage"){ %>active<% } %>><a href="/activity/manage">Manage</a></li>
+                <li <% if(mode === "history"){ %>active<% } %>><a href="/user/history" >History</a></li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">

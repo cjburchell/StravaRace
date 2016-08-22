@@ -14,6 +14,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <% include partials/template/jsdefaults.ejs %>
     <script type="text/javascript" src="/javascripts/participant.js"></script>
+    <script type="text/javascript" src="/javascripts/image_converters.js"></script>
     <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
     <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
 </head>
@@ -46,7 +47,7 @@
         <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                    <h2 style="margin-bottom: 0px; margin-top: 0px"><%= activity.name %> <img ng-src="{{activity.activityType | activityTypeToIcon}}" height="40" width="40"/><% if(activity.privaicy !== 'public') {%><i class="fa fa-lock" aria-hidden="true"></i><%}%></h2>
+                    <h2 style="margin-bottom: 0px; margin-top: 0px"><%= activity.name %> <img ng-src="{{activity.activityType | activityTypeToIcon}}" height="40" width="40" data-toggle="tooltip" title="{{activity.activityType | activityTypeToString}}"/><% if(activity.privaicy !== 'public') {%><i class="fa fa-lock" aria-hidden="true" data-toggle="tooltip" title="Private"></i><%}%></h2>
                     <h5 style="margin-top: 0px"><small>Created by <a href="https://www.strava.com/athletes/<%= activity.ownerId%>" target="_blank"><%= activity.ownerName %></a></small></h5>
                 </div>
 
@@ -193,7 +194,7 @@
                             <tbody>
                             <tr ng-repeat="stage in activity.stages | orderBy : 'number'">
                                 <td style="vertical-align:center">{{stage.number}}</td>
-                                <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20"/></td>
+                                <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20" data-toggle="tooltip" title="{{stage.activity_type}}"/></td>
                                 <td style="vertical-align:center"><a ng-href="https://www.strava.com/segments/{{stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                                 <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                             </tr>

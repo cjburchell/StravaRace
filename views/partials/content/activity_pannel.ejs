@@ -4,7 +4,7 @@
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
 
                 <h4>
-                    <img ng-src="{{activity.doc.activityType | activityTypeToIcon}}" height="24" width="24"/>
+                    <img ng-src="{{activity.doc.activityType | activityTypeToIcon}}" height="24" width="24" data-toggle="tooltip" title="{{activity.doc.activityType | activityTypeToString}}"/>
                     <a href="/activity/details/<%= activity.doc._id%>"><%= activity.doc.name%></a></h4>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -24,8 +24,7 @@
                 <%}%>
             </div>
         </div>
-        <%if(activity.doc.state === "upcoming" || (activity.doc.activityType != 'race' && activity.doc.activityType !== 'triathlon')){%>
-            <h4>
+    <h4 class="rank"><%if(activity.doc.state === "upcoming" || (activity.doc.activityType != 'race' && activity.doc.activityType !== 'triathlon')){%>
                 <%if(!activity.doc.routeId){%>
                 {{activity.doc.totalDistance/1000 | number : 2}}km
                 <%}else {%>
@@ -35,16 +34,14 @@
                 <%if(activity.doc.stages.length !== 0){%>
                 <small><%= activity.doc.stages.length %> Timed Stages</small>
                 <%}%>
-            </h4>
         <%}else{%>
-            <h4 class="rank">
             <%if(activity.value.participant.stagesComplete === activity.value.participant.results.length){ %>
                 <% if(activity.value.participant.rank && activity.value.participant.rank<=3){%><i class="fa fa-trophy"></i> <%}%>Rank: <%= activity.value.participant.rank%>/<%= activity.value.participant.out_of%>
             <%}else{%>
                 Stages: <%= activity.value.participant.stagesComplete%>/<%= activity.value.participant.results.length%>
             <%}%>
-            <small>Total Time: {{activity.value.participant.time | secondsToTime }}</small></h4></h4>
-        <%}%>
+            <small>Total Time: {{activity.value.participant.time | secondsToTime }}</small>
+        <%}%></h4>
 </div>
 </div>
 

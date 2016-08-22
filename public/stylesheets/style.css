@@ -92,6 +92,7 @@ td {
 
 .activity-well {
   padding: 3px 10px;
+  min-height: 90px;
 }
 
 .activity-well>h4 {
@@ -104,4 +105,23 @@ td {
 
 .details-well {
   padding: 3px 10px;
+}
+
+.well{
+  border-radius: 0;
+  border-width: 0.5px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.panel{
+  border-radius: 0;
+  border-width: 0.5px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.panel-group .panel
+{
+  border-radius: 0;
 }

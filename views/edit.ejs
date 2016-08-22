@@ -150,7 +150,7 @@
                         <tbody>
                         <tr ng-repeat="stage in activity.stages | orderBy : 'number'">
                             <td style="vertical-align:center">{{stage.number}}</td>
-                            <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20"/></td>
+                            <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20" data-toggle="tooltip" title="{{stage.activity_type}}"/></td>
                             <td style="vertical-align:center"><a ng-href="https://www.strava.com/segments/{{stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                             <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                             <td class="btn-group">
@@ -241,7 +241,7 @@
                     <tbody>
                     <tr ng-repeat="stage in stages | filter:{name:stageSeachText}" ng-click="selectStage(stage)" ng-class="stage == selectedStage | isStageSelected">
                         <td style="vertical-align:center"><span ng-if="stage == selectedStage" class="glyphicon glyphicon-ok"></span></td>
-                        <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20"/></td>
+                        <td style="vertical-align:center"><img ng-src="{{stage.activity_type | typeToIcon}}" height="20" width="20" data-toggle="tooltip" title="{{stage.activity_type}}"/></td>
                         <td style="vertical-align:center"><a ng-href="https://www.strava.com/segments/{{stage.segmentId}}" target="_blank">{{stage.name}}</a></td>
                         <td style="vertical-align:center">{{stage.distance/1000 | number : 2}}km</td>
                     </tr>
@@ -286,8 +286,7 @@
                         <tbody>
                         <tr ng-repeat="route in routes | filter:{name:routeSeachText}" ng-click="selectRoute(route)" ng-class="route == selectedRoute | isStageSelected">
                             <td style="vertical-align:center"><span ng-if="route == selectedRoute" class="glyphicon glyphicon-ok"></span></td>
-                            <td ng-if="route.type === 1" style="vertical-align:center"><img src="/images/bike.svg" height="20" width="20"/></td>
-                            <td ng-if="route.type === 2" style="vertical-align:center"><img src="/images/run.svg" height="20" width="20"/> </td>
+                            <td style="vertical-align:center"><img ng-src="{{route.type | routeTypeToIcon}}" height="20" width="20"/></td>
                             <td style="vertical-align:center"><a ng-href="https://www.strava.com/routes/{{route.id}}" target="_blank">{{route.name}}</a></td>
                             <td style="vertical-align:center">{{route.distance/1000 | number : 2}}km</td>
                         </tr>

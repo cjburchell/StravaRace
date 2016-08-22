@@ -37,20 +37,17 @@
 
       $app.filter('activityTypeToIcon',
               function() {
-                return function(value) {
-                  switch (value)
-                  {
-                    case "group_ride":
-                      return "/images/bike.svg";
-                    case "group_run":
-                      return "/images/run.svg";
-                    case "group_ski":
-                      return "/images/ski.svg";
-                    case "race":
-                      return "/images/race.svg";
-                    case "triathlon":
-                      return "/images/triathlon.svg";
-                  }
+                return function (value)
+                {
+                  return ActivityTypeToImage(value);
+                };
+              });
+
+      $app.filter('activityTypeToString',
+              function() {
+                return function (value)
+                {
+                  return ActivityTypeToString(value);
                 };
               });
 
@@ -117,6 +114,7 @@
           <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
             <% include partials/template/actions.ejs %>
 
+            <%if(firstCount !== 0 || secondCount !== 0 || thridCount !== 0 || finishedCount !== 0){%>
             <div class="panel panel-default">
               <div class="panel-heading" style="text-align: center" ><b>Achievements</b></div>
               <div class="panel-body">
@@ -129,9 +127,12 @@
                 <%if(thridCount !== 0){%>
                 <p><i class="fa fa-trophy" style="color: #8C7853"></i> <%=thridCount%></p>
                 <%}%>
+                <%if(finishedCount !== 0){%>
                 <p><i class="fa fa-flag-checkered" aria-hidden="true"></i> <%=finishedCount%></p>
+                <%}%>
               </div>
             </div>
+            <%}%>
 
           </div>
           <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">

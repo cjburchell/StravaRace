@@ -225,7 +225,7 @@ router.get('/login', function (req, res) {
 
                 if (!user)
                 {
-                    user = new user_utils.User(payload.athlete.id);
+                    user = new user_utils.User(payload.athlete.id, payload.athlete.firstname + " " + payload.athlete.lastname);
                     database.updateDocument(user, updateResult);
                 }
                 else

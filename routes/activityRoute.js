@@ -7,6 +7,7 @@ var database = require('../database');
 var activity = require('../public/javascripts/activity');
 var category = require('../public/javascripts/category');
 var router = express.Router();
+var PageData = require('../routes/data/pagedata');
 
 function createGuid()
 {
@@ -17,7 +18,7 @@ function createGuid()
 }
 
 router.get('/create', function(req, res) {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.render('nav_to', {navLocation: "/"});
         return;
@@ -42,23 +43,18 @@ router.get('/create', function(req, res) {
         var newCat = new category.Category(createGuid());
         newCat.name = "Open";
         newActivity.categories.push(newCat);
-        var data = {
-            titleText: "Create | Activity | ",
-            url: process.env.APP_URL,
-            appName: process.env.APP_NAME,
-            mode: 'manage',
-            user: req.session.user,
-            athlete: req.session.athlete,
-            isCreating: true,
-            activity: newActivity
-        };
+
+        var data = new PageData("Create | Activity | ", req.session);
+        data.isCreating = true;
+        data.activity = newActivity;
+
         res.render('edit', data);
     });
 });
 
 router.get('/edit/:id', function(req, res)
 {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.render('nav_to', {navLocation: "/"});
         return;
@@ -80,23 +76,18 @@ router.get('/edit/:id', function(req, res)
         }
 
         activity.UpdateActivityState(editActivity);
-        var data = {
-            titleText: editActivity.name + " | Edit | Activity | ",
-            url: process.env.APP_URL,
-            appName: process.env.APP_NAME,
-            mode : 'manage',
-            athlete: req.session.athlete,
-            user: req.session.user,
-            isCreating: false,
-            activity: editActivity
-        };
+
+        var data = new PageData(editActivity.name + " | Edit | Activity | ", req.session);
+        data.isCreating = false;
+        data.activity = editActivity;
+
         res.render('edit', data);
     });
 });
 
 router.get('/manage', function(req, res)
 {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.render('nav_to', {navLocation: "/"});
         return;
@@ -110,14 +101,8 @@ router.get('/manage', function(req, res)
             return;
         }
 
-        var data = {
-            titleText: "Manage Activities | ",
-            url: process.env.APP_URL,
-            appName: process.env.APP_NAME,
-            mode: 'manage',
-            athlete: req.session.athlete,
-            activities: result
-        };
+        var data = new PageData("Manage Activities | ", req.session);
+        data.activities = result;
 
         activity.UpdateActivities(data);
         res.render('manage', data);
@@ -131,7 +116,15 @@ router.get('/join', function(req, res)
         res.render('nav_to', {navLocation: "/"});
         return;
     }
-    database.getAthleteActivities(req.session.athlete.id, function (err, joinedActivities)
+
+
+    var userId = req.session.athlete.id;
+    if(userId === undefined)
+    {
+        userId = req.session.facebookId;
+    }
+
+    database.getAthleteActivities(userId, function (err, joinedActivities)
     {
         if (err)
         {
@@ -147,14 +140,8 @@ router.get('/join', function(req, res)
                 return;
             }
 
-            var data = {
-                titleText: "Join Activity | ",
-                url: process.env.APP_URL,
-                appName: process.env.APP_NAME,
-                mode : 'home',
-                athlete: req.session.athlete,
-                activities: []
-            };
+            var data = new PageData("Join Activity | ", req.session);
+            data.activities = [];
 
             var currentTime = new Date();
 
@@ -166,7 +153,7 @@ router.get('/join', function(req, res)
 
             data.activities = data.activities.concat(result.filter(filterActivity));
 
-            database.getPrivateActivities(req.session.athlete.id, function (err, result)
+            database.getPrivateActivities(userId, function (err, result)
             {
                 if (err)
                 {
@@ -227,29 +214,21 @@ router.get('/details/:id', function(req, res) {
 
                 callback(null, comments);
             });
-        }}, (err, results) =>{
+        }}, (err, results) =>
+    {
         "use strict";
 
-        if(err)
+        if (err)
         {
-            res.render('nav_to', {navLocation:"/"});
+            res.render('nav_to', {navLocation: "/"});
             return;
         }
 
-        var data = {
-            titleText: results.activity.name + " | Activity | ",
-            url : process.env.APP_URL,
-            appName : process.env.APP_NAME,
-            mode : 'home',
-            isLoggedIn : req.session.isLoggedIn,
-            athlete : req.session.athlete,
-            user: req.session.user,
-            stravaClientId: process.env.STRAVA_CLIENT_ID,
-            stravaRedirect: process.env.STRAVA_REDIRECT_URI,
-            activity : results.activity,
-            comments : results.comments,
-            participants : results.participants
-        };
+        var data = new PageData(results.activity.name + " | Activity | ", req.session);
+        data.activity = results.activity;
+        data.comments = results.comments;
+        data.participants = results.participants;
+
         res.render('details', data);
 
     });

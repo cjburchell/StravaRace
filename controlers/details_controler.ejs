@@ -129,7 +129,7 @@
                     return "Yesterday at " + new Date(_seconds).toLocaleTimeString();
                 }
 
-                return new Date(_seconds).ToString();
+                return new Date(_seconds).toLocaleString();
             }
         };
     });
@@ -187,7 +187,7 @@
 
         $scope.showSexFilter = foundMale && foundFemale;
 
-        L.mapbox.accessToken = 'pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A';
+        L.mapbox.accessToken = '<%= mapboxToken%>';
         var map = L.mapbox.map('map', 'mapbox.outdoors')
                 .setView($scope.activity.centerPoint, 12);
 
@@ -350,11 +350,11 @@
         }
 
         $scope.join = function () {
-            var newParticipant = new participant.Participant(<%= athlete.id %>, $scope.activity._id, $scope.selectedCatagoryId);
-            newParticipant.athleteImage = "<%= athlete.profile_medium%>";
+            var newParticipant = new participant.Participant(<%= isStravaLoggedIn?athlete.id : user.facebookId %>, $scope.activity._id, $scope.selectedCatagoryId);
             newParticipant.name = "<%= athlete.firstname + " " + athlete.lastname%>";
             newParticipant.sex = "<%= athlete.sex===null?"M":athlete.sex %>";
             newParticipant.activityStartTime = $scope.activity.startTime;
+            newParticipant.athleteImage = "<%- athlete.profile_medium %>";
 
             $http.put("/data/participant", newParticipant)
                     .then(function(response) {
@@ -364,10 +364,17 @@
                         }
                     });
         };
+        <%
+        var userId = athlete.id;
+            if(userId === undefined)
+        {
+            userId = user.facebookId;
+        }
+ %>
 
-        <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
+        <%if(participants.findIndex(function(item){return item.athleteId == userId;}) !== -1 ){%>
         $scope.leave = function () {
-            $http.delete("/data/participant/<%= participants.find(function(item){return item.athleteId === athlete.id;})._id %>")
+            $http.delete("/data/participant/<%= participants.find(function(item){return item.athleteId == userId;})._id %>")
                     .then(function(response) {
                         if(response.data)
                         {
@@ -376,8 +383,9 @@
                     });
         };
 
+        <% if(isStravaLoggedIn){%>
         $scope.updateMyResults = function () {
-            $http.post("/update/participant/<%= participants.find(function(item){return item.athleteId === athlete.id;})._id %>")
+            $http.post("/update/participant/<%= participants.find(function(item){return item.athleteId == athlete.id;})._id %>")
                     .then(function(response) {
                         if(response.data)
                         {
@@ -385,7 +393,8 @@
                         }
                     });
         };
-        <%}%>
+        <%}%><%}%>
+
 
         $scope.edit = function () {
             location.replace("/activity/edit/<%= activity._id%>");

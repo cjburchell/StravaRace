@@ -6,7 +6,7 @@ var strava = require('strava-v3');
 var router = express.Router();
 
 router.get('/starredsegments/:id', function(req, res) {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
         return;
@@ -39,7 +39,7 @@ router.get('/starredsegments/:id', function(req, res) {
 });
 
 router.get('/segmentmap/:id', function(req, res) {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
         return;
@@ -72,7 +72,7 @@ router.get('/segmentmap/:id', function(req, res) {
 });
 
 router.get('/routes/', function(req, res) {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
         return;
@@ -94,7 +94,7 @@ router.get('/routes/', function(req, res) {
 });
 
 router.get('/route/:id', function(req, res) {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
         return;
@@ -122,7 +122,7 @@ router.get('/route/:id', function(req, res) {
 });
 
 router.get('/friends/:id', function(req, res) {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
         return;

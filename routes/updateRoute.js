@@ -7,7 +7,7 @@ var results = require('../results');
 var database = require('../database');
 
 router.post('/activity/:id', function(req, res) {
-    if(req.session.isLoggedIn)
+    if(req.session.isLoggedIn && req.session.isStravaLoggedIn)
     {
         database.getDocument(req.params.id, function (err, activity) {
             if(!err)
@@ -37,7 +37,7 @@ router.post('/activity/:id', function(req, res) {
 });
 
 router.post('/participant/:id', function(req, res) {
-    if(req.session.isLoggedIn)
+    if(req.session.isLoggedIn && req.session.isStravaLoggedIn)
     {
         database.getDocument(req.params.id, function (err, participant) {
             if(!err)

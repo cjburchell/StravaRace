@@ -7,7 +7,7 @@
     <meta property="og:description"        content="<%= activity.description %>" />
     <meta property="og:site_name"        content="<%=appName%>" />
     <meta property="fb:app_id"        content="1204847022870716" />
-    <meta property="og:image" content="https://api.mapbox.com/v4/mapbox.outdoors/<%=activity.centerPoint[1]%>,<%=activity.centerPoint[0]%>,12/500x300.png?access_token=pk.eyJ1IjoiY2pidXJjaGVsbCIsImEiOiJjaXJzc2hpNDMwaTY0ZmZtNnViZzg5NmRrIn0.LSuKYxyhwBDpHCtjim-g0A" />
+    <meta property="og:image" content="https://api.mapbox.com/v4/mapbox.outdoors/<%=activity.centerPoint[1]%>,<%=activity.centerPoint[0]%>,12/500x300.png?access_token=<%= mapboxToken%>" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://use.fontawesome.com/3a216218fd.js"></script>
     <link rel='stylesheet' href='/stylesheets/style.css' />
@@ -19,25 +19,6 @@
     <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
 </head>
 <body ng-app="app" ng-controller="activityControler">
-
-<script>
-    window.fbAsyncInit = function() {
-        FB.init({
-            appId      : '1204847022870716',
-            xfbml      : true,
-            version    : 'v2.7'
-        });
-    };
-
-    (function(d, s, id){
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {return;}
-        js = d.createElement(s); js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-</script>
-
 
 <%if(isLoggedIn){%>
 <% include partials/template/header.ejs %>
@@ -240,9 +221,18 @@
             <div class="panel-heading" style="text-align: center"><b>Actions</b></div>
             <div class="panel-body list-group" style="padding: 0">
                 <%if(isLoggedIn){%>
+
+                <% var userId = athlete.id;
+                    if(userId === undefined)
+                    {
+                        userId = user.facebookId;
+                    }
+                %>
+
                 <%if(activity.state !== 'finished'){%>
-                    <%if((activity.privaicy == 'public' || activity.friends.indexOf(athlete.id) !== -1) && activity.maxParticipants > participants.length){%>
-                        <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) === -1 ){%>
+
+                    <%if((activity.privaicy == 'public' || activity.friends.indexOf(userId) !== -1) && activity.maxParticipants > participants.length){%>
+                        <%if(participants.findIndex(function(item){return item.athleteId == userId}) === -1 ){%>
                             <%if(activity.categories.length != 1){%>
                                 <a href="#" class="list-group-item" data-toggle="modal" data-target="#joinDialog" ng-click="showCatagorySelection()">Join Activity</a>
                             <%}else{%>
@@ -253,8 +243,8 @@
                         <%}%>
                     <%}%>
                 <%}%>
-                <%if(activity.state !== 'upcoming' && activity.ownerId != athlete.id){%>
-                    <%if(participants.findIndex(function(item){return item.athleteId === athlete.id;}) !== -1 ){%>
+                <%if(activity.state !== 'upcoming' && isStravaLoggedIn && activity.ownerId != athlete.id){%>
+                    <%if(participants.findIndex(function(item){return item.athleteId == athlete.id;}) !== -1 ){%>
                         <a href="#" class="list-group-item" ng-click="updateMyResults()">Update My Results</a>
                     <%}%>
                 <%}%>
@@ -280,6 +270,8 @@
                     <div style="margin-top: 10px; margin-left: 10px">
                         <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
                     </div>
+
+                    <p><div class="fb-login-button"  scope="public_profile,email" onlogin="checkLoginState();" data-max-rows="1" data-size="large" data-show-faces="false">Log In with Facebook</div></p>
                 <%}%>
                 <div class="fb-share-button" style="margin-top: 10px; margin-left: 10px" data-href="http://www.ridemanager.net/activity/details/<%= activity._id %>" data-layout="button" data-size="small" data-mobile-iframe="true">
                     <a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.ridemanager.net%2Factivity%2Fdetails%2<%= activity._id %>&amp;src=sdkpreparse">Share</a>

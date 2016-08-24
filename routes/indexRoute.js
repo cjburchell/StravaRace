@@ -2,25 +2,26 @@ var express = require('express');
 var strava = require('strava-v3');
 var async = require('async');
 var database = require('../database');
-var user_utils = require('../public/javascripts/user');
+var User = require('../documents/user');
+var PageData = require('../routes/data/pagedata');
 var activity_utils = require('../public/javascripts/activity');
+var FB = require('fb');
 var router = express.Router();
 
-var renderPage = function (session, res) {
+function renderPage(session, res) {
 
-    var data = {
-        mode: 'home',
-        appName: process.env.APP_NAME,
-        url: process.env.APP_URL,
-        titleText: "Home | ",
-        athlete: session.athlete,
-        user: session.user
-    };
+    var data = new PageData("Home | ", session);
+
+    var userId = session.athlete.id;
+    if(userId === undefined)
+    {
+        userId = session.facebookId;
+    }
 
     async.parallel([
         callback =>
         {
-            database.getInProgressAthleteActivities(session.athlete.id, function (err, docs, activitiesInProgress)
+            database.getInProgressAthleteActivities(userId, function (err, docs, activitiesInProgress)
             {
                 if (err)
                 {
@@ -34,7 +35,7 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getFinishedAthleteActivities(session.athlete.id, function (err, docs, activitiesFinished)
+            database.getFinishedAthleteActivities(userId, function (err, docs, activitiesFinished)
                 {
                     if (err)
                     {
@@ -48,7 +49,7 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getUpcomingAthleteActivities(session.athlete.id, function (err, docs, activitiesUpcoming)
+            database.getUpcomingAthleteActivities(userId, function (err, docs, activitiesUpcoming)
                 {
                     if (err)
                     {
@@ -67,7 +68,7 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getCreatedUpcomingCount(session.athlete.id, function (err, createdUpcomingCount)
+            database.getCreatedUpcomingCount(userId, function (err, createdUpcomingCount)
                 {
                     if (err)
                     {
@@ -81,7 +82,7 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getFinishedCount(session.athlete.id, function (err, finishedCount)
+            database.getFinishedCount(userId, function (err, finishedCount)
                 {
                     if (err)
                     {
@@ -95,7 +96,7 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getFirstPlaceCount(session.athlete.id, function (err, firstCount)
+            database.getFirstPlaceCount(userId, function (err, firstCount)
                 {
                     if (err)
                     {
@@ -109,7 +110,7 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getSecondPlaceCount(session.athlete.id, function (err, secondCount)
+            database.getSecondPlaceCount(userId, function (err, secondCount)
                 {
                     if (err)
                     {
@@ -123,7 +124,7 @@ var renderPage = function (session, res) {
         },
         callback =>
         {
-            database.getThirdPlaceCount(session.athlete.id, function (err, thirdCount)
+            database.getThirdPlaceCount(userId, function (err, thirdCount)
                 {
                     if (err)
                     {
@@ -152,13 +153,7 @@ router.get('/', function (req, res) {
         res.render('nav_to', {navLocation: "/home"});
     }
     else {
-        var data = {
-            titleText: "",
-            url : process.env.APP_URL,
-            appName : process.env.APP_NAME,
-            stravaClientId: process.env.STRAVA_CLIENT_ID,
-            stravaRedirect: process.env.STRAVA_REDIRECT_URI
-        };
+        var data = new PageData("");
         res.render('login', data);
     }
 });
@@ -172,8 +167,112 @@ router.get('/home', function (req, res) {
     }
 });
 
+router.post('/fblogin', (req, res) =>{
+    "use strict";
+    if (req.session.isFacebookLoggedIn)
+    {
+        res.end(JSON.stringify(false));
+        return;
+    }
+
+    var authResponse = req.body;
+    FB.setAccessToken(authResponse.accessToken);
+
+    FB.api('/me', {fields: 'id, first_name, last_name, email, gender'}, function(user_info) {
+        if(!user_info || user_info.error) {
+            res.end(JSON.stringify(false));
+            return;
+        }
+
+     FB.api('/'+authResponse.userID+'/picture', {redirect: 0, type: 'small'}, function(photo) {
+         if(!photo || photo.error) {
+             res.end(JSON.stringify(false));
+             return;
+         }
+
+         var userId = parseInt(authResponse.userID);
+
+         database.getFBUser(userId, function (result, user)
+         {
+             if (result)
+             {
+                 res.render('nav_to', {navLocation: "/"});
+                 return;
+             }
+
+             function updateResult(result, id)
+             {
+                 if (!result)
+                 {
+                     res.render('nav_to', {navLocation: "/"});
+                     return;
+                 }
+
+                 if(!req.session.athlete)
+                 {
+                     req.session.athlete = {
+                         profile_medium: photo.data.url,
+                         firstname: user_info.first_name,
+                         lastname: user_info.last_name,
+                         email: user_info.email,
+                         sex: user_info.gender === 'female' ? 'F' : 'M'
+                     };
+
+                     if (!req.session.athlete.profile_medium)
+                     {
+                         req.session.athlete.profile_medium = "/images/medium.png";
+                     }
+                 }
+
+                 user._id = id;
+                 req.session.isLoggedIn = true;
+                 req.session.isFacebookLoggedIn = true;
+                 if(user.athleteId)
+                 {
+                     req.session.isStravaLoggedIn = true;
+                     req.session.athlete.id = user.athleteId;
+                     req.session.accessToken = user.accessToken;
+                 }
+                 else
+                 {
+                     req.session.isStravaLoggedIn = false;
+                 }
+                 req.session.user = user;
+                 req.session.facebookId = userId;
+                 req.session.fbAccessToken = authResponse.accessToken;
+                 res.end(JSON.stringify(true));
+             }
+
+
+             var name = user_info.first_name + " " + user_info.last_name;
+             if (!user)
+             {
+
+                 user = new User(undefined, name, userId);
+                 user.email = user_info.email;
+                 user.accessToken = req.session.accessToken;
+                 database.updateDocument(user, updateResult);
+             }
+             else
+             {
+                 if(user.name !== name || user.email !== user_info.email || ( req.session.accessToken !== undefined && user.accessToken !== req.session.accessToken))
+                 {
+                     user.email = user_info.email;
+                     user.name = name;
+                     user.accessToken = req.session.accessToken;
+                     database.updateDocument(user, updateResult);
+                     return;
+                 }
+
+                 updateResult(true, user._id);
+             }
+         });
+     });
+     });
+});
+
 router.get('/login', function (req, res) {
-    if (req.session.isLoggedIn)
+    if (req.session.isStravaLoggedIn)
     {
         renderPage(req.session, res);
         return;
@@ -217,19 +316,41 @@ router.get('/login', function (req, res) {
                     }
                     user._id = id;
                     req.session.isLoggedIn = true;
+                    req.session.isStravaLoggedIn = true;
+                    if(user.facebookId)
+                    {
+                        req.session.isFacebookLoggedIn = true;
+                    }
+                    else
+                    {
+                        req.session.isFacebookLoggedIn = false;
+                    }
+
                     req.session.user = user;
                     req.session.athlete = payload.athlete;
                     req.session.accessToken = payload.access_token;
                     res.render('nav_to', {navLocation: "/home"});
                 }
 
+                var name = payload.athlete.firstname + " " + payload.athlete.lastname;
                 if (!user)
                 {
-                    user = new user_utils.User(payload.athlete.id, payload.athlete.firstname + " " + payload.athlete.lastname);
+                    user = new User(payload.athlete.id, name);
+                    user.email = payload.athlete.email;
+                    user.accessToken = payload.access_token;
                     database.updateDocument(user, updateResult);
                 }
                 else
                 {
+                    if(user.name !== name || user.email !== payload.athlete.email || user.accessToken !== payload.access_token)
+                    {
+                        user.email = payload.athlete.email;
+                        user.name = name;
+                        user.accessToken = payload.access_token;
+                        database.updateDocument(user, updateResult);
+                        return;
+                    }
+
                     updateResult(true, user._id);
                 }
             });
@@ -245,6 +366,9 @@ router.get('/login', function (req, res) {
 router.get('/logout', function (req, res) {
     if (req.session.isLoggedIn) {
         req.session.isLoggedIn = false;
+        req.session.isFacebookLoggedIn = false;
+        req.session.isStravaLoggedIn = false;
+        req.session.user = undefined;
         req.session.athlete = undefined;
         req.session.accessToken = undefined;
     }

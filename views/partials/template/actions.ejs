@@ -2,10 +2,12 @@
     <div class="panel-heading" style="text-align: center" ><b>Actions</b></div>
     <div class="panel-body list-group" style="padding: 0">
         <a href="/activity/join" class="list-group-item">Join a activity</a>
-        <%if(createdUpcomingCount >= user.maxActiveActivities){%>
-            <a href="#" class="list-group-item disabled">Create a activity</a>
-        <%} else {%>
-            <a href="/activity/create" class="list-group-item">Create a activity</a>
+        <%if(isStravaLoggedIn){%>
+            <%if(createdUpcomingCount >= user.maxActiveActivities){%>
+                <a href="#" class="list-group-item disabled">Create a activity</a>
+            <%} else {%>
+                <a href="/activity/create" class="list-group-item">Create a activity</a>
+            <%}%>
         <%}%>
     </div>
 </div>

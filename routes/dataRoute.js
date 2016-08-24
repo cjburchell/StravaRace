@@ -67,6 +67,13 @@ router.delete('/participant/:id', function(req, res)
         res.end(JSON.stringify(false));
         return;
     }
+
+    var userId = req.session.athlete.id;
+    if(userId === undefined)
+    {
+        userId = req.session.facebookId;
+    }
+
     database.getDocument(req.params.id, function (err, participant)
     {
         if (err)
@@ -75,7 +82,7 @@ router.delete('/participant/:id', function(req, res)
             return;
         }
 
-        if (participant.athleteId === req.session.athlete.id)
+        if (participant.athleteId == userId)
         {
             database.deleteDocument(req.params.id, participant._rev, function (result1)
             {
@@ -99,7 +106,7 @@ router.delete('/participant/:id', function(req, res)
                     return;
                 }
 
-                if (activity.ownerId !== req.session.athlete.id)
+                if (activity.ownerId !== userId)
                 {
                     res.end(JSON.stringify(false));
                     return;
@@ -185,7 +192,7 @@ function UpdateActivity(editActivity)
 
 router.put('/activity', function(req, res)
 {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
         return;
@@ -252,7 +259,7 @@ router.put('/activity', function(req, res)
 
 router.delete('/activity/:id', function(req, res)
 {
-    if (!req.session.isLoggedIn)
+    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
         return;
@@ -368,7 +375,7 @@ router.delete('/activity/:id', function(req, res)
 });
 
 router.post('/activity/:id', function(req, res) {
-    if(req.session.isLoggedIn)
+    if(req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         var updateActivity = req.body;
         database.getDocument(req.params.id, function (err, activity) {
@@ -447,7 +454,13 @@ router.put('/comment/activity/:id', function (req, res)
         return;
     }
 
-    var comment = new Comment(req.body.text, req.session.athlete.id, req.session.athlete.profile_medium, req.session.athlete.firstname + ' ' + req.session.athlete.lastname , req.params.id, Date.now())
+    var userId = req.session.athlete.id;
+    if(userId === undefined)
+    {
+        userId = req.session.facebookId;
+    }
+
+    var comment = new Comment(req.body.text, userId, req.session.athlete.profile_medium, req.session.athlete.firstname + ' ' + req.session.athlete.lastname , req.params.id, Date.now())
 
     async.parallel(
         {
@@ -466,7 +479,7 @@ router.put('/comment/activity/:id', function (req, res)
                 return;
             }
 
-            if (!((result.activity.privaicy == 'public' || result.activity.friends.indexOf(req.session.athlete.id) !== -1)))
+            if (!((result.activity.privaicy == 'public' || result.activity.friends.indexOf(userId) !== -1)))
             {
                 res.end(JSON.stringify(false));
                 return;
@@ -493,7 +506,12 @@ router.get('/comment/activity/:id', function (req, res)
         res.end(JSON.stringify(false));
         return;
     }
-    var participant = req.body;
+
+    var userId = req.session.athlete.id;
+    if(userId === undefined)
+    {
+        userId = req.session.facebookId;
+    }
 
     async.parallel(
         {
@@ -517,7 +535,7 @@ router.get('/comment/activity/:id', function (req, res)
                 return;
             }
 
-            if (!((result.activity.privaicy == 'public' || result.activity.friends.indexOf(req.session.athlete.id) !== -1)))
+            if (!((result.activity.privaicy == 'public' || result.activity.friends.indexOf(userId) !== -1)))
             {
                 res.end(JSON.stringify([]));
                 return;

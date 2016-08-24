@@ -29,6 +29,8 @@ const FinishedActivities ="_design/participant/_view/finished";
 const RankActivities = "_design/participant/_view/rank";
 
 const userView = "_design/user/_view/by_athlete";
+const fbUserView = "_design/user/_view/by_fb_id";
+
 
 function connect()
 {
@@ -338,6 +340,21 @@ class Database
     getUser(athleteId, done)
     {
         this.getView(athleteId, userView, function (result, users)
+        {
+            if(!result)
+            {
+                done(result, users[0]);
+            }
+            else
+            {
+                done(result, users);
+            }
+        });
+    }
+
+    getFBUser(facebookId, done)
+    {
+        this.getView(facebookId, fbUserView, function (result, users)
         {
             if(!result)
             {

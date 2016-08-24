@@ -5,23 +5,23 @@ var express = require('express');
 var router = express.Router();
 var database = require('../database');
 var activity = require('../public/javascripts/activity');
+var PageData = require('../routes/data/pagedata');
 
 router.get('/history', function(req, res) {
     if(req.session.isLoggedIn)
     {
-        database.getAthleteActivities(req.session.athlete.id, function (err, activities)
+        var userId = req.session.athlete.id;
+        if(userId === undefined)
+        {
+            userId = req.session.facebookId;
+        }
+
+        database.getAthleteActivities(userId, function (err, activities)
         {
             if(!err)
             {
-                var data = {
-                    titleText: "History | ",
-                    url : process.env.APP_URL,
-                    appName : process.env.APP_NAME,
-                    mode : 'history',
-                    athlete : req.session.athlete,
-                    activities : activities
-                };
-
+                var data = new PageData("History | ", req.session);
+                data.activities= activities;
                 activity.UpdateActivities(data);
 
                 res.render('history', data);

@@ -353,13 +353,14 @@ class Results
 
     updateAllActivities(accessToken)
     {
+        var results = this;
         database.getUpcomingActivities(function (err, activities)
         {
             if (!err)
             {
                 activities.forEach(function (activity)
                 {
-                    this.updateActivity(activity, accessToken, function ()
+                    results.updateActivity(activity, accessToken, function ()
                     {
 
                     });
@@ -377,7 +378,7 @@ class Results
             {
                 activities.forEach(function (activity)
                 {
-                    this.updateActivity(activity, accessToken, function ()
+                    results.updateActivity(activity, accessToken, function ()
                     {
                     });
                 });

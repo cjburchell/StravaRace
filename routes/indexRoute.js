@@ -29,7 +29,7 @@ function renderPage(session, res) {
                 }
 
                 data.activitiesInProgress = activitiesInProgress;
-                callback(null);
+                callback();
             }
             );
         },
@@ -43,7 +43,7 @@ function renderPage(session, res) {
                     }
 
                     data.activitiesFinished = activitiesFinished;
-                    callback(null);
+                    callback();
                 }
             );
         },
@@ -62,7 +62,7 @@ function renderPage(session, res) {
                     });
 
                     data.activitiesUpcoming = activitiesUpcoming;
-                    callback(null);
+                    callback();
                 }
             );
         },
@@ -76,7 +76,7 @@ function renderPage(session, res) {
                     }
 
                     data.createdUpcomingCount = createdUpcomingCount;
-                    callback(null);
+                    callback();
                 }
             );
         },
@@ -90,7 +90,7 @@ function renderPage(session, res) {
                     }
 
                     data.finishedCount = finishedCount;
-                    callback(null);
+                    callback();
                 }
             );
         },
@@ -104,7 +104,7 @@ function renderPage(session, res) {
                     }
 
                     data.firstCount = firstCount;
-                    callback(null);
+                    callback();
                 }
             );
         },
@@ -118,7 +118,7 @@ function renderPage(session, res) {
                     }
 
                     data.secondCount = secondCount;
-                    callback(null);
+                    callback();
                 }
             );
         },
@@ -132,7 +132,7 @@ function renderPage(session, res) {
                     }
 
                     data.thridCount = thirdCount;
-                    callback(null);
+                    callback();
                 }
             );
         }
@@ -192,17 +192,17 @@ router.post('/fblogin', (req, res) =>{
 
          var userId = parseInt(authResponse.userID);
 
-         database.getFBUser(userId, function (result, user)
+         database.getFBUser(userId, function (err, user)
          {
-             if (result)
+             if (err)
              {
                  res.render('nav_to', {navLocation: "/"});
                  return;
              }
 
-             function updateResult(result, id)
+             function updateResult(err, id)
              {
-                 if (!result)
+                 if (err)
                  {
                      res.render('nav_to', {navLocation: "/"});
                      return;
@@ -264,7 +264,7 @@ router.post('/fblogin', (req, res) =>{
                      return;
                  }
 
-                 updateResult(true, user._id);
+                 updateResult(undefined, user._id);
              }
          });
      });
@@ -298,9 +298,9 @@ router.get('/login', function (req, res) {
                     return;
                 }
 
-                function updateResult(result, id)
+                function updateResult(err, id)
                 {
-                    if (!result)
+                    if (err)
                     {
                         res.render('nav_to', {navLocation: "/"});
                         return;
@@ -351,7 +351,7 @@ router.get('/login', function (req, res) {
                         return;
                     }
 
-                    updateResult(true, user._id);
+                    updateResult(undefined, user._id);
                 }
             });
         }

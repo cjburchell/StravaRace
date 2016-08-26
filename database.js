@@ -244,7 +244,7 @@ class Database
                         {
                             try
                             {
-                                done(true, data.data.id);
+                                done(undefined, data.data.id);
                             }
                             catch (error)
                             {
@@ -264,6 +264,7 @@ class Database
                             {
                                 console.log("ERROR: " + error);
                                 console.log(error.stack);
+                                done(error);
                             }
                         });
                     }
@@ -280,7 +281,7 @@ class Database
             {
                 try
                 {
-                    done(true, data.data.id);
+                    done(undefined, data.data.id);
                 }
                 catch (error)
                 {
@@ -313,12 +314,13 @@ class Database
             {
                 try
                 {
-                    done(true);
+                    done();
                 }
                 catch (error)
                 {
                     console.log("ERROR: " + error);
                     console.log(error.stack);
+                    done(error);
                 }
             }, function (err)
             {
@@ -327,42 +329,43 @@ class Database
                     console.log("ERROR: " + err);
                     // either request error occured
                     // ...or err.code=EDOCCONFLICT if document with the same id already exists
-                    done(false);
+                    done(err);
                 }
                 catch (error)
                 {
                     console.log("ERROR: " + error);
                     console.log(error.stack);
+                    done(error);
                 }
             });
     };
 
     getUser(athleteId, done)
     {
-        this.getView(athleteId, userView, function (result, users)
+        this.getView(athleteId, userView, function (err, users)
         {
-            if(!result)
+            if(err)
             {
-                done(result, users[0]);
+                done(err);
             }
             else
             {
-                done(result, users);
+                done(err, users[0]);
             }
         });
     }
 
     getFBUser(facebookId, done)
     {
-        this.getView(facebookId, fbUserView, function (result, users)
+        this.getView(facebookId, fbUserView, function (err, users)
         {
-            if(!result)
+            if (err)
             {
-                done(result, users[0]);
+                done(err);
             }
             else
             {
-                done(result, users);
+                done(result, users[0]);
             }
         });
     };

@@ -46,9 +46,9 @@ router.put('/participant', function (req, res)
                 return;
             }
 
-            database.updateDocument(participant, function (result, id)
+            database.updateDocument(participant, function (err, id)
             {
-                if (!result)
+                if (err)
                 {
                     res.end(JSON.stringify(false));
                 }
@@ -84,9 +84,9 @@ router.delete('/participant/:id', function(req, res)
 
         if (participant.athleteId == userId)
         {
-            database.deleteDocument(req.params.id, participant._rev, function (result1)
+            database.deleteDocument(req.params.id, participant._rev, function (err)
             {
-                if (!result1)
+                if (err)
                 {
                     res.end(JSON.stringify(false));
                 }
@@ -112,9 +112,9 @@ router.delete('/participant/:id', function(req, res)
                     return;
                 }
 
-                database.deleteDocument(req.params.id, participant._rev, function (result1)
+                database.deleteDocument(req.params.id, participant._rev, function (err)
                 {
-                    if (!result1)
+                    if (err)
                     {
                         res.end(JSON.stringify(false));
                     }
@@ -128,7 +128,33 @@ router.delete('/participant/:id', function(req, res)
     });
 });
 
-function UpdateActivity(editActivity)
+function UpdateFriends(athleteId, editActivity, done)
+{
+    console.log("STRAVA: List friends id: " + athleteId);
+    strava.athletes.listFriends({id: athleteId}, (err, payload) =>
+    {
+        try
+        {
+            if (err)
+            {
+                done(err);
+                return;
+            }
+
+            editActivity.friends = payload.map(item => item.id);
+            editActivity.friends.push(athleteId);
+            done();
+        }
+        catch (error)
+        {
+            console.log("ERROR: " + error);
+            console.log(error.stack);
+            done(error);
+        }
+    });
+}
+
+function UpdateActivity(editActivity, done)
 {
     var maxLat = -180;
     var minLat = 180;
@@ -188,6 +214,8 @@ function UpdateActivity(editActivity)
         maxLat,
         maxLong
     ]];
+
+    done();
 }
 
 router.put('/activity', function(req, res)
@@ -202,38 +230,24 @@ router.put('/activity', function(req, res)
     newActivity.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
     newActivity._id = undefined;
     newActivity._rev = undefined;
-    UpdateActivity(newActivity);
 
-    async.parallel([callback =>
-    {
-        "use strict";
-        if (newActivity.privaicy === 'public')
+    async.parallel([
+        callback =>
         {
-            callback(null);
-            return;
-        }
+            "use strict";
+            UpdateActivity(newActivity, callback);
+        },
+        callback =>
+        {
+            "use strict";
+            if (newActivity.privaicy === 'public')
+            {
+                callback();
+                return;
+            }
 
-        console.log("STRAVA: List friends id: " + req.session.athlete.id);
-        strava.athletes.listFriends({id: req.session.athlete.id}, function (err, payload)
-        {
-            try
-            {
-                if (err)
-                {
-                    callback(err);
-                    return;
-                }
-                newActivity.friends = payload.map(item => item.id);
-                newActivity.friends.push(req.session.athlete.id);
-                callback(null);
-            }
-            catch (error)
-            {
-                console.log("ERROR: " + error);
-                console.log(error.stack);
-            }
-        });
-    }], err =>
+            UpdateFriends(req.session.athlete.id, newActivity, callback);
+        }], err =>
     {
         "use strict";
 
@@ -243,15 +257,15 @@ router.put('/activity', function(req, res)
             return;
         }
 
-        database.updateDocument(newActivity, function (result, id)
+        database.updateDocument(newActivity, function (err, id)
         {
-            if (!result)
+            if (err)
             {
                 res.end(JSON.stringify(false));
             }
             else
             {
-                res.end(JSON.stringify(id));
+                res.end(id);
             }
         });
     });
@@ -279,9 +293,9 @@ router.delete('/activity/:id', function(req, res)
             return;
         }
 
-        database.deleteDocument(req.params.id, result._rev, function (result1)
+        database.deleteDocument(req.params.id, result._rev, function (err)
         {
-            if (!result1)
+            if (err)
             {
                 res.end(JSON.stringify(false));
                 return;
@@ -301,24 +315,14 @@ router.delete('/activity/:id', function(req, res)
 
                     if (participants.length === 0)
                     {
-                        callback(undefined);
+                        callback();
                         return;
                     }
 
                     async.each(participants, (participant, participantCallback) =>
                     {
                         "use strict";
-                        database.deleteDocument(participant._id, participant.rev, result =>
-                        {
-                            if (!result)
-                            {
-                                participantCallback(true);
-                            }
-                            else
-                            {
-                                participantCallback(undefined);
-                            }
-                        });
+                        database.deleteDocument(participant._id, participant.rev, participantCallback);
                     }, callback);
                 });
 
@@ -336,24 +340,14 @@ router.delete('/activity/:id', function(req, res)
 
                         if (comments.length === 0)
                         {
-                            callback(undefined);
+                            callback();
                             return;
                         }
 
                         async.each(comments, (comment, commentCallback) =>
                         {
                             "use strict";
-                            database.deleteDocument(comment._id, comment.rev, result =>
-                            {
-                                if (!result)
-                                {
-                                    commentCallback(true);
-                                }
-                                else
-                                {
-                                    commentCallback(undefined);
-                                }
-                            });
+                            database.deleteDocument(comment._id, comment.rev, commentCallback);
                         }, callback);
                     });
                 }
@@ -374,70 +368,67 @@ router.delete('/activity/:id', function(req, res)
     });
 });
 
-router.post('/activity/:id', function(req, res) {
-    if(req.session.isLoggedIn || !req.session.isStravaLoggedIn)
+router.post('/activity/:id', function(req, res)
+{
+    if (!(req.session.isLoggedIn || !req.session.isStravaLoggedIn))
     {
-        var updateActivity = req.body;
-        database.getDocument(req.params.id, function (err, activity) {
-            if(!err) {
-                updateActivity._rev = activity._rev;
-                updateActivity._id = req.params.id;
-                updateActivity.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
-                if (activity.ownerId === req.session.athlete.id) {
+        res.end(JSON.stringify(false));
+        return;
+    }
 
-                    UpdateActivity(updateActivity);
-                    if(updateActivity.privaicy === 'public') {
-                        database.updateDocument(updateActivity, function (result1, id) {
-                            if(!result1) {
-                                res.end(JSON.stringify(false));
-                            } else {
-                                res.end(id);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        console.log("STRAVA: List friends id: " + req.session.athlete.id);
-                        strava.athletes.listFriends({ id : req.session.athlete.id }, function (err, payload) {
-                            try
-                            {
-                                if(!err){
-                                    updateActivity.friends = payload.map(function (item){ return item.id});
-                                    updateActivity.friends.push(req.session.athlete.id);
-                                    database.updateDocument(updateActivity, function (result, id) {
-                                        if(!result) {
-                                            res.end(JSON.stringify(false));
-                                        } else {
-                                            res.end(id);
-                                        }
-                                    });
-                                }else
-                                {
-                                    res.end( JSON.stringify(false) );
-                                }
-                            }
-                            catch (error)
-                            {
-                                console.log("ERROR: " + error);
-                                console.log(error.stack);
-                            }
-                        });
-                    }
-                }
-                else {
-                    res.end(JSON.stringify(false));
-                }
-            }
-            else
-            {
-                res.end( JSON.stringify(false) );
-            }
-        });
-    }
-    else
+    var updateActivity = req.body;
+    updateActivity._id = req.params.id;
+    updateActivity.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
+
+    async.waterfall([callback=>{
+        "use strict";
+        database.getDocument(req.params.id, callback);
+    }, (activity, callback) =>
     {
-        res.end( JSON.stringify(false) );
+        "use strict";
+
+        updateActivity._rev = activity._rev;
+        if (activity.ownerId !== req.session.athlete.id)
+        {
+            callback(false);
+            return;
+        }
+
+        async.parallel([
+            callback1 =>
+            {
+                UpdateActivity(updateActivity, callback1);
+            },
+            callback1 =>
+            {
+                if (updateActivity.privaicy === 'public')
+                {
+                    callback();
+                    return;
+                }
+
+                UpdateFriends(req.session.athlete.id, updateActivity, callback1);
+            }],
+            callback);
+    },
+    (callback) =>
+    {
+        "use strict";
+        database.updateDocument(updateActivity, callback);
     }
+    ], (err, id) =>{
+        "use strict";
+
+        if (err)
+        {
+            res.end(JSON.stringify(false));
+        }
+        else
+        {
+            res.end(id);
+        }
+
+    });
 });
 
 router.put('/comment/activity/:id', function (req, res)
@@ -448,19 +439,19 @@ router.put('/comment/activity/:id', function (req, res)
         return;
     }
 
-    if(req.body === undefined || req.body === '')
+    if (req.body === undefined || req.body === '')
     {
         res.end(JSON.stringify(false));
         return;
     }
 
     var userId = req.session.athlete.id;
-    if(userId === undefined)
+    if (userId === undefined)
     {
         userId = req.session.facebookId;
     }
 
-    var comment = new Comment(req.body.text, userId, req.session.athlete.profile_medium, req.session.athlete.firstname + ' ' + req.session.athlete.lastname , req.params.id, Date.now())
+    var comment = new Comment(req.body.text, userId, req.session.athlete.profile_medium, req.session.athlete.firstname + ' ' + req.session.athlete.lastname, req.params.id, Date.now())
 
     async.parallel(
         {
@@ -485,15 +476,15 @@ router.put('/comment/activity/:id', function (req, res)
                 return;
             }
 
-            database.updateDocument(comment, function (result, id)
+            database.updateDocument(comment, function (err, id)
             {
-                if (!result)
+                if (err)
                 {
                     res.end(JSON.stringify(false));
                 }
                 else
                 {
-                    res.end(JSON.stringify(id));
+                    res.end(id);
                 }
             });
         });

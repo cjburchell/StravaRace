@@ -23,7 +23,7 @@ function UpdateParticipant(participant, activity, accessToken, done)
 
     if(activity.stages.length === 0)
     {
-        done(true);
+        done();
         return;
     }
 
@@ -139,6 +139,7 @@ function UpdateParticipant(participant, activity, accessToken, done)
         if (err)
         {
             console.log("ERROR: " + err);
+            done(err);
             return;
         }
 
@@ -230,28 +231,12 @@ function SaveParticipants(participants, done)
         async.each(changedItems, function (participant, callback)
         {
             participant.changed = undefined;
-            database.updateDocument(participant, function (result)
-            {
-                if (!result)
-                {
-                    console.log("ERROR: Unable to update Participant %s", participant._id);
-                }
-
-                callback();
-            });
-        }, err =>{
-            if(err)
-            {
-                done(false);
-                return;
-            }
-
-            done(true);
-        });
+            database.updateDocument(participant, callback);
+        },done);
     }
     else
     {
-        done(true);
+        done();
     }
 }
 
@@ -261,55 +246,57 @@ class Results
     {
         var oldState = activity.state;
         activity_utils.UpdateActivityState(activity);
-
-        if (oldState !== activity.state)
-        {
-            database.updateDocument(activity, function (result)
+        async.parallel([callback=>{
+            if (oldState !== activity.state)
             {
-                if (!result)
-                {
-                    console.log("ERROR: Unable to Update Activity, Activity: %s", activity._id);
-                }
-            });
-        }
-
-        if (activity.state === 'upcoming')
-        {
-            return;
-        }
-
-        database.getActivityParticipants(activity._id, function (err, participants)
-        {
-            if (err)
+                database.updateDocument(activity, callback);
+            }
+            else
             {
-                console.log("ERROR: Unable to Get Activity Participants, Activity: %s", activity._id);
-                done(false);
+                callback();
+            }
+        },
+        callback=>{
+            if (activity.state === 'upcoming')
+            {
+                callback();
                 return;
             }
 
-            if (participants.length === 0)
+            database.getActivityParticipants(activity._id, function (err, participants)
             {
-                done(true);
-                return;
-            }
-
-            async.each(participants, (participant, callback) =>
+                if (err)
                 {
-                    participant.changed = false;
-                    UpdateParticipant(participant, activity, accessToken, () => callback());
+                    console.log("ERROR: Unable to Get Activity Participants, Activity: %s", activity._id);
+                    callback(err);
+                    return;
                 }
-            , err =>
-                {
 
-                    if( err ) {
-                        return;
+                if (participants.length === 0)
+                {
+                    callback();
+                    return;
+                }
+
+                async.each(participants, (participant, callback1) =>
+                    {
+                        participant.changed = false;
+                        UpdateParticipant(participant, activity, accessToken, callback1);
                     }
+                    , err =>
+                    {
+                        if( err )
+                        {
+                            callback(err);
+                            return;
+                        }
 
 
-                    UpdateStandings(participants, activity);
-                    SaveParticipants(participants, done);
-                });
-        });
+                        UpdateStandings(participants, activity);
+                        SaveParticipants(participants, callback);
+                    });
+            });
+        }], done);
     }
 
     updateParticipant(participantId, activityId, accessToken, done)
@@ -354,38 +341,44 @@ class Results
     updateAllActivities(accessToken)
     {
         var results = this;
-        database.getUpcomingActivities(function (err, activities)
-        {
-            if (!err)
-            {
-                activities.forEach(function (activity)
-                {
-                    results.updateActivity(activity, accessToken, function ()
-                    {
 
-                    });
+        async.waterfall([ callback=>{
+            database.getUpcomingActivities(function (err, activities)
+            {
+                if (err)
+                {
+                    console.log("ERROR: Unable to Upcoming Activities");
+                    callback(err);
+                    return;
+                }
+
+                async.forEach(activities, (activity, callback1) =>
+                {
+                    results.updateActivity(activity, accessToken, callback1);
+                }, callback);
+            });
+        },
+            callback=>
+            {
+                database.getInProgressActivities(function (err, activities)
+                {
+                    if (err)
+                    {
+                        console.log("ERROR: Unable to In Progress Activities");
+                        callback(err);
+                        return;
+                    }
+
+                    async.forEach(activities, (activity, callback1) =>
+                    {
+                        results.updateActivity(activity, accessToken, callback1);
+                    }, callback);
                 });
             }
-            else
+        ], err=>{
+            if(err)
             {
-                console.log("ERROR: Unable to Upcoming Activities");
-            }
-        });
-
-        database.getInProgressActivities(function (err, activities)
-        {
-            if (!err)
-            {
-                activities.forEach(function (activity)
-                {
-                    results.updateActivity(activity, accessToken, function ()
-                    {
-                    });
-                });
-            }
-            else
-            {
-                console.log("ERROR: Unable to In Progress Activities");
+                console.log("ERROR: Unable to Update Activities");
             }
         });
     };

@@ -6,64 +6,73 @@ var router = express.Router();
 var results = require('../results');
 var database = require('../database');
 
-router.post('/activity/:id', function(req, res) {
-    if(req.session.isLoggedIn && req.session.isStravaLoggedIn)
+router.post('/activity/:id', function(req, res)
+{
+    if (!(req.session.isLoggedIn && req.session.isStravaLoggedIn))
     {
-        database.getDocument(req.params.id, function (err, activity) {
-            if(!err)
+        res.end(JSON.stringify(false));
+        return;
+    }
+
+    database.getDocument(req.params.id, function (err, activity)
+    {
+        if (err)
+        {
+            res.end(JSON.stringify(false));
+            return;
+        }
+
+        if (activity.ownerId !== req.session.athlete.id)
+        {
+            res.end(JSON.stringify(false));
+            return;
+        }
+
+        results.updateActivity(activity, req.session.accessToken, function (err)
+        {
+            if (err)
             {
-                if (activity.ownerId === req.session.athlete.id)
-                {
-                    results.updateActivity(activity, req.session.accessToken, function (result)
-                    {
-                        res.end(JSON.stringify(result));
-                    });
-                }
-                else
-                {
-                    res.end(JSON.stringify(false));
-                }
+                res.end(JSON.stringify(false));
             }
             else
             {
-                res.end( JSON.stringify(false) );
+                res.end(JSON.stringify(true));
             }
         });
-    }
-    else
-    {
-        res.end( JSON.stringify(false) );
-    }
+    });
 });
 
-router.post('/participant/:id', function(req, res) {
-    if(req.session.isLoggedIn && req.session.isStravaLoggedIn)
+router.post('/participant/:id', function(req, res)
+{
+    if (!(req.session.isLoggedIn && req.session.isStravaLoggedIn))
     {
-        database.getDocument(req.params.id, function (err, participant) {
-            if(!err)
+        res.end(JSON.stringify(false));
+        return;
+    }
+    database.getDocument(req.params.id, function (err, participant)
+    {
+        if (err)
+        {
+            res.end(JSON.stringify(false));
+            return;
+        }
+        if (participant.athleteId !== req.session.athlete.id)
+        {
+            res.end(JSON.stringify(false));
+            return;
+        }
+        results.updateParticipant(req.params.id, participant.activityId, req.session.accessToken, function (err)
+        {
+            if (err)
             {
-                if (participant.athleteId === req.session.athlete.id)
-                {
-                    results.updateParticipant(req.params.id, participant.activityId, req.session.accessToken, function (result)
-                    {
-                        res.end(JSON.stringify(result));
-                    });
-                }
-                else
-                {
-                    res.end(JSON.stringify(false));
-                }
+                res.end(JSON.stringify(false));
             }
             else
             {
-                res.end( JSON.stringify(false) );
+                res.end(JSON.stringify(true));
             }
         });
-    }
-    else
-    {
-        res.end( JSON.stringify(false) );
-    }
+    });
 });
 
 module.exports = router;

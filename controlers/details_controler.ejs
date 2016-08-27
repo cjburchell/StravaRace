@@ -1,6 +1,6 @@
 <script type="text/javascript">
 
-    var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
+    var app = angular.module('app', ['ngAnimate', 'ui.bootstrap', 'chart.js']);
 
     app.filter('isFriendSelected',
             function() {
@@ -141,6 +141,68 @@
         $scope.friends = [];
         $scope.selectedCatagoryId = $scope.activity.categories[0].id;
         $scope.newComment = "";
+
+        $scope.elevationData = [];
+
+        if($scope.activity.routeElevation)
+        {
+            $scope.elevationData = [
+                $scope.activity.routeElevation];
+        }
+
+        $scope.stageElevationData = [];
+
+
+
+        var offset = 0;
+        $scope.activity.stages.sort((a, b)=> a.number - b.number).forEach(stage =>{
+
+            if(stage.elevation)
+            {
+                var maxDistance = 0;
+                var stageElevation = [];
+                stage.elevation.forEach(point =>
+                {
+                    point.x = point.x + offset;
+                    maxDistance = Math.max(point.x, maxDistance);
+                    stageElevation.push(point);
+                });
+
+                $scope.stageElevationData.push(stageElevation);
+                offset = maxDistance;
+            }
+        });
+
+
+            $scope.elevationChartOptions =
+            {
+                tooltips: {enabled: false},
+                elements: {point: {radius: 0, hoverRadius: 0}},
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            // Create scientific notation labels
+                            callback: function (value, index, values)
+                            {
+                                return value + " m";
+                            }
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'linear',
+                        position: 'bottom',
+                        ticks: {
+                            // Create scientific notation labels
+                            callback: function (value, index, values)
+                            {
+                                return (value / 1000).toFixed(2) + " km";
+                            }
+                        }
+                    }]
+                }
+            };
+
 
         $scope.addComment  = function ()
         {

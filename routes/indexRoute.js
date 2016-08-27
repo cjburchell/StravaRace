@@ -167,6 +167,10 @@ router.get('/home', function (req, res) {
     }
 });
 
+router.get('/test', function (req, res) {
+    res.render('test', {});
+});
+
 router.post('/fblogin', (req, res) =>{
     "use strict";
     if (req.session.isFacebookLoggedIn)

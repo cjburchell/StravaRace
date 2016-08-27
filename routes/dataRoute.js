@@ -143,7 +143,7 @@ function UpdateFriends(athleteId, editActivity, done)
 
             editActivity.friends = payload.map(item => item.id);
             editActivity.friends.push(athleteId);
-            done();
+            done(undefined);
         }
         catch (error)
         {
@@ -215,7 +215,90 @@ function UpdateActivity(editActivity, done)
         maxLong
     ]];
 
-    done();
+    async.parallel([ callback =>
+    {
+        "use strict";
+        if (!editActivity.routeId)
+        {
+            callback();
+            return;
+        }
+
+        strava.streams.route({id: editActivity.routeId, types: []}, (err, payload) =>
+        {
+            "use strict";
+            if (err)
+            {
+                callback(err);
+            }
+
+            try
+            {
+                var distance = payload.find(item => item.type === 'distance').data;
+                var elevation = payload.find(item => item.type === 'altitude').data;
+                editActivity.routelatlong = payload.find(item => item.type === 'latlng').data;
+
+                editActivity.routeElevation = [];
+                for (var i = 0; i < distance.length; i++)
+                {
+                    editActivity.routeElevation.push(
+                        {
+                            x: distance[i],
+                            y: elevation[i]
+                        });
+                }
+
+                callback();
+            }
+            catch (error)
+            {
+                console.log("ERROR: " + error);
+                console.log(error.stack);
+                callback(error);
+            }
+        });
+    },
+        callback =>
+        {
+            "use strict";
+
+            async.each(editActivity.stages, (stage, callback)=>
+            {
+                "use strict";
+
+                strava.streams.segment({id: stage.segmentId, types: ['distance', 'altitude']}, (err, payload) =>
+                {
+                    if(err)
+                    {
+                        callback(err);
+                    }
+
+                    try
+                    {
+                        var distance = payload.find(item => item.type === 'distance').data;
+                        var elevation = payload.find(item => item.type === 'altitude').data;
+
+                        stage.elevation = [];
+                        for (var i = 0; i < distance.length; i++)
+                        {
+                            stage.elevation.push(
+                                {
+                                    x: distance[i],
+                                    y: elevation[i]
+                                });
+                        }
+                        callback();
+                    }
+                    catch (error)
+                    {
+                        console.log("ERROR: " + error);
+                        console.log(error.stack);
+                        callback(error);
+                    }
+                });
+            }, callback);
+
+        }], done);
 }
 
 router.put('/activity', function(req, res)
@@ -380,55 +463,59 @@ router.post('/activity/:id', function(req, res)
     updateActivity._id = req.params.id;
     updateActivity.ownerName = req.session.athlete.firstname + ' ' + req.session.athlete.lastname;
 
-    async.waterfall([callback=>{
-        "use strict";
-        database.getDocument(req.params.id, callback);
-    }, (activity, callback) =>
-    {
-        "use strict";
-
-        updateActivity._rev = activity._rev;
-        if (activity.ownerId !== req.session.athlete.id)
+    database.getDocument(req.params.id,
+        (err, activity) =>
         {
-            callback(false);
-            return;
-        }
+            if (err)
+            {
+                res.end(JSON.stringify(false));
+                return;
+            }
 
-        async.parallel([
-            callback1 =>
+            "use strict";
+            updateActivity._rev = activity._rev;
+            if (activity.ownerId !== req.session.athlete.id)
             {
-                UpdateActivity(updateActivity, callback1);
-            },
-            callback1 =>
-            {
-                if (updateActivity.privaicy === 'public')
+                res.end(JSON.stringify(false));
+                return;
+            }
+
+            async.parallel([
+                    callback =>
+                    {
+                        UpdateActivity(updateActivity, callback);
+                    },
+                    callback =>
+                    {
+                        if (updateActivity.privaicy === 'public')
+                        {
+                            callback();
+                            return;
+                        }
+
+                        UpdateFriends(req.session.athlete.id, updateActivity, callback);
+                    }],
+                err =>
                 {
-                    callback();
-                    return;
-                }
+                    if (err)
+                    {
+                        res.end(JSON.stringify(false));
+                        return;
+                    }
 
-                UpdateFriends(req.session.athlete.id, updateActivity, callback1);
-            }],
-            callback);
-    },
-    (callback) =>
-    {
-        "use strict";
-        database.updateDocument(updateActivity, callback);
-    }
-    ], (err, id) =>{
-        "use strict";
+                    database.updateDocument(updateActivity, (err, id) =>
+                    {
+                        if (err)
+                        {
+                            res.end(JSON.stringify(false));
+                            return;
+                        }
 
-        if (err)
-        {
-            res.end(JSON.stringify(false));
-        }
-        else
-        {
-            res.end(id);
-        }
+                        res.end(id);
+                    });
 
-    });
+                });
+        });
 });
 
 router.put('/comment/activity/:id', function (req, res)

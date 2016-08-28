@@ -1,4 +1,12 @@
-<div ng-controller="activityPannelControler<%= activity.doc._id%>">
+<script type="text/javascript">
+
+    $app.controller('activityPannelControler<%= activity.doc._id%>', function($scope) {
+        $scope.activity = <%- JSON.stringify(activity) %>;
+    });
+
+</script>
+
+<div ng-controller="activityPannelControler<%= activity.doc._id%>" ng-cloak>
 <div ng-class="activity.value.participant.rank | rankToPannelType">
         <div class="row">
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -46,10 +54,3 @@
 </div>
 </div>
 
-<script type="text/javascript">
-
-    $app.controller('activityPannelControler<%= activity.doc._id%>', function($scope) {
-        $scope.activity = <%- JSON.stringify(activity) %>;
-    });
-
-</script>

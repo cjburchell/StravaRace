@@ -3,8 +3,14 @@
 <head>
     <% include partials/template/head.ejs %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/css/datetimepicker.min.css">
+
+    <% include partials/template/jsdefaults.ejs %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.templates.min.js"></script>
+
+    <% include ../controlers/edit_controler.ejs %>
 </head>
-<body ng-app="app" ng-controller="createControler">
+<body ng-app="app" ng-controller="createControler" ng-cloak>
 <% include partials/template/header.ejs %>
 <div class="container-fluid">
     <h2 style="margin-top: 0px"><% if(isCreating){%>
@@ -319,11 +325,7 @@
 </div>
 
 <% include partials/template/footer.ejs %>
-<% include partials/template/jsdefaults.ejs %>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-bootstrap-datetimepicker/1.0.1/js/datetimepicker.templates.min.js"></script>
 
-<% include ../controlers/edit_controler.ejs %>
 
 </body>
 </html>

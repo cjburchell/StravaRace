@@ -21,8 +21,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.6/Chart.min.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/angular.chartjs/latest/angular-chart.min.js" type="text/javascript"></script>
 
+    <% include ../controlers/details_controler.ejs %>
+
 </head>
-<body ng-app="app" ng-controller="activityControler">
+<body ng-app="app" ng-controller="activityControler" ng-cloak>
 
 <%if(isLoggedIn){%>
 <% include partials/template/header.ejs %>
@@ -260,8 +262,6 @@
 
             <canvas ng-if="elevationData.length !== 0" style="max-height: 200px; margin-top: 20px" id="elevation" class="chart chart-line" chart-data="elevationData" chart-options="elevationChartOptions"></canvas>
 
-            <canvas ng-if="stageElevationData.length !== 0 && elevationData.length === 0" style="max-height: 200px; margin-top: 20px" id="stageElevation" class="chart chart-line" chart-data="stageElevationData" chart-options="elevationChartOptions"></canvas>
-
             <%if(isLoggedIn || comments.length !== 0){%>
             <div class="panel-group" style="margin-top: 20px">
                 <div class="panel panel-default">
@@ -359,8 +359,6 @@
 <%if(isLoggedIn){%>
 <% include partials/template/footer.ejs %>
 <%}%>
-
-<% include ../controlers/details_controler.ejs %>
 
 </body>
 

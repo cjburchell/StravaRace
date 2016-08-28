@@ -1,4 +1,39 @@
-<div ng-app="app" ng-controller="activityTableControler">
+
+<script type="text/javascript">
+
+    var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
+
+    app.filter('duration',
+            function() {
+                return function(value) {
+                    return value? "success" : "";
+                };
+            });
+
+    app.filter('activityTypeToIcon',
+            function() {
+                return function (value)
+                {
+                    return ActivityTypeToImage(value);
+                };
+            });
+
+
+    app.filter('activityTypeToString',
+            function() {
+                return function (value)
+                {
+                    return ActivityTypeToString(value);
+                };
+            });
+
+    app.controller('activityTableControler', function($scope) {
+        $scope.activities = <%- JSON.stringify(activities) %>;
+    });
+
+</script>
+
+<div ng-app="app" ng-controller="activityTableControler" ng-cloak>
     <div class="inner-addon right-addon" style="width: 50%;margin-bottom: 20px">
         <span class="glyphicon glyphicon-search"></span>
         <input type="text" class="form-control" ng-model="seachText">
@@ -52,37 +87,3 @@
         </tbody>
     </table>
 </div>
-
-<script type="text/javascript">
-
-    var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
-
-    app.filter('duration',
-            function() {
-                return function(value) {
-                    return value? "success" : "";
-                };
-            });
-
-    app.filter('activityTypeToIcon',
-            function() {
-                return function (value)
-                {
-                    return ActivityTypeToImage(value);
-                };
-            });
-
-
-    app.filter('activityTypeToString',
-            function() {
-                return function (value)
-                {
-                    return ActivityTypeToString(value);
-                };
-            });
-
-    app.controller('activityTableControler', function($scope) {
-        $scope.activities = <%- JSON.stringify(activities) %>;
-    });
-
-</script>

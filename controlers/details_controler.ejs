@@ -134,6 +134,24 @@
         };
     });
 
+    function FindOffset(start_latlng, routelatlong , routeElevation)
+    {
+        var result = [];
+
+        for (var i = 0; i < routelatlong.length; i++)
+        {
+            var latdiff = routelatlong[i][0] - start_latlng[0];
+            var longdiff = routelatlong[i][1] - start_latlng[1];
+
+            var diff = Math.abs(latdiff) + Math.abs(longdiff);
+
+            result.push({value: diff, index:i});
+        }
+
+        var index = result.sort((a, b) => a.value-b.value)[0].index;
+        return routeElevation[index].x;
+    }
+
     app.controller('activityControler', function($scope, $http) {
         $scope.activity = <%- JSON.stringify(activity) %>;
         $scope.participants = <%- JSON.stringify(participants) %>;
@@ -144,34 +162,48 @@
 
         $scope.elevationData = [];
 
-        if($scope.activity.routeElevation)
+        if($scope.activity.routeElevation && $scope.activity.routelatlong)
         {
             $scope.elevationData = [
                 $scope.activity.routeElevation];
-        }
 
-        $scope.stageElevationData = [];
+            $scope.activity.stages.sort((a, b)=> a.number - b.number).forEach(stage =>{
 
-
-
-        var offset = 0;
-        $scope.activity.stages.sort((a, b)=> a.number - b.number).forEach(stage =>{
-
-            if(stage.elevation)
-            {
-                var maxDistance = 0;
-                var stageElevation = [];
-                stage.elevation.forEach(point =>
+                if(stage.elevation)
                 {
-                    point.x = point.x + offset;
-                    maxDistance = Math.max(point.x, maxDistance);
-                    stageElevation.push(point);
-                });
+                    var offset = FindOffset(stage.start_latlng, $scope.activity.routelatlong ,$scope.activity.routeElevation);
+                    var stageElevation = [];
+                    stage.elevation.forEach(point =>
+                    {
+                        point.x = point.x + offset;
+                        stageElevation.push(point);
+                    });
 
-                $scope.stageElevationData.push(stageElevation);
-                offset = maxDistance;
-            }
-        });
+                    $scope.elevationData.push(stageElevation);
+                }
+            });
+        }
+        else
+        {
+            var offset = 0;
+            $scope.activity.stages.sort((a, b)=> a.number - b.number).forEach(stage =>{
+
+                if(stage.elevation)
+                {
+                    var maxDistance = 0;
+                    var stageElevation = [];
+                    stage.elevation.forEach(point =>
+                    {
+                        point.x = point.x + offset;
+                        maxDistance = Math.max(point.x, maxDistance);
+                        stageElevation.push(point);
+                    });
+
+                    $scope.elevationData.push(stageElevation);
+                    offset = maxDistance;
+                }
+            });
+        }
 
 
             $scope.elevationChartOptions =

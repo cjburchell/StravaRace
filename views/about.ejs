@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include partials/template/head.ejs %>
+    <% include partials/template/jsdefaults.ejs %>
+
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.7&appId=<%=fbAppId%>";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));</script>
+
+</head>
+<body>
+<%if(isLoggedIn){%>
+<% include partials/template/header.ejs %>
+<%}%>
+<div class="container-fluid">
+    <h2>About Me</h2>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            Driven and creative software developer in the ottawa area interested in developing interesting and useful user interfaces. I am currently looking for new opportunities. <p> For any issues with Ride manager please email them to <a href="mailto:xiaan42-ridemanager@yahoo.com">xiaan42-ridemanager@yahoo.com</a></p>
+        </div>
+
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <img src="https://scontent-lga3-1.xx.fbcdn.net/v/t1.0-1/p160x160/13502123_10153506866356432_8195846384272662395_n.jpg?oh=2fb0fce80b0827624031e82032a3785f&oe=583C6D04"/>
+        </div>
+    </div>
+
+    <p><iframe height='160' width='300' frameborder='0' allowtransparency='true' scrolling='no' src='https://www.strava.com/athletes/10018917/activity-summary/57bd8685c3dfa9c148aac5f0da9a743e6fc48922'></iframe>
+    </p>
+
+    <p>
+    <a href="https://ca.linkedin.com/pub/christiaan-burchell/27/607/7b9">
+
+        <img src="https://static.licdn.com/scds/common/u/img/webpromo/btn_myprofile_160x33.png" width="160" height="33" border="0" alt="View Christiaan Burchell's profile on LinkedIn">
+
+    </a></p>
+
+    <p>
+
+
+        <a href="https://twitter.com/xiaan42" class="twitter-follow-button" data-size="large" data-show-count="false">Follow @xiaan42</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+
+        <style>.ig-b- { display: inline-block; }
+        .ig-b- img { visibility: hidden; }
+        .ig-b-:hover { background-position: 0 -60px; } .ig-b-:active { background-position: 0 -120px; }
+        .ig-b-v-24 { width: 137px; height: 24px; background: url(//badges.instagram.com/static/images/ig-badge-view-sprite-24.png) no-repeat 0 0; }
+        @media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2 / 1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+            .ig-b-v-24 { background-image: url(//badges.instagram.com/static/images/ig-badge-view-sprite-24@2x.png); background-size: 160px 178px; } }</style></p>
+
+    <p>
+    <a href="https://www.instagram.com/xiaan42/?ref=badge" class="ig-b- ig-b-v-24"><img src="//badges.instagram.com/static/images/ig-badge-view-24.png" alt="Instagram" /></a></p>
+
+</div>
+<% include partials/template/footer.ejs %>
+</body>
+</html>

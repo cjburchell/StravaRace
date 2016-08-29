@@ -167,8 +167,14 @@ router.get('/home', function (req, res) {
     }
 });
 
-router.get('/test', function (req, res) {
-    res.render('test', {});
+router.get('/faq', function (req, res) {
+    var data = new PageData("FAQs | ", req.session);
+    res.render('faq', data);
+});
+
+router.get('/about', function (req, res) {
+    var data = new PageData("About | ", req.session);
+    res.render('about', data);
 });
 
 router.post('/fblogin', (req, res) =>{

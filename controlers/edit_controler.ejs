@@ -115,16 +115,21 @@
 
         function GetStages(page)
         {
-            $http.get("/strava/starredsegments/" + page)
+            const pageSize = 50;
+
+            $http.get("/strava/starredsegments?per_page=" + pageSize + "&page=" + page)
                     .then(function(response) {
-                        $scope.stages = $scope.stages.concat(response.data);
+
+                        var segments = response.data.filter(function(item){return !item.private;});
+
+                        $scope.stages = $scope.stages.concat(segments);
 
                         $scope.activity.stages.forEach(function (stage)
                         {
                             arrayUtils.remove($scope.stages, stage);
                         });
 
-                        if(response.data.length === 30)
+                        if(response.data.length === pageSize)
                         {
                             page++;
                             GetStages(page);

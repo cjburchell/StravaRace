@@ -5,7 +5,7 @@ var express = require('express');
 var strava = require('strava-v3');
 var router = express.Router();
 
-router.get('/starredsegments/:id', function(req, res) {
+router.get('/starredsegments', function(req, res) {
     if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
         res.end(JSON.stringify(false));
@@ -15,7 +15,8 @@ router.get('/starredsegments/:id', function(req, res) {
     console.log("STRAVA: List Starred Segments, page: " + req.params.id);
     strava.segments.listStarred({
         access_token: req.session.accessToken,
-        page: req.params.id
+        per_page: req.query.per_page,
+        page: req.query.page
     }, function (err, payload)
     {
         try
@@ -26,9 +27,7 @@ router.get('/starredsegments/:id', function(req, res) {
                 return;
             }
 
-            var segments = payload.filter(item => !item.private);
-
-            res.end(JSON.stringify(segments));
+            res.end(JSON.stringify(payload));
         }
         catch (error)
         {
@@ -83,6 +82,12 @@ router.get('/routes/', function(req, res) {
     {
         try
         {
+            if (err)
+            {
+                res.end(JSON.stringify(false));
+                return;
+            }
+
             res.end(JSON.stringify(payload));
         }
         catch (error)

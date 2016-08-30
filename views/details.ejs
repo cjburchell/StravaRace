@@ -83,7 +83,7 @@
                     <%}%>
                     <%}else{%>
                     <div style="margin-top: 10px; margin-left: 10px">
-                        <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>"><img src="/images/LogInWithStrava.png"></img></a>
+                        <a href="https://www.strava.com/oauth/authorize?client_id=<%= stravaClientId %>&response_type=code&redirect_uri=<%= stravaRedirect %>&state=<%= activity._id %>"><img src="/images/LogInWithStrava.png"></img></a>
                     </div>
 
                     <p><div class="fb-login-button"  scope="public_profile,email" onlogin="checkLoginState();" data-max-rows="1" data-size="large" data-show-faces="false">Log In with Facebook</div></p>
@@ -147,6 +147,10 @@
                         <th ng-if="!catagoryFilter">Category</th>
                     <% } %>
                     <th ng-if="!sexFilter && showSexFilter">Sex</th>
+
+                    <% if(user && user.role ==='dev'){%>
+                    <th></th>
+                    <%}%>
                 </tr>
                 </thead>
                 <tbody>
@@ -156,6 +160,10 @@
                     <td ng-if="!catagoryFilter">{{participant.catagoryName}}</td>
                     <% } %>
                     <td ng-if="!sexFilter && showSexFilter" style="vertical-align:center">{{participant.sex}}</td>
+
+                    <% if(user && user.role ==='dev'){%>
+                        <td><a ng-click="removeParticipant(participant)"> <span class="glyphicon glyphicon-remove-circle"></span></a></td>
+                    <%}%>
                 </tr>
                 </tbody>
         <%} else {%>
@@ -173,6 +181,10 @@
                         <%if(activity.activityType === 'race' || activity.activityType === 'triathlon'){%>
                             <th>Total Time</th>
                         <%}%>
+
+                        <% if(user && user.role ==='dev'){%>
+                        <th></th>
+                        <%}%>
                     </tr>
                 </thead>
                 <tbody>
@@ -189,6 +201,10 @@
                         <%if(activity.activityType === 'race' || activity.activityType === 'triathlon'){%>
                             <td ng-if="participant.time && activity.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
                             <td ng-if="!participant.time && activity.stages.lenght !== 1" style="vertical-align:center">DNF</td>
+                        <%}%>
+
+                        <% if(user && user.role ==='dev'){%>
+                        <td><a ng-click="removeParticipant(participant)"> <span class="glyphicon glyphicon-remove-circle"></span></a></td>
                         <%}%>
                     </tr>
                 </tbody>

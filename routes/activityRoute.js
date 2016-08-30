@@ -93,7 +93,14 @@ router.get('/manage', function(req, res)
         return;
     }
 
-    database.getActivities(req.session.athlete.id, function (err, result)
+    var userId = req.session.athlete.id;
+    if(req.session.user.role === 'dev')
+    {
+        userId = undefined;
+    }
+
+
+    database.getActivities(userId, function (err, result)
     {
         if (err)
         {
@@ -225,6 +232,7 @@ router.get('/details/:id', function(req, res) {
         }
 
         var data = new PageData(results.activity.name + " | Activity | ", req.session);
+        data.isActivity = true;
         data.activity = results.activity;
         data.comments = results.comments;
         data.participants = results.participants;

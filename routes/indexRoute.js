@@ -339,7 +339,16 @@ router.get('/login', function (req, res) {
                     req.session.user = user;
                     req.session.athlete = payload.athlete;
                     req.session.accessToken = payload.access_token;
-                    res.render('nav_to', {navLocation: "/home"});
+
+                    if(!req.query.state)
+                    {
+                        res.render('nav_to', {navLocation: "/home"});
+                    }
+                    else
+                    {
+                        res.render('nav_to', {navLocation: "/activity/details/" + req.query.state});
+                    }
+
                 }
 
                 var name = payload.athlete.firstname + " " + payload.athlete.lastname;

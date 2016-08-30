@@ -466,6 +466,18 @@
         }
  %>
 
+        $scope.removeParticipant = function(participant)
+        {
+            $http.delete("/data/participant/" + participant._id)
+                    .then(function(response) {
+                        if(response.data)
+                        {
+                            location.replace("/activity/details/<%= activity._id%>");
+                        }
+                    });
+        };
+
+
         <%if(participants.findIndex(function(item){return item.athleteId == userId;}) !== -1 ){%>
         $scope.leave = function () {
             $http.delete("/data/participant/<%= participants.find(function(item){return item.athleteId == userId;})._id %>")

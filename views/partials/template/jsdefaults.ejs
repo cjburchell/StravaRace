@@ -55,7 +55,11 @@
                 .then(function(response) {
                     if(response)
                     {
+                        <%if(!isActivity){%>
                         location.replace("/");
+                        <%}else{%>
+                        location.replace("/activity/details/<%= activity._id %>");
+                        <%}%>
                     }
                 });
     }

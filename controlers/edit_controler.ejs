@@ -129,6 +129,8 @@
                             arrayUtils.remove($scope.stages, stage);
                         });
 
+                        $scope.loadingStages = false;
+
                         if(response.data.length === pageSize)
                         {
                             page++;
@@ -142,8 +144,16 @@
             $http.get("/strava/routes")
                     .then(function(response) {
                         $scope.routes = response.data;
+                        $scope.loadingRouts = false;
                     });
         }
+
+        $scope.getRoutes = function()
+        {
+            $scope.routes = [];
+            $scope.loadingRouts = true;
+            GetRoutes();
+        };
 
         $scope.showRoutes = function ()
         {
@@ -152,14 +162,8 @@
             $scope.autoAddStages = false;
             if($scope.routes.length === 0)
             {
-                GetRoutes();
+                $scope.getRoutes();
             }
-        };
-
-        $scope.getRoutes = function()
-        {
-            $scope.routes = [];
-            GetRoutes();
         };
 
         $scope.selectRoute = function (route) {
@@ -169,6 +173,7 @@
         $scope.getStages = function()
         {
             $scope.stages = [];
+            $scope.loadingStages = true;
             GetStages(1);
         };
 
@@ -206,6 +211,14 @@
                     .then(function(response) {
                         newStage.map = response.data.map;
                     });
+        }
+
+        $scope.clearRoute = function ()
+        {
+            $scope.activity.routeId = undefined;
+            $scope.activity.routeName = undefined;
+            $scope.activity.routeDistance = undefined;
+            $scope.activity.routeMap = undefined;
         }
 
         $scope.setRoute = function ()

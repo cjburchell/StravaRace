@@ -12,6 +12,7 @@ class PageData
         this.stravaRedirect = process.env.STRAVA_REDIRECT_URI;
         this.mapboxToken = process.env.MAPBOX_TOKEN;
         this.titleText = titleText;
+        this.isActivity = false;
 
         if (session)
         {

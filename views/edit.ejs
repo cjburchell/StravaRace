@@ -132,13 +132,14 @@
         <div class="col-lg-8 col-md-6 col-sm-5 col-xs-12">
             <div class="well">
                 <label ng-if="activity.routeId">Route:</label>
-                <p ng-if="activity.routeId"><a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a></p>
+                <p ng-if="activity.routeId"><a ng-href="https://www.strava.com/routes/{{activity.routeId}}" target="_blank">{{activity.routeName}}</a> {{activity.routeDistance/1000 | number : 2}}km</p>
                 <div ng-if="activity.activityType !== 'race' && activity.activityType !== 'triathlon'">
                     <div ng-if="activity.stages.length === 0 && !activity.routeId ">
                         <p style="color: red">You must have at least one stage or a route set, please add a stage or set the route for this activity</p>
                     </div>
                 </div>
                 <button class="btn btn-default" data-toggle="modal" data-target="#addRouteDialog" ng-click="showRoutes()">Set Route</button>
+                <button ng-if="activity.routeId" class="btn btn-default" ng-click="clearRoute()">Clear Route</button>
             </div>
             <div class="well">
                 <div ng-if="activity.stages.length != 0">
@@ -231,9 +232,14 @@
                     <span class="glyphicon glyphicon-search"></span>
                     <input type="text" class="form-control" ng-model="stageSeachText">
                 </div>
-                <div ng-if="stages.length === 0">
+                <div ng-if="stages.length === 0 && loadingStages">
                     <h5 style="height: 400px; text-align: center; vertical-align: middle"><i class="fa fa-refresh fa-spin" style="font-size:24px"></i> Loading...</h5>
                 </div>
+
+                <div ng-if="stages.length === 0 && !loadingStages">
+                    <h5 style="height: 400px; text-align: center; vertical-align: middle">You do not have any stared segments go to <a href="https://www.strava.com/segments/search">Strava</a> and star some segments.</h5>
+                </div>
+
                 <div style="height: 400px; overflow: scroll" ng-if="stages.length !== 0">
                     <table class="table table-striped table-hover">
                     <thead>
@@ -276,9 +282,14 @@
                     <span class="glyphicon glyphicon-search"></span>
                     <input type="text" class="form-control" ng-model="routeSeachText">
                 </div>
-                <div ng-if="routes.length === 0">
+                <div ng-if="routes.length === 0 && loadingRouts">
                     <h5 style="height: 400px; text-align: center; vertical-align: middle"><i class="fa fa-refresh fa-spin" style="font-size:24px"></i> Loading...</h5>
                 </div>
+
+                <div ng-if="routes.length === 0 && !loadingRouts">
+                    <h5 style="height: 400px; text-align: center; vertical-align: middle">You do not have any routes go to <a href="https://www.strava.com/routes/new">Strava</a> and create a route.</h5>
+                </div>
+
                 <div style="height: 400px; overflow: scroll" ng-if="routes.length !== 0">
                     <table class="table table-striped table-hover">
                         <thead>

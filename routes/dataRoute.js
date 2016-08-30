@@ -82,7 +82,7 @@ router.delete('/participant/:id', function(req, res)
             return;
         }
 
-        if (participant.athleteId == userId)
+        if (participant.athleteId == userId || req.session.user.role === 'dev')
         {
             database.deleteDocument(req.params.id, participant._rev, function (err)
             {

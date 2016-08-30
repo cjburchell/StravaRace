@@ -365,7 +365,7 @@ class Database
             }
             else
             {
-                done(result, users[0]);
+                done(err, users[0]);
             }
         });
     };

@@ -197,7 +197,7 @@
                         <td>{{participant.catagoryName}}</td>
                         <% } %>
                         <td ng-if="!sexFilter && showSexFilter" style="vertical-align:center">{{participant.sex}}</td>
-                        <td style="vertical-align:center" ng-repeat="result in participant.results | orderBy : 'stageNumber'"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a></td>
+                        <td style="vertical-align:center" ng-repeat="result in participant.results | orderBy : 'stageNumber'"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a><i ng-if="result.rank!==undefined "> ({{result.rank}})</i></td>
                         <%if(activity.activityType === 'race' || activity.activityType === 'triathlon'){%>
                             <td ng-if="participant.time && activity.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
                             <td ng-if="!participant.time && activity.stages.lenght !== 1" style="vertical-align:center">DNF</td>

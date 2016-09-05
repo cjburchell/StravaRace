@@ -34,14 +34,12 @@ function UpdateParticipant(participant, activity, accessToken, done)
 
     participant.results.forEach(function (result)
     {
-        var stage = activity.stages.find(function (item)
-        {
-            return item.segmentId === result.segmentId;
-        });
+        var stage = activity.stages.find(item => item.segmentId === result.segmentId);
 
         if(!stage)
         {
             array_utils.remove(participant.results, result);
+            participant.changed = true;
         }
     });
 
@@ -182,16 +180,10 @@ function UpdateStandings(participants, activity)
     {
         sexList.forEach(function (sex)
         {
-            var stageParticipants = participants.filter(function (item)
-            {
-                return item.categoryId === category.id && item.sex == sex;
-            });
+            var stageParticipants = participants.filter(item => item.categoryId === category.id && item.sex == sex);
 
             var rank = 0;
-            stageParticipants.filter(function (item)
-            {
-                return item.time !== undefined;
-            }).sort(function(a, b){return a.time - b.time;}).forEach(function (participant)
+            stageParticipants.filter(item => item.time !== undefined).sort((a, b) => a.time - b.time).forEach(participant =>
             {
                 rank++;
                 if(participant.rank === undefined || participant.rank !== rank)
@@ -208,16 +200,37 @@ function UpdateStandings(participants, activity)
             });
 
             rank=undefined;
-            stageParticipants.filter(function (item)
-            {
-                return item.time == undefined;
-            }).forEach(function (participant)
+            stageParticipants.filter(item => item.time == undefined).forEach(participant =>
             {
                 if(participant.rank !== rank)
                 {
                     participant.rank = rank;
                     participant.changed = true;
                 }
+            });
+
+            activity.stages.forEach(stage =>{
+
+                var stageRank = 0;
+                stageParticipants.map(item => [item.results.find(result => result.segmentId == stage.segmentId), item]).filter(item => item[0].time !== undefined).sort((a, b) => a[0].time - b[0].time).forEach(result =>
+                {
+                    stageRank++;
+                    if(result[0].rank === undefined || result[0].rank !== stageRank)
+                    {
+                        result[0].rank = stageRank;
+                        result[1].changed = true;
+                    }
+                });
+
+                stageRank=undefined;
+                stageParticipants.map(item => [item.results.find(result => result.segmentId == stage.segmentId), item]).filter(item => item[0].time == undefined).forEach(result =>
+                {
+                    if(result[0].rank !== rank)
+                    {
+                        result[0].rank = rank;
+                        result[1].changed = true;
+                    }
+                });
             });
         });
     });

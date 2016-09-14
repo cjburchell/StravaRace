@@ -31,6 +31,8 @@ const RankActivities = "_design/participant/_view/rank";
 const userView = "_design/user/_view/by_athlete";
 const fbUserView = "_design/user/_view/by_fb_id";
 
+const userByNameView = "_design/user/_view/by_name";
+
 
 function connect()
 {
@@ -339,6 +341,11 @@ class Database
                 }
             });
     };
+
+    getUsers(done)
+    {
+        this.getView(undefined, userByNameView, done);
+    }
 
     getUser(athleteId, done)
     {

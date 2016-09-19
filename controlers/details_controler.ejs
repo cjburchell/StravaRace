@@ -148,7 +148,7 @@
             result.push({value: diff, index:i});
         }
 
-        var index = result.sort((a, b) => a.value-b.value)[0].index;
+        var index = result.sort(function(a,b){return a.value-b.value;} )[0].index;
         return routeElevation[index].x;
     }
 
@@ -167,13 +167,12 @@
             $scope.elevationData = [
                 $scope.activity.routeElevation];
 
-            $scope.activity.stages.sort((a, b)=> a.number - b.number).forEach(stage =>{
-
+            $scope.activity.stages.sort(function(a,b){return a.number-b.number;}).forEach(function(stage) {
                 if(stage.elevation)
                 {
                     var offset = FindOffset(stage.start_latlng, $scope.activity.routelatlong ,$scope.activity.routeElevation);
                     var stageElevation = [];
-                    stage.elevation.forEach(point =>
+                    stage.elevation.forEach(function(point)
                     {
                         point.x = point.x + offset;
                         stageElevation.push(point);
@@ -186,13 +185,13 @@
         else
         {
             var offset = 0;
-            $scope.activity.stages.sort((a, b)=> a.number - b.number).forEach(stage =>{
+            $scope.activity.stages.sort(function(a,b){return a.number-b.number;}).forEach(function(stage) {
 
                 if(stage.elevation)
                 {
                     var maxDistance = 0;
                     var stageElevation = [];
-                    stage.elevation.forEach(point =>
+                    stage.elevation.forEach(function(point)
                     {
                         point.x = point.x + offset;
                         maxDistance = Math.max(point.x, maxDistance);

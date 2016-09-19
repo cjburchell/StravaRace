@@ -183,9 +183,15 @@ function UpdateStandings(participants, activity)
             var stageParticipants = participants.filter(item => item.categoryId === category.id && item.sex == sex);
 
             var rank = 0;
+            var topParticipant = null;
             stageParticipants.filter(item => item.time !== undefined).sort((a, b) => a.time - b.time).forEach(participant =>
             {
                 rank++;
+                if(topParticipant === null)
+                {
+                    topParticipant = participant;
+                }
+
                 if(participant.rank === undefined || participant.rank !== rank)
                 {
                     participant.rank = rank;
@@ -205,6 +211,16 @@ function UpdateStandings(participants, activity)
                 if(participant.rank !== rank)
                 {
                     participant.rank = rank;
+                    participant.changed = true;
+                }
+            });
+
+            stageParticipants.filter(item => item.time !== undefined).forEach(participant =>
+            {
+                var offsetTime = participant.time - topParticipant.time;
+                if(participant.offsetTime === undefined || participant.offsetTime !== offsetTime)
+                {
+                    participant.offsetTime = offsetTime;
                     participant.changed = true;
                 }
             });

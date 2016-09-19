@@ -148,7 +148,7 @@ class Database
 
     getFinishedAthleteActivities(athleteId, done)
     {
-        this.getView(athleteId, FinishedActivitybyParticipantView, done, false, 5);
+        this.getView(athleteId, FinishedActivitybyParticipantView, done);
     };
 
     getActivityParticipants(activityId, done)

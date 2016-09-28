@@ -12,16 +12,7 @@
 }
 
 .poweredbystrava {
-  background-image: url(../images/stravalogo.png);
-  background-position: 0 0;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  width: 95px;
-  height: 20px !important;
-  margin: 15px 0 0 0px;
-  text-indent: -10000px;
-  padding: 0 !important;
-  display: inline-block !important;
+  height: 35px !important;
 }
 
 .navbar {
@@ -45,9 +36,10 @@
 
 .poweredbywrapper {
   vertical-align: bottom;
-  margin-bottom: 2px;
+  margin-bottom: 0px;
   margin-left: 5px;
   color: #999999;
+  padding: 0;
 }
 
 td {

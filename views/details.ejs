@@ -60,7 +60,7 @@
                     <%}%>
                     <%if(activity.state !== 'upcoming' && isStravaLoggedIn && activity.ownerId != athlete.id){%>
                     <%if(participants.findIndex(function(item){return item.athleteId == athlete.id;}) !== -1 ){%>
-                    <a href="#" class="list-group-item" ng-click="updateMyResults()">Update My Results</a>
+                    <a href="#" class="list-group-item" ng-click="updateMyResults()" data-toggle="modal" data-target="#updateDialog">Update My Results</a>
                     <%}%>
                     <%}%>
                     <%if(activity.ownerId == athlete.id){%>
@@ -77,7 +77,7 @@
                     <%if(activity.state === 'upcoming'){%>
                     <a href="#" class="list-group-item" ng-click="edit()">Edit</a>
                     <%}else{%>
-                    <a href="#" class="list-group-item" ng-click="updateActivityResults()">Update Results</a>
+                    <a href="#" class="list-group-item" ng-click="updateActivityResults()" data-toggle="modal" data-target="#updateDialog">Update Results</a>
                     <%}%>
                     <a href="#" class="list-group-item" ng-click="deleteActivity()">Delete</a>
                     <%}%>
@@ -199,7 +199,8 @@
                         <td ng-if="!sexFilter && showSexFilter" style="vertical-align:center">{{participant.sex}}</td>
                         <td style="vertical-align:center" ng-repeat="result in participant.results | orderBy : 'stageNumber'"><a ng-href="https://www.strava.com/activities/{{result.activityId}}" target="_blank">{{ result.time | secondsToTime }}</a><i ng-if="result.rank!==undefined "> ({{result.rank}})</i></td>
                         <%if(activity.activityType === 'race' || activity.activityType === 'triathlon'){%>
-                            <td ng-if="participant.time && activity.stages.lenght !== 1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
+                            <td ng-if="participant.time && activity.stages.lenght !== 1 && participant.rank!=1" style="vertical-align:center">+{{participant.offsetTime | secondsToTime}} ({{participant.time | secondsToTime}})</td>
+                            <td ng-if="participant.time && activity.stages.lenght !== 1 && participant.rank===1" style="vertical-align:center">{{participant.time | secondsToTime}}</td>
                             <td ng-if="!participant.time && activity.stages.lenght !== 1" style="vertical-align:center">DNF</td>
                         <%}%>
 
@@ -368,6 +369,19 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="join()">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="updateDialog" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body" >
+                <h5 style="text-align: center; vertical-align: middle"><i class="fa fa-cog fa-spin" style="font-size:24px"></i>
+                    Updating Results...
+                </h5>
             </div>
         </div>
     </div>

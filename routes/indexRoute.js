@@ -28,7 +28,7 @@ function renderPage(session, res) {
                     callback(err);
                 }
 
-                data.activitiesInProgress = activitiesInProgress;
+                data.activitiesInProgress = activitiesInProgress.sort((a, b) => new Date(b.doc.startTime) - new Date(a.doc.startTime));
                 callback();
             }
             );
@@ -42,7 +42,7 @@ function renderPage(session, res) {
                         callback(err);
                     }
 
-                    data.activitiesFinished = activitiesFinished;
+                    data.activitiesFinished = activitiesFinished.sort((a, b) => new Date(b.doc.startTime) - new Date(a.doc.startTime)).slice(0,5);
                     callback();
                 }
             );
@@ -61,7 +61,7 @@ function renderPage(session, res) {
                         activity_utils.UpdateActivityState(item.doc);
                     });
 
-                    data.activitiesUpcoming = activitiesUpcoming;
+                    data.activitiesUpcoming = activitiesUpcoming.sort((a, b) => new Date(b.doc.startTime) - new Date(a.doc.startTime));
                     callback();
                 }
             );

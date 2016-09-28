@@ -15,6 +15,9 @@
                 <li><a href="/activity/manage">Manage</a></li>
                 <%}%>
                 <li><a href="/user/history">History</a></li>
+                <% if(user && user.role ==='dev'){%>
+                <li><a href="/user/list">Users</a></li>
+                <%}%>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">

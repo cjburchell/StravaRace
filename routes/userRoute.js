@@ -38,4 +38,27 @@ router.get('/history', function(req, res) {
     }
 });
 
+router.get('/list', function(req, res) {
+    if(req.session.isLoggedIn && req.session.user.role === 'dev')
+    {
+        database.getUsers(function (err, users)
+        {
+            if(!err)
+            {
+                var data = new PageData("Users | ", req.session);
+                data.users = users;
+                res.render('users', data);
+            }
+            else
+            {
+                res.render('nav_to', {navLocation:"/"});
+            }
+        })
+    }
+    else
+    {
+        res.render('nav_to', {navLocation:"/"});
+    }
+});
+
 module.exports = router;

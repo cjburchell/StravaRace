@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <% include partials/template/head.ejs %>
+    <% include partials/template/jsdefaults.ejs %>
+
+    <script type="text/javascript">
+
+        var app = angular.module('app', ['ngAnimate', 'ui.bootstrap']);
+
+        app.controller('userTableControler', function($scope) {
+            $scope.users = <%- JSON.stringify(users) %>;
+        });
+
+    </script>
+</head>
+<body>
+<% include partials/template/header.ejs %>
+<div class="container-fluid">
+    <h2 style="margin-top: 0px">Users</h2>
+    <div ng-app="app" ng-controller="userTableControler" ng-cloak>
+        <div class="inner-addon right-addon" style="width: 50%;margin-bottom: 20px">
+            <span class="glyphicon glyphicon-search"></span>
+            <input type="text" class="form-control" ng-model="seachText">
+        </div>
+
+        <table class="table table-striped"  >
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>E-Mail</th>
+                <th>AthleteId</th>
+                <th>Max Active Activities</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="user in users | orderBy: 'name' | filter: {name:seachText}">
+                <td>{{user.name}}</td>
+                <td>{{user.role}}</td>
+                <td><a ng-href="mailto:{{user.email}}" target="_top">{{user.email}}</a></td>
+                <td><a ng-href="https://www.strava.com/athletes/{{user.athleteId}}" target="_blank">{{user.athleteId}}</a></td>
+                <td>{{user.maxActiveActivities}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<% include partials/template/footer.ejs %>
+</body>
+</html>

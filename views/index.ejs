@@ -119,18 +119,7 @@
             <div class="panel panel-default">
               <div class="panel-heading" style="text-align: center" ><b>Achievements</b></div>
               <div class="panel-body">
-                <%if(firstCount !== 0){%>
-                <p><i class="fa fa-trophy" style="color: gold"></i> <%=firstCount%></p>
-                <%}%>
-                <%if(secondCount !== 0){%>
-                <p><i class="fa fa-trophy" style="color: silver"></i> <%=secondCount%></p>
-                <%}%>
-                <%if(thridCount !== 0){%>
-                <p><i class="fa fa-trophy" style="color: #8C7853"></i> <%=thridCount%></p>
-                <%}%>
-                <%if(finishedCount !== 0){%>
-                <p><i class="fa fa-flag-checkered" aria-hidden="true"></i> <%=finishedCount%></p>
-                <%}%>
+                <%if(firstCount !== 0){%><i class="fa fa-trophy" style="color: gold"></i> <%=firstCount%> <%}%><%if(secondCount !== 0){%><i class="fa fa-trophy" style="color: silver"></i> <%=secondCount%> <%}%><%if(thridCount !== 0){%><i class="fa fa-trophy" style="color: #8C7853"></i> <%=thridCount%> <%}%><%if(finishedCount !== 0){%><i class="fa fa-flag-checkered" aria-hidden="true"></i> <%=finishedCount%><%}%>
               </div>
             </div>
             <%}%>

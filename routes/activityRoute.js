@@ -20,7 +20,7 @@ function createGuid()
 router.get('/create', function(req, res) {
     if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
-        res.render('nav_to', {navLocation: "/"});
+        res.redirect("/");
         return;
     }
 
@@ -28,13 +28,13 @@ router.get('/create', function(req, res) {
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
         if(upcomingCount >= req.session.user.maxActiveActivities )
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
@@ -56,7 +56,7 @@ router.get('/edit/:id', function(req, res)
 {
     if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
-        res.render('nav_to', {navLocation: "/"});
+        res.redirect("/");
         return;
     }
 
@@ -64,14 +64,14 @@ router.get('/edit/:id', function(req, res)
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
         var editActivity = result;
         if (editActivity.ownerId !== req.session.athlete.id)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
@@ -89,7 +89,7 @@ router.get('/manage', function(req, res)
 {
     if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
-        res.render('nav_to', {navLocation: "/"});
+        res.redirect("/");
         return;
     }
 
@@ -104,7 +104,7 @@ router.get('/manage', function(req, res)
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
@@ -120,7 +120,7 @@ router.get('/join', function(req, res)
 {
     if (!req.session.isLoggedIn)
     {
-        res.render('nav_to', {navLocation: "/"});
+        res.redirect("/");
         return;
     }
 
@@ -135,7 +135,7 @@ router.get('/join', function(req, res)
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
@@ -143,7 +143,7 @@ router.get('/join', function(req, res)
         {
             if (err)
             {
-                res.render('nav_to', {navLocation: "/"});
+                res.redirect("/");
                 return;
             }
 
@@ -164,7 +164,7 @@ router.get('/join', function(req, res)
             {
                 if (err)
                 {
-                    res.render('nav_to', {navLocation: "/"});
+                    res.redirect("/");
                     return;
                 }
 
@@ -227,7 +227,7 @@ router.get('/details/:id', function(req, res) {
 
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 

@@ -150,7 +150,7 @@ function renderPage(session, res) {
 /* GET home page. */
 router.get('/', function (req, res) {
     if (req.session.isLoggedIn) {
-        res.render('nav_to', {navLocation: "/home"});
+        res.redirect("/home");
     }
     else {
         var data = new PageData("");
@@ -163,7 +163,7 @@ router.get('/home', function (req, res) {
         renderPage(req.session, res);
     }
     else {
-        res.render('nav_to', {navLocation: "/"});
+        res.redirect("/");
     }
 });
 
@@ -206,7 +206,7 @@ router.post('/fblogin', (req, res) =>{
          {
              if (err)
              {
-                 res.render('nav_to', {navLocation: "/"});
+                 res.redirect("/");
                  return;
              }
 
@@ -214,7 +214,7 @@ router.post('/fblogin', (req, res) =>{
              {
                  if (err)
                  {
-                     res.render('nav_to', {navLocation: "/"});
+                     res.redirect("/");
                      return;
                  }
 
@@ -296,7 +296,7 @@ router.get('/login', function (req, res) {
             if (err)
             {
                 console.log("ERROR: " + err);
-                res.render('nav_to', {navLocation: "/"});
+                res.redirect("/");
                 return;
             }
 
@@ -304,7 +304,7 @@ router.get('/login', function (req, res) {
             {
                 if (result)
                 {
-                    res.render('nav_to', {navLocation: "/"});
+                    res.redirect("/");
                     return;
                 }
 
@@ -312,7 +312,7 @@ router.get('/login', function (req, res) {
                 {
                     if (err)
                     {
-                        res.render('nav_to', {navLocation: "/"});
+                        res.redirect("/");
                         return;
                     }
 
@@ -342,11 +342,11 @@ router.get('/login', function (req, res) {
 
                     if(!req.query.state)
                     {
-                        res.render('nav_to', {navLocation: "/home"});
+                        res.redirect("/home");
                     }
                     else
                     {
-                        res.render('nav_to', {navLocation: "/activity/details/" + req.query.state});
+                        res.redirect("/activity/details/" + req.query.state);
                     }
 
                 }
@@ -392,7 +392,7 @@ router.get('/logout', function (req, res) {
         req.session.accessToken = undefined;
     }
 
-    res.render('nav_to', {navLocation: "/"});
+    res.redirect("/");
 });
 
 

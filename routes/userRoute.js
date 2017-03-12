@@ -28,13 +28,13 @@ router.get('/history', function(req, res) {
             }
             else
             {
-                res.render('nav_to', {navLocation:"/"});
+                res.redirect("/");
             }
         })
     }
     else
     {
-        res.render('nav_to', {navLocation:"/"});
+        res.redirect("/");
     }
 });
 
@@ -51,13 +51,13 @@ router.get('/list', function(req, res) {
             }
             else
             {
-                res.render('nav_to', {navLocation:"/"});
+                res.redirect("/");
             }
         })
     }
     else
     {
-        res.render('nav_to', {navLocation:"/"});
+        res.redirect("/");
     }
 });
 

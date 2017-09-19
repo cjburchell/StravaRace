@@ -4,7 +4,7 @@
 var express = require('express');
 var router = express.Router();
 var results = require('../results');
-var database = require('../database');
+var database = require('../database/database');
 
 router.post('/activity/:id', function(req, res)
 {

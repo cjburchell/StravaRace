@@ -1,11 +1,11 @@
 "use strict";
 
-var database = require('./database');
-var async = require('async');
-var strava = require('strava-v3');
-var activity_utils = require('./public/javascripts/activity');
-var result_utils = require('./public/javascripts/result');
-var array_utils = require('./public/javascripts/array_utils');
+const database = require('./database/database');
+const async = require('async');
+const strava = require('strava-v3');
+const activity_utils = require('./public/javascripts/activity');
+const result_utils = require('./public/javascripts/result');
+const array_utils = require('./public/javascripts/array_utils');
 
 function UpdateParticipant(participant, activity, accessToken, done)
 {
@@ -34,7 +34,7 @@ function UpdateParticipant(participant, activity, accessToken, done)
 
     participant.results.forEach(function (result)
     {
-        var stage = activity.stages.find(item => item.segmentId === result.segmentId);
+        const stage = activity.stages.find(item => item.segmentId === result.segmentId);
 
         if(!stage)
         {
@@ -44,9 +44,9 @@ function UpdateParticipant(participant, activity, accessToken, done)
     });
 
     async.each(activity.stages, (stage, callback)=>{
-        var result = participant.results.find(item => item.segmentId === stage.segmentId);
-        var oldresultTime = undefined;
-        var oldresultActiviy = undefined;
+        let result = participant.results.find(item => item.segmentId === stage.segmentId);
+        let oldresultTime = undefined;
+        let oldresultActiviy = undefined;
         if(!result)
         {
             result = new result_utils.Result(stage.segmentId);
@@ -69,13 +69,13 @@ function UpdateParticipant(participant, activity, accessToken, done)
         }
 
 
-        var startUTC = new Date(activity.startTime).getTime();
-        var endUTC = new Date(activity.endTime).getTime();
+        const startUTC = new Date(activity.startTime).getTime();
+        const endUTC = new Date(activity.endTime).getTime();
 
-        var startTime = new Date(activity.startTime);
+        const startTime = new Date(activity.startTime);
         startTime.setHours(startTime.getHours()-12);
 
-        var endTime = new Date(activity.endTime);
+        const endTime = new Date(activity.endTime);
         endTime.setHours(endTime.getHours()+12);
 
         strava.segments.listEfforts(

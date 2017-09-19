@@ -1,0 +1,43 @@
+{
+  "_id": "_design/activity",
+  "language": "javascript",
+  "views": {
+    "by_owner": {
+      "map": "function(doc) {\nif(doc.type === 'activity'){ \n  emit(doc.ownerId, {'_id': doc._id});\n}\n}"
+    },
+    "by_participant": {
+      "map": "function(doc) {\nif(doc.type === 'participant'){\n  emit(doc.athleteId, {_id: doc.activityId});\n}\n}"
+    },
+    "inprogress_by_participant": {
+      "map": "function(doc) {\nif(doc.type === 'participant' && doc.activityState === 'in_progress'){\n  emit(doc.athleteId, {_id: doc.activityId, participant: doc});\n}\n}"
+    },
+    "finished_by_participant": {
+      "map": "function(doc) {\nif(doc.type === 'participant' && doc.activityState === 'finished'){\n  emit(doc.athleteId, {_id: doc.activityId, participant: doc });\n}\n}"
+    },
+    "by_name": {
+      "map": "function(doc) {\nif(doc.type === 'activity'){ \n  emit(doc.name, {'_id': doc._id});\n}\n}"
+    },
+    "upcoming_by_owner": {
+      "reduce": "_count",
+      "map": "function(doc) {\nif(doc.type === 'activity' && doc.state === 'upcoming'){ \n  emit(doc.ownerId, {'_id': doc._id});\n}\n}"
+    },
+    "upcoming_by_participant": {
+      "map": "function(doc) {\nif(doc.type === 'participant' && doc.activityState === 'upcoming'){\n  emit(doc.athleteId, {_id: doc.activityId, participant: doc});\n}\n}"
+    },
+    "upcoming_activities": {
+      "map": "function(doc) {\n  if(doc.type === 'activity' && doc.state === \"upcoming\"){\n  emit(doc.startTime, {'_id': doc._id});}\n}"
+    },
+    "test": {
+      "map": "function (doc) {\n  if(doc.type ==='race')\n  emit(doc._id, 1);\n}"
+    },
+    "public_activities": {
+      "map": "function(doc) {\n  if(doc.type === 'activity' && doc.privaicy === \"public\"){\n  emit(doc.ownerId, {'_id': doc._id});}\n}"
+    },
+    "inprogress_activities": {
+      "map": "function(doc) {\n  if(doc.type === 'activity' && doc.state === \"in_progress\"){\n  emit(doc.startTime, {'_id': doc._id});}\n}"
+    },
+    "private_activities": {
+      "map": "function(doc) \n{\n  if(doc.type === 'activity' && doc.privaicy === \"friends\")\n  {\n\t    doc.friends.forEach(function(item)\n\t    {\n\t      emit(item,  {'_id': doc._id} );\n\t    });\n\t}\n}"
+    }
+  }
+}

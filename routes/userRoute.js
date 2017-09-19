@@ -3,7 +3,7 @@
  */
 var express = require('express');
 var router = express.Router();
-var database = require('../database');
+var database = require('../database/database');
 var activity = require('../public/javascripts/activity');
 var PageData = require('../routes/data/pagedata');
 

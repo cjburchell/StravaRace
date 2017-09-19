@@ -3,7 +3,7 @@
  */
 var express = require('express');
 var strava = require('strava-v3');
-var database = require('../database');
+var database = require('../database/database');
 var polyline = require('polyline');
 var Comment = require('../documents/comment');
 var async = require('async');

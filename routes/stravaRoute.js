@@ -5,12 +5,20 @@ var express = require('express');
 var strava = require('strava-v3');
 var router = express.Router();
 
-router.get('/starredsegments', function(req, res) {
-    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
-    {
-        res.end(JSON.stringify(false));
-        return;
+function authenticationMiddleware() {
+    return  (req, res, next) =>{
+        if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
+        {
+            res.end(JSON.stringify(false));
+            return;
+        }
+
+        next();
     }
+}
+
+
+router.get('/starredsegments', authenticationMiddleware(), (req, res ) => {
 
     console.log("STRAVA: List Starred Segments, page: " + req.params.id);
     strava.segments.listStarred({
@@ -37,13 +45,7 @@ router.get('/starredsegments', function(req, res) {
     })
 });
 
-router.get('/segmentmap/:id', function(req, res) {
-    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
-    {
-        res.end(JSON.stringify(false));
-        return;
-    }
-
+router.get('/segmentmap/:id',  authenticationMiddleware(), (req, res ) => {
     console.log("STRAVA: Get segment map, segmentId: " + req.params.id);
     strava.segments.get({access_token: req.session.accessToken, id: req.params.id}, function (err, payload)
     {
@@ -70,13 +72,7 @@ router.get('/segmentmap/:id', function(req, res) {
     })
 });
 
-router.get('/routes/', function(req, res) {
-    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
-    {
-        res.end(JSON.stringify(false));
-        return;
-    }
-
+router.get('/routes/', authenticationMiddleware(), (req, res ) => {
     console.log("STRAVA: Get Routes");
     strava.athlete.listRoutes({access_token: req.session.accessToken, id: req.session.athlete.id}, function (err, payload)
     {
@@ -98,13 +94,7 @@ router.get('/routes/', function(req, res) {
     })
 });
 
-router.get('/route/:id', function(req, res) {
-    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
-    {
-        res.end(JSON.stringify(false));
-        return;
-    }
-
+router.get('/route/:id', authenticationMiddleware(), (req, res ) => {
     console.log("STRAVA: Get route, RouteId: " + req.params.id);
     strava.routes.get({access_token: req.session.accessToken, id: req.params.id}, function (err, payload)
     {
@@ -126,13 +116,7 @@ router.get('/route/:id', function(req, res) {
     })
 });
 
-router.get('/friends/:id', function(req, res) {
-    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
-    {
-        res.end(JSON.stringify(false));
-        return;
-    }
-
+router.get('/friends/:id', authenticationMiddleware(), (req, res ) => {
     console.log("STRAVA: List of friends, page: " + req.params.id);
     strava.athlete.listFriends({
         access_token: req.session.accessToken,

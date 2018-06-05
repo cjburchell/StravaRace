@@ -1,0 +1,15 @@
+{
+  "_id": "_design/user",
+  "views": {
+    "by_athlete": {
+      "map": "function (doc) {\n  if(doc.type === \"user\" && doc.athleteId !== undefined)\n  {\n    emit(doc.athleteId, {'_id': doc._id});\n  }\n}"
+    },
+    "by_name": {
+      "map": "function (doc) {\n  if(doc.type === \"user\")\n  {\n    emit(doc.name, {'_id': doc._id});\n  }\n}"
+    },
+    "by_fb_id": {
+      "map": "function (doc) {\n  if(doc.type === \"user\" && doc.facebookId !== undefined)\n  {\n    emit(doc.facebookId, {'_id': doc._id});\n  }\n}"
+    }
+  },
+  "language": "javascript"
+}

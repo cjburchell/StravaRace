@@ -1,0 +1,9 @@
+{
+  "_id": "_design/comments",
+  "views": {
+    "by_activity": {
+      "map": "function(doc) {\nif(doc.type === 'comment'){\n  emit(doc.activityId, {'_id': doc._id} );\n}\n}"
+    }
+  },
+  "language": "javascript"
+}

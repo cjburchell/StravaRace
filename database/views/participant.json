@@ -1,0 +1,24 @@
+{
+  "_id": "_design/participant",
+  "language": "javascript",
+  "views": {
+    "by_activity": {
+      "map": "function(doc) {\nif(doc.type === 'participant'){\n  emit(doc.activityId, {'_id': doc._id} );\n}\n}",
+      "reduce": "_count"
+    },
+    "by_athlete_id": {
+      "map": "function(doc) {\nif(doc.type === 'participant'){\n  emit(doc.athleteId, {'_id': doc._id} );\n}\n}"
+    },
+    "by_name": {
+      "map": "function(doc) {\nif(doc.type === 'participant'){\n  emit(doc.name, {'_id': doc.activityId} );\n}\n}"
+    },
+    "rank": {
+      "map": "function(doc) {\nif(doc.type === 'participant' && doc.rank){\n  emit([doc.athleteId, doc.rank], {_id: doc.activityId, participant: doc } );\n}\n}",
+      "reduce": "_count"
+    },
+    "finished": {
+      "map": "function(doc) {\nif(doc.type === 'participant' && doc.rank){\n  emit(doc.athleteId, {_id: doc.activityId, participant: doc } );\n}\n}",
+      "reduce": "_count"
+    }
+  }
+}

@@ -42,6 +42,16 @@ app.use('/user', user);
 app.use('/data', data);
 app.use('/update', update);
 
+app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist')); // redirect bootstrap
+app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist')); // redirect jQuery
+app.use('/angular', express.static(__dirname + '/node_modules/angular')); // redirect angular
+app.use('/mapbox', express.static(__dirname + '/node_modules/mapbox/dist')); // redirect Map Box
+app.use('/chartjs', express.static(__dirname + '/node_modules/chart.js/dist')); // redirect chart.js
+app.use('/angular-chart', express.static(__dirname + '/node_modules/angular-chart.js/dist')); // redirect chart.js
+app.use('/angular-ui-bootstrap', express.static(__dirname + '/node_modules/angular-ui-bootstrap/dist')); // redirect angular-ui-bootstrap
+app.use('/angular-animate', express.static(__dirname + '/node_modules/angular-animate')); // redirect angular-animate
+app.use('/moment', express.static(__dirname + '/node_modules/moment')); // redirect angular-animate
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

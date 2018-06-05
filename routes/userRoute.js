@@ -3,7 +3,7 @@
  */
 var express = require('express');
 var router = express.Router();
-var database = require('../database');
+var database = require('../database/database');
 var activity = require('../public/javascripts/activity');
 var PageData = require('../routes/data/pagedata');
 
@@ -28,13 +28,13 @@ router.get('/history', function(req, res) {
             }
             else
             {
-                res.render('nav_to', {navLocation:"/"});
+                res.redirect("/");
             }
         })
     }
     else
     {
-        res.render('nav_to', {navLocation:"/"});
+        res.redirect("/");
     }
 });
 
@@ -51,13 +51,13 @@ router.get('/list', function(req, res) {
             }
             else
             {
-                res.render('nav_to', {navLocation:"/"});
+                res.redirect("/");
             }
         })
     }
     else
     {
-        res.render('nav_to', {navLocation:"/"});
+        res.redirect("/");
     }
 });
 

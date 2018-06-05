@@ -1,50 +1,57 @@
 /**
  * Created by Christiaan on 2016-08-08.
  */
-var express = require('express');
-var async = require('async');
-var database = require('../database');
-var activity = require('../public/javascripts/activity');
-var category = require('../public/javascripts/category');
-var router = express.Router();
-var PageData = require('../routes/data/pagedata');
+const express = require('express');
+const async = require('async');
+const database = require('../database/database');
+const activity = require('../public/javascripts/activity');
+const category = require('../public/javascripts/category');
+const router = express.Router();
+const PageData = require('../routes/data/pagedata');
+const guid = require('../public/javascripts/guid');
 
-function createGuid()
-{
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-    });
-}
 
-router.get('/create', function(req, res) {
+function checkLogin(req, res, next) {
     if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
     {
-        res.render('nav_to', {navLocation: "/"});
-        return;
+        res.redirect("/");
     }
+
+    next();
+}
+
+function checkStravaLogin(req, res, next) {
+    if (!req.session.isLoggedIn)
+    {
+        res.redirect("/");
+    }
+
+    next();
+}
+
+router.get('/create', checkLogin, function(req, res) {
 
     database.getCreatedUpcomingCount(req.session.athlete.id, function (err, upcomingCount)
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
         if(upcomingCount >= req.session.user.maxActiveActivities )
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
-        var newActivity = new activity.Activity();
+        const newActivity = new activity.Activity();
         activity.ownerId = req.session.athlete.id;
-        var newCat = new category.Category(createGuid());
+        const newCat = new category.Category(guid.Create());
         newCat.name = "Open";
         newActivity.categories.push(newCat);
 
-        var data = new PageData("Create | Activity | ", req.session);
+        const data = new PageData("Create | Activity | ", req.session);
         data.isCreating = true;
         data.activity = newActivity;
 
@@ -52,26 +59,20 @@ router.get('/create', function(req, res) {
     });
 });
 
-router.get('/edit/:id', function(req, res)
+router.get('/edit/:id', checkLogin, function(req, res)
 {
-    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
-    {
-        res.render('nav_to', {navLocation: "/"});
-        return;
-    }
-
     database.getDocument(req.params.id, function (err, result)
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
         var editActivity = result;
         if (editActivity.ownerId !== req.session.athlete.id)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
@@ -85,14 +86,8 @@ router.get('/edit/:id', function(req, res)
     });
 });
 
-router.get('/manage', function(req, res)
+router.get('/manage', checkLogin, function(req, res)
 {
-    if (!req.session.isLoggedIn || !req.session.isStravaLoggedIn)
-    {
-        res.render('nav_to', {navLocation: "/"});
-        return;
-    }
-
     var userId = req.session.athlete.id;
     if(req.session.user.role === 'dev')
     {
@@ -104,7 +99,7 @@ router.get('/manage', function(req, res)
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
@@ -116,15 +111,8 @@ router.get('/manage', function(req, res)
     });
 });
 
-router.get('/join', function(req, res)
+router.get('/join', checkStravaLogin, function(req, res)
 {
-    if (!req.session.isLoggedIn)
-    {
-        res.render('nav_to', {navLocation: "/"});
-        return;
-    }
-
-
     var userId = req.session.athlete.id;
     if(userId === undefined)
     {
@@ -135,7 +123,7 @@ router.get('/join', function(req, res)
     {
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 
@@ -143,7 +131,7 @@ router.get('/join', function(req, res)
         {
             if (err)
             {
-                res.render('nav_to', {navLocation: "/"});
+                res.redirect("/");
                 return;
             }
 
@@ -164,7 +152,7 @@ router.get('/join', function(req, res)
             {
                 if (err)
                 {
-                    res.render('nav_to', {navLocation: "/"});
+                    res.redirect("/");
                     return;
                 }
 
@@ -227,7 +215,7 @@ router.get('/details/:id', function(req, res) {
 
         if (err)
         {
-            res.render('nav_to', {navLocation: "/"});
+            res.redirect("/");
             return;
         }
 

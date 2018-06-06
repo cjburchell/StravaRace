@@ -4,8 +4,13 @@ node {
         checkout scm
     }
 
-    def app
     stage('Build image') {
-         app = docker.build("cjburchell/ridemanagerweb")
+         docker.build("cjburchell/ridemanagerweb")
+    }
+
+    stage ('Docker push') {
+          docker.withRegistry('https://390282485276.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:redpoint-ecr-credentials') {
+            docker.image('cjburchell/ridemanagerweb').push('latest')
+          }
     }
 }

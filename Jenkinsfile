@@ -6,6 +6,6 @@ node {
 
     def app
     stage('Build image') {
-         app = docker.build("cjburchell/stravarace")
+         app = docker.build("cjburchell/ridemanagerweb")
     }
 }

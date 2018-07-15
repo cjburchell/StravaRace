@@ -52,27 +52,27 @@ function processLog(text, level) {
 
 class Log
 {
-    static warn(text){
+    warn(text){
         processLog(text, WARNING);
     }
 
-    static error(text){
+    error(text){
         processLog(text, ERROR);
     }
 
-    static debug(text){
+    debug(text){
         processLog(text, DEBUG);
     }
 
-    static print(text){
+    print(text){
         processLog(text, INFO);
     }
 
-    static fatal(text){
+    fatal(text){
         processLog(text, FATAL);
         process.exit(1);
     }
 }
 
 
-module.export = new Log();
+module.exports = new Log();

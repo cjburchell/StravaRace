@@ -1,21 +1,23 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var bodyParser = require('body-parser');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const bodyParser = require('body-parser');
 
-var routes = require('./routes/indexRoute');
-var activity = require('./routes/activityRoute');
-var strava = require('./routes/stravaRoute');
-var user = require('./routes/userRoute');
-var data = require('./routes/dataRoute');
-var update = require('./routes/updateRoute');
+const routes = require('./routes/indexRoute');
+const activity = require('./routes/activityRoute');
+const strava = require('./routes/stravaRoute');
+const user = require('./routes/userRoute');
+const data = require('./routes/dataRoute');
+const update = require('./routes/updateRoute');
 
-var results = require('./results');
+const results = require('./results');
 
-var app = express();
+const log = require('./log/log');
+
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -88,7 +90,7 @@ if(process.env.POLL_INTERVAL !== "0")
 {
     setInterval(function ()
     {
-        console.log("THREAD: Update all activities");
+        log.print("THREAD: Update all activities");
         results.updateAllActivities(process.env.STRAVA_ACCESS_TOKEN);
     }, process.env.POLL_INTERVAL);
 }

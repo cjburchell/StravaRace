@@ -33,6 +33,8 @@ const fbUserView = "_design/user/_view/by_fb_id";
 
 const userByNameView = "_design/user/_view/by_name";
 
+const log = require('../log/log');
+
 
 function connect()
 {
@@ -54,7 +56,7 @@ function connect()
 class Database
 {
     getDocument(id, done) {
-        console.log("DB: getDocument " + id);
+        log.print("DB: getDocument " + id);
         var couch = connect();
         couch.get(StravaDatabaseName, id).then( function(data) {
             try
@@ -63,26 +65,26 @@ class Database
             }
             catch (error)
             {
-                console.log("ERROR: " + error);
-                console.log(error.stack);
+                log.error(error.toString());
+                log.error(error.stack);
             }
         }, function (err) {
             try
             {
-                console.log("ERROR: getDocument " + err);
+                log.error(" getDocument " + err);
                 done(err);
             }
             catch (error)
             {
-                console.log("ERROR: " + error);
-                console.log(error.stack);
+                log.error(error.toString());
+                log.error(error.stack);
             }
         });
     };
 
     getView(key, view, done, descending, limit, reduce = false)
     {
-        console.log("DB: getView"+ " key:" +  key + " view: " + view);
+        log.print("DB: getView"+ " key:" +  key + " view: " + view);
         var couch = connect();
 
         var include_docs = !reduce;
@@ -118,11 +120,11 @@ class Database
             }
             catch (error)
             {
-                console.log("ERROR: " + error);
-                console.log(error.stack);
+                log.error(error.toString());
+                log.error(error.stack);
             }
         }, function (err) {
-            console.log("ERROR: " + err);
+            log.error(error.toString());
             done(err);
         });
     };
@@ -233,7 +235,7 @@ class Database
 
     updateDocument(document, done)
     {
-        console.log("DB: updateDocument"+ " Id:" +  document._id + " Type:" +  document.type);
+        log.print("DB: updateDocument"+ " Id:" +  document._id + " Type:" +  document.type);
         var couch = connect();
         if(document._id === undefined || document._id === '')
         {
@@ -250,30 +252,30 @@ class Database
                             }
                             catch (error)
                             {
-                                console.log("ERROR: " + error);
-                                console.log(error.stack);
+                                log.error(error.toString());
+                                log.error(error.stack);
                             }
                         }, function (err)
                         {
                             try
                             {
-                                console.log("ERROR: " + err);
+                                log.error(error.toString());
                                 // either request error occured
                                 // ...or err.code=EDOCCONFLICT if document with the same id already exists
                                 done(false);
                             }
                             catch (error)
                             {
-                                console.log("ERROR: " + error);
-                                console.log(error.stack);
+                                log.error(error.toString());
+                                log.error(error.stack);
                                 done(error);
                             }
                         });
                     }
                     catch (error)
                     {
-                        console.log("ERROR: " + error);
-                        console.log(error.stack);
+                        log.error(error.toString());
+                        log.error(error.stack);
                     }
                 });
         }
@@ -287,22 +289,22 @@ class Database
                 }
                 catch (error)
                 {
-                        console.log("ERROR: " + error);
-                    console.log(error.stack);
+                        log.error(error.toString());
+                    log.error(error.stack);
                 }
         }, function (err)
             {
                 try
                 {
-                    console.log("ERROR: " + err);
+                    log.error(error.toString());
                     // either request error occured
                     // ...or err.code=EDOCCONFLICT if document with the same id already exists
                     done(false);
                 }
                 catch (error)
                 {
-                    console.log("ERROR: " + error);
-                    console.log(error.stack);
+                    log.error(error.toString());
+                    log.error(error.stack);
                 }
             });
         }
@@ -310,7 +312,7 @@ class Database
 
     deleteDocument(id, rev, done)
     {
-        console.log("DB: deleteDocument"+ " Id:" +  id + " rev:" +  rev);
+        log.print("DB: deleteDocument"+ " Id:" +  id + " rev:" +  rev);
         var couch = connect();
             couch.del(StravaDatabaseName, id, rev).then(function()
             {
@@ -320,23 +322,23 @@ class Database
                 }
                 catch (error)
                 {
-                    console.log("ERROR: " + error);
-                    console.log(error.stack);
+                    log.error(error.toString());
+                    log.error(error.stack);
                     done(error);
                 }
             }, function (err)
             {
                 try
                 {
-                    console.log("ERROR: " + err);
+                    log.error(error.toString());
                     // either request error occured
                     // ...or err.code=EDOCCONFLICT if document with the same id already exists
                     done(err);
                 }
                 catch (error)
                 {
-                    console.log("ERROR: " + error);
-                    console.log(error.stack);
+                    log.error(error.toString());
+                    log.error(error.stack);
                     done(error);
                 }
             });

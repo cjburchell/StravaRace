@@ -6,6 +6,7 @@ const strava = require('strava-v3');
 const activity_utils = require('./public/javascripts/activity');
 const result_utils = require('./public/javascripts/result');
 const array_utils = require('./public/javascripts/array_utils');
+const log = require('./log/log');
 
 function UpdateParticipant(participant, activity, accessToken, done)
 {
@@ -136,7 +137,7 @@ function UpdateParticipant(participant, activity, accessToken, done)
     }, err => {
         if (err)
         {
-            console.log("ERROR: " + err);
+            log.error(err.toString());
             done(err);
             return;
         }
@@ -296,7 +297,7 @@ class Results
             {
                 if (err)
                 {
-                    console.log("ERROR: Unable to Get Activity Participants, Activity: %s", activity._id);
+                    log.error("Unable to Get Activity Participants, Activity: %s", activity._id);
                     callback(err);
                     return;
                 }
@@ -376,7 +377,7 @@ class Results
             {
                 if (err)
                 {
-                    console.log("ERROR: Unable to Upcoming Activities");
+                    log.error("Unable to Upcoming Activities");
                     callback(err);
                     return;
                 }
@@ -393,7 +394,7 @@ class Results
                 {
                     if (err)
                     {
-                        console.log("ERROR: Unable to In Progress Activities");
+                        log.error("Unable to In Progress Activities");
                         callback(err);
                         return;
                     }
@@ -407,7 +408,7 @@ class Results
         ], err=>{
             if(err)
             {
-                console.log("ERROR: Unable to Update Activities");
+                log.error("Unable to Update Activities");
             }
         });
     };

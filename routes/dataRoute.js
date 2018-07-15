@@ -1,13 +1,14 @@
 /**
  * Created by Christiaan on 2016-08-09.
  */
-var express = require('express');
-var strava = require('strava-v3');
-var database = require('../database/database');
-var polyline = require('polyline');
-var Comment = require('../documents/comment');
-var async = require('async');
-var router = express.Router();
+const express = require('express');
+const strava = require('strava-v3');
+const database = require('../database/database');
+const polyline = require('polyline');
+const Comment = require('../documents/comment');
+const async = require('async');
+const router = express.Router();
+const log = require('../log/log');
 
 router.put('/participant', function (req, res)
 {
@@ -130,7 +131,7 @@ router.delete('/participant/:id', function(req, res)
 
 function UpdateFriends(athleteId, editActivity, done)
 {
-    console.log("STRAVA: List friends id: " + athleteId);
+    log.print("STRAVA: List friends id: " + athleteId);
     strava.athletes.listFriends({id: athleteId}, (err, payload) =>
     {
         try
@@ -147,8 +148,8 @@ function UpdateFriends(athleteId, editActivity, done)
         }
         catch (error)
         {
-            console.log("ERROR: " + error);
-            console.log(error.stack);
+            log.error(error.toString());
+            log.error(error.stack);
             done(error);
         }
     });
@@ -252,8 +253,8 @@ function UpdateActivity(editActivity, done)
             }
             catch (error)
             {
-                console.log("ERROR: " + error);
-                console.log(error.stack);
+                log.error(error.toString());
+                log.error(error.stack);
                 callback(error);
             }
         });
@@ -291,8 +292,8 @@ function UpdateActivity(editActivity, done)
                     }
                     catch (error)
                     {
-                        console.log("ERROR: " + error);
-                        console.log(error.stack);
+                        log.error(error.toString());
+                        log.error(error.stack);
                         callback(error);
                     }
                 });

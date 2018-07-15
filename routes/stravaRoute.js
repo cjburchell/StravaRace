@@ -1,9 +1,10 @@
 /**
  * Created by Christiaan on 2016-08-09.
  */
-var express = require('express');
-var strava = require('strava-v3');
-var router = express.Router();
+const express = require('express');
+const strava = require('strava-v3');
+const router = express.Router();
+const log = require('../log/log');
 
 function authenticationMiddleware() {
     return  (req, res, next) =>{
@@ -20,7 +21,7 @@ function authenticationMiddleware() {
 
 router.get('/starredsegments', authenticationMiddleware(), (req, res ) => {
 
-    console.log("STRAVA: List Starred Segments, page: " + req.params.id);
+    log.print("STRAVA: List Starred Segments, page: " + req.params.id);
     strava.segments.listStarred({
         access_token: req.session.accessToken,
         per_page: req.query.per_page,
@@ -39,14 +40,14 @@ router.get('/starredsegments', authenticationMiddleware(), (req, res ) => {
         }
         catch (error)
         {
-            console.log("ERROR: " + error);
-            console.log(error.stack);
+            log.error(error.toString());
+            log.error(error.stack);
         }
     })
 });
 
 router.get('/segmentmap/:id',  authenticationMiddleware(), (req, res ) => {
-    console.log("STRAVA: Get segment map, segmentId: " + req.params.id);
+    log.print("STRAVA: Get segment map, segmentId: " + req.params.id);
     strava.segments.get({access_token: req.session.accessToken, id: req.params.id}, function (err, payload)
     {
         try
@@ -66,14 +67,14 @@ router.get('/segmentmap/:id',  authenticationMiddleware(), (req, res ) => {
         }
         catch (error)
         {
-            console.log("ERROR: " + error);
-            console.log(error.stack);
+            log.error(error.toString());
+            log.error(error.stack);
         }
     })
 });
 
 router.get('/routes/', authenticationMiddleware(), (req, res ) => {
-    console.log("STRAVA: Get Routes");
+    log.print("STRAVA: Get Routes");
     strava.athlete.listRoutes({access_token: req.session.accessToken, id: req.session.athlete.id}, function (err, payload)
     {
         try
@@ -88,14 +89,14 @@ router.get('/routes/', authenticationMiddleware(), (req, res ) => {
         }
         catch (error)
         {
-            console.log("ERROR: " + error);
-            console.log(error.stack);
+            log.error(error.toString());
+            log.error(error.stack);
         }
     })
 });
 
 router.get('/route/:id', authenticationMiddleware(), (req, res ) => {
-    console.log("STRAVA: Get route, RouteId: " + req.params.id);
+    log.print("STRAVA: Get route, RouteId: " + req.params.id);
     strava.routes.get({access_token: req.session.accessToken, id: req.params.id}, function (err, payload)
     {
         try
@@ -110,14 +111,14 @@ router.get('/route/:id', authenticationMiddleware(), (req, res ) => {
         }
         catch (error)
         {
-            console.log("ERROR: " + error);
-            console.log(error.stack);
+            log.error(error.toString());
+            log.error(error.stack);
         }
     })
 });
 
 router.get('/friends/:id', authenticationMiddleware(), (req, res ) => {
-    console.log("STRAVA: List of friends, page: " + req.params.id);
+    log.print("STRAVA: List of friends, page: " + req.params.id);
     strava.athlete.listFriends({
         access_token: req.session.accessToken,
         page: req.params.id,
@@ -150,8 +151,8 @@ router.get('/friends/:id', authenticationMiddleware(), (req, res ) => {
         }
         catch (error)
         {
-            console.log("ERROR: " + error);
-            console.log(error.stack);
+            log.error(error.toString());
+            log.error(error.stack);
         }
     })
 });

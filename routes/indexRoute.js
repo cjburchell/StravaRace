@@ -1,12 +1,13 @@
-var express = require('express');
-var strava = require('strava-v3');
-var async = require('async');
-var database = require('../database/database');
-var User = require('../documents/user');
-var PageData = require('../routes/data/pagedata');
-var activity_utils = require('../public/javascripts/activity');
-var FB = require('fb');
-var router = express.Router();
+const express = require('express');
+const strava = require('strava-v3');
+const async = require('async');
+const database = require('../database/database');
+const User = require('../documents/user');
+const PageData = require('../routes/data/pagedata');
+const activity_utils = require('../public/javascripts/activity');
+const FB = require('fb');
+const router = express.Router();
+const log = require('../log/log');
 
 function renderPage(session, res) {
 
@@ -288,14 +289,14 @@ router.get('/login', function (req, res) {
         return;
     }
 
-    console.log("STRAVA: Get Token");
+    log.print("STRAVA: Get Token");
     strava.oauth.getToken(req.query.code, function (err, payload)
     {
         try
         {
             if (err)
             {
-                console.log("ERROR: " + err);
+                log.error(error.toString());
                 res.redirect("/");
                 return;
             }
@@ -376,8 +377,8 @@ router.get('/login', function (req, res) {
         }
         catch (error)
         {
-            console.log("ERROR: " + error);
-            console.log(error.stack);
+            log.error(error.toString());
+            log.error(error.stack);
         }
     });
 });

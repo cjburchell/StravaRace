@@ -46,7 +46,7 @@ function processLog(text, level) {
 
     connection.publish(
         "logs",
-        JSON.stringify(message)
+        new Buffer(JSON.stringify(message))
     );
 }
 

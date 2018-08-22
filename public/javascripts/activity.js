@@ -16,7 +16,7 @@
         this.totalDistance = 0;
         this.duration = 0;
         this.timeLeft = 0;
-        this.privaicy = "friends";
+        this.privaicy = "public";
         this.categories = [];
         this.stages = [];
         this.state = "upcoming";

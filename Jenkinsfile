@@ -15,7 +15,7 @@ node {
     }
 
     stage('Build processor image') {
-         docker.build("cjburchell/ridemanagerprocessor", "./processor")
+         docker.build("cjburchell/ridemanagerprocessor", "-f Dockerfile.processor")
     }
 
     stage ('Docker push processor') {

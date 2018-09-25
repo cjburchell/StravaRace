@@ -20,45 +20,36 @@ pipeline{
         stage('Build image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}").tag("${DOCKER_TAG}")
-                    docker.build("${DOCKER_IMAGE_PROCESSOR}", "-f Dockerfile.processor .").tag("${DOCKER_TAG}")
+                    if( env.BRANCH_NAME == "master")
+                    {
+                        docker.build("${DOCKER_IMAGE}").tag("latest")
+                        docker.build("${DOCKER_IMAGE_PROCESSOR}", "-f Dockerfile.processor .").tag("latest")
+                    } else {
+                        docker.build("${DOCKER_IMAGE}").tag("${DOCKER_TAG}")
+                        docker.build("${DOCKER_IMAGE_PROCESSOR}", "-f Dockerfile.processor .").tag("${DOCKER_TAG}")
+                    }
+
                 }
             }
-        }
-
-        stage('Build latest image'){
-                    when {branch 'master'}
-                    steps {
-                        script {
-                                docker.build("${DOCKER_IMAGE}").tag("latest")
-                                docker.build("${DOCKER_IMAGE_PROCESSOR}", "-f Dockerfile.processor .").tag("latest")
-                        }
-                    }
         }
 
         stage ('Push image') {
             steps {
                 script {
                     docker.withRegistry('https://390282485276.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:redpoint-ecr-credentials') {
-                                 docker.image("${DOCKER_IMAGE}").push("${DOCKER_TAG}")
-                                 docker.image("${DOCKER_IMAGE_PROCESSOR}").push("${DOCKER_TAG}")
+                                if( env.BRANCH_NAME == "master"){
+                                    docker.image("${DOCKER_IMAGE}").push("latest")
+                                    docker.image("${DOCKER_IMAGE_PROCESSOR}").push('latest')
+                                } else {
+                                    docker.image("${DOCKER_IMAGE}").push("${DOCKER_TAG}")
+                                     docker.image("${DOCKER_IMAGE_PROCESSOR}").push("${DOCKER_TAG}")
+                                }
+
+
                                }
                     }
                 }
         }
-
-        stage ('Push latest image') {
-        when {branch 'master'}
-                    steps {
-                        script {
-                            echo DOCKER_TAG
-                            docker.withRegistry('https://390282485276.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:redpoint-ecr-credentials') {
-                                         docker.image("${DOCKER_IMAGE}").push("latest")
-                                         docker.image("${DOCKER_IMAGE_PROCESSOR}").push('latest')
-                                       }
-                            }
-                        }
-                }
     }
 
     post {

@@ -84,7 +84,7 @@ class Database
 
     getView(key, view, done, descending, limit, reduce = false)
     {
-        log.print("DB: getView"+ " key:" +  key + " view: " + view);
+        log.debug("DB: getView"+ " key:" +  key + " view: " + view);
         var couch = connect();
 
         var include_docs = !reduce;

@@ -56,7 +56,7 @@ function connect()
 class Database
 {
     getDocument(id, done) {
-        log.print("DB: getDocument " + id);
+        log.debug("DB: getDocument " + id);
         var couch = connect();
         couch.get(StravaDatabaseName, id).then( function(data) {
             try
@@ -71,7 +71,7 @@ class Database
         }, function (err) {
             try
             {
-                log.error(" getDocument " + err);
+                log.error(`DB: getDocument Id:${id},  Error:${err}`);
                 done(err);
             }
             catch (error)
@@ -235,7 +235,7 @@ class Database
 
     updateDocument(document, done)
     {
-        log.print("DB: updateDocument"+ " Id:" +  document._id + " Type:" +  document.type);
+        log.debug("DB: updateDocument"+ " Id:" +  document._id + " Type:" +  document.type);
         var couch = connect();
         if(document._id === undefined || document._id === '')
         {
@@ -312,7 +312,7 @@ class Database
 
     deleteDocument(id, rev, done)
     {
-        log.print("DB: deleteDocument"+ " Id:" +  id + " rev:" +  rev);
+        log.debug("DB: deleteDocument"+ " Id:" +  id + " rev:" +  rev);
         var couch = connect();
             couch.del(StravaDatabaseName, id, rev).then(function()
             {

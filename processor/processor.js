@@ -8,7 +8,7 @@ const cron = require('cron');
 
 // every 5 min check the results
 const cronJob = cron.job(process.env.POLL_INTERVAL, function(){
-    log.print("Process: Update all activities");
+    log.debug("Process: Update all activities");
     results.updateAllActivities(process.env.STRAVA_ACCESS_TOKEN);
 });
 cronJob.start();

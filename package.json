@@ -28,7 +28,7 @@
     "jquery": "^3.4.0",
     "mapbox": "^1.0.0-beta6",
     "moment": "^2.22.2",
-    "morgan": "~1.7.0",
+    "morgan": "~1.9.1",
     "nats": "^1.0.0",
     "node-couchdb": "^1.1.0",
     "polyline": "^0.2.0",

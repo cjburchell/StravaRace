@@ -25,7 +25,7 @@
     "express": "~4.13.4",
     "express-session": "^1.15.1",
     "fb": "^1.1.1",
-    "jquery": "^3.4.0",
+    "jquery": "^3.5.0",
     "mapbox": "^1.0.0-beta6",
     "moment": "^2.22.2",
     "morgan": "~1.9.1",

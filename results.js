@@ -181,7 +181,7 @@ function UpdateStandings(participants, activity)
     {
         sexList.forEach(function (sex)
         {
-            var stageParticipants = participants.filter(item => item.categoryId === category.id && item.sex == sex);
+            var stageParticipants = participants.filter(item => item.categoryId === category.id && item.sex === sex);
 
             var rank = 0;
             var topParticipant = null;
@@ -207,7 +207,7 @@ function UpdateStandings(participants, activity)
             });
 
             rank=undefined;
-            stageParticipants.filter(item => item.time == undefined).forEach(participant =>
+            stageParticipants.filter(item => item.time === undefined).forEach(participant =>
             {
                 if(participant.rank !== rank)
                 {
@@ -229,7 +229,11 @@ function UpdateStandings(participants, activity)
             activity.stages.forEach(stage =>{
 
                 var stageRank = 0;
-                stageParticipants.map(item => [item.results.find(result => result.segmentId == stage.segmentId), item]).filter(item => item[0].time !== undefined).sort((a, b) => a[0].time - b[0].time).forEach(result =>
+                stageParticipants
+                    .map(item => [item.results.find(result => result.segmentId === stage.segmentId), item])
+                    .filter(item => item[0].time !== undefined)
+                    .sort((a, b) => a[0].time - b[0].time)
+                    .forEach(result =>
                 {
                     stageRank++;
                     if(result[0].rank === undefined || result[0].rank !== stageRank)
@@ -240,7 +244,7 @@ function UpdateStandings(participants, activity)
                 });
 
                 stageRank=undefined;
-                stageParticipants.map(item => [item.results.find(result => result.segmentId == stage.segmentId), item]).filter(item => item[0].time == undefined).forEach(result =>
+                stageParticipants.map(item => [item.results.find(result => result.segmentId === stage.segmentId), item]).filter(item => item[0].time === undefined).forEach(result =>
                 {
                     if(result[0].rank !== rank)
                     {

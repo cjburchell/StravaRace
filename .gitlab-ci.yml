@@ -1,0 +1,53 @@
+variables:
+  VERSION: 1.0.0
+  IMAGE_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
+
+stages:
+  - style
+  - build
+  - test
+
+docker-lint:
+  stage: style
+  image: hadolint/hadolint:latest-debian
+  script:
+    - hadolint Dockerfile | tee -a  ms1_docker_lint.txt
+  artifacts:
+    paths:
+      - ms1_docker_lint.txt
+    expire_in: 1 week
+
+docker-build-master:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+    - docker push $CI_REGISTRY_IMAGE
+    - docker tag $CI_REGISTRY_IMAGE $CI_REGISTRY_IMAGE:$VERSION
+    - docker push $CI_REGISTRY_IMAGE:$VERSION
+    - docker tag $CI_REGISTRY_IMAGE $IMAGE_TAG
+    - docker push $IMAGE_TAG
+  only:
+    - master
+
+docker-build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --pull -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  except:
+    - master
+
+include:
+  - template: Container-Scanning.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
+  - template: Dependency-Scanning.gitlab-ci.yml
